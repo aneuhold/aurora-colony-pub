@@ -19,6 +19,10 @@ The main website for the Aurora Colony Pub.
   - Worker-side rate-limiting
   - Basic format validation
 
+### Assets
+
+- If size becomes an issue, then it can be investigated. But for now, it seems committing right to the repo is fine.
+
 ### Deployment
 
 - Uses GitHub Actions for most of the build process to keep things centralized
