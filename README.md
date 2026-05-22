@@ -7,8 +7,9 @@ The main website for the Aurora Colony Pub.
 - Focus is on incredibly performant frontend with outstanding SEO. So we use [Astro](https://astro.build/).
 - Islands will use Svelte for the clean reactivity and compile-based output step. No shadow-DOM.
 - For content that is dynamic, we use a backend of serverless functions. CloudFlare workers seems to be the plan. [Link to docs on the free-tier limits](https://developers.cloudflare.com/workers/platform/limits/). See [the details on the workers here](docs/worker-details.md).
-- For persitent storage, CloudFlare KV is going to be used to keep things simple, and in-house. This could have been a different NoSQL DB provider though. [Link to the docs for the free-tier limits](https://developers.cloudflare.com/kv/platform/limits/).
+- For persistent storage, CloudFlare KV is going to be used to keep things simple, and in-house. This could have been a different NoSQL DB provider though. [Link to the docs for the free-tier limits](https://developers.cloudflare.com/kv/platform/limits/).
 - Transactional Email Service will be [Resend](https://resend.com/), so a lot of the hoops for email not being blocked by spam blockers can be jumped through more easily.
+- For the CMS, [Sveltia](https://sveltiacms.app/en/) is going to be tried first, but that isn't set in stone.
 
 ### Security
 
