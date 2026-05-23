@@ -1,6 +1,7 @@
 # Aurora Colony Pub Website
 
 [![Live Site](https://img.shields.io/badge/Live%20Site-aurora--colony--pub-blue?style=for-the-badge&logo=cloudflare&logoColor=white)](https://aurora-colony-pub-frontend.pages.dev/)
+[![Admin](https://img.shields.io/badge/Admin-Sveltia%20CMS-purple?style=for-the-badge)](https://aurora-colony-pub-frontend.pages.dev/admin)
 
 The main website for the Aurora Colony Pub.
 
