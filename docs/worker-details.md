@@ -112,3 +112,4 @@ sequenceDiagram
 - Only runs during login, so it sits well inside free-tier limits.
 - After login the browser talks straight to the GitHub API with the token — the Worker is not in the read/write path for CMS content.
 - The GitHub OAuth App's client secret lives only in the Worker's environment, never in the static site bundle.
+- [Link to the Aurora Colony Pub CMS OAuth App settings in GitHub](https://github.com/settings/applications/3619717).

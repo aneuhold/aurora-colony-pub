@@ -1,5 +1,7 @@
 # Aurora Colony Pub Website
 
+[![Live Site](https://img.shields.io/badge/Live%20Site-aurora--colony--pub-blue?style=for-the-badge&logo=cloudflare&logoColor=white)](https://aurora-colony-pub-frontend.pages.dev/)
+
 The main website for the Aurora Colony Pub.
 
 ## Deployments
@@ -20,7 +22,7 @@ The main website for the Aurora Colony Pub.
 - For content that is dynamic, we use a backend of serverless functions. CloudFlare workers seems to be the plan. [Link to docs on the free-tier limits](https://developers.cloudflare.com/workers/platform/limits/). See [the details on the workers here](docs/worker-details.md).
 - For persistent storage, CloudFlare KV is going to be used to keep things simple, and in-house. This could have been a different NoSQL DB provider though. [Link to the docs for the free-tier limits](https://developers.cloudflare.com/kv/platform/limits/).
 - Transactional Email Service will be [Resend](https://resend.com/), so a lot of the hoops for email not being blocked by spam blockers can be jumped through more easily.
-- For the CMS, [Sveltia](https://sveltiacms.app/en/) is going to be tried first, but that isn't set in stone.
+- For the CMS, [Sveltia](https://sveltiacms.app/en/) seemed to be the best choice because we don't need a full editable UI, and just need targeted fields to be edited + images uploaded / removed. [Link to the Aurora Colony Pub CMS OAuth App settings in GitHub](https://github.com/settings/applications/3619717).
 
 ### Security
 
@@ -35,6 +37,7 @@ The main website for the Aurora Colony Pub.
 ### Assets
 
 - If size becomes an issue, then it can be investigated. But for now, it seems committing right to the repo is fine.
+- Assets are stored in `site/src/assets` so that Astro can optimize them at build time.
 
 ### Deployment
 
@@ -45,3 +48,11 @@ The main website for the Aurora Colony Pub.
 
 1. Install everything with `pnpm i`
 1. Checkout the [root package.json](package.json) for the commands.
+
+### Sveltia CMS Development
+
+1. Run `pnpm dev` like normal
+2. Navigate to http://localhost:4321/admin and select local mode. It will ask you to choose the repository, so choose the `aurora-colony-pub` folder, not the site folder.
+3. Make updates to see them make changes locally to the code. It works best with text updates. But you can add images. Just need to stop then start the dev server for that to work right because Astro needs to optimize them.
+
+When changing the content model itself — adding, updating, renaming, moving, or removing a collection or its fields — use the [`cms-content`](.claude/skills/cms-content/SKILL.md) skill (`/cms-content <what to change>` in Claude Code). It walks through the paired Sveltia + Astro edits so neither side falls out of sync.

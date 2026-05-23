@@ -1,0 +1,22 @@
+---
+// Standalone admin shell. Imports @sveltia/cms so Astro bundles it through
+// Vite — no third-party CDN dependency. We call `init()` explicitly because
+// Sveltia's auto-init only fires for inline scripts or a script src ending
+// in `/sveltia-cms.js`, neither of which matches Astro's hashed module bundle.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Aurora Colony Pub CMS</title>
+  </head>
+  <body>
+    <script>
+      import { init } from '@sveltia/cms';
+      init();
+    </script>
+  </body>
+</html>

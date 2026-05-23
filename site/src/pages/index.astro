@@ -1,7 +1,15 @@
 ---
+import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components-astro/Hero.astro';
-import HelloIsland from '../components-svelte/HelloIsland.svelte';
+import About from '$components-astro/About.astro';
+import Gallery from '$components-astro/Gallery';
+import Hero from '$components-astro/Hero.astro';
+import HelloIsland from '$components-svelte/HelloIsland.svelte';
+
+const hero = await getEntry('hero', 'hero');
+if (!hero) {
+  throw new Error('Missing hero content entry');
+}
 ---
 
 <BaseLayout
@@ -9,7 +17,9 @@ import HelloIsland from '../components-svelte/HelloIsland.svelte';
   description="The Aurora Colony Pub website is on its way."
 >
   <main>
-    <Hero title="Aurora Colony Pub" tagline="Coming soon." />
+    <Hero title={hero.data.title} tagline={hero.data.tagline} />
     <HelloIsland client:load />
+    <About />
+    <Gallery />
   </main>
 </BaseLayout>
