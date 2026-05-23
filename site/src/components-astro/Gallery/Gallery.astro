@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import galleryService from './Gallery.service';
+
+const entries = galleryService.sortEntries(await getCollection('gallery'));
+---
+
+{
+  entries.length > 0 && (
+    <section class="gallery">
+      <ul>
+        {entries.map((entry) => (
+          <li>
+            <figure>
+              <Image
+                src={entry.data.photo}
+                alt={entry.data.alt}
+                widths={[320, 640, 960, 1280]}
+                sizes="(min-width: 768px) 33vw, 100vw"
+                loading="lazy"
+              />
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .gallery {
+    padding: 2rem 1.5rem;
+  }
+  .gallery ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .gallery figure {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  .gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

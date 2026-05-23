@@ -1,22 +1,6 @@
 import * as Sentry from '@sentry/cloudflare';
-
-interface Env {
-  GITHUB_CLIENT_ID: string;
-  GITHUB_CLIENT_SECRET: string;
-  RATE_LIMITER: RateLimit;
-  ALLOWED_GITHUB_USERS: string[];
-}
-
-/**
- * Returns true if the given GitHub username is permitted to complete the CMS auth flow.
- * Call this after the OAuth callback exchanges the code for a token and fetches the user.
- *
- * @param username GitHub login (e.g. `octocat`)
- * @param env Worker env containing the allowlist
- */
-export const isAllowedGitHubUser = (username: string, env: Env): boolean => {
-  return env.ALLOWED_GITHUB_USERS.includes(username);
-};
+import type { Env } from './Env';
+import authService from './services/AuthService';
 
 export default Sentry.withSentry(
   (_: Env) => ({
@@ -33,10 +17,7 @@ export default Sentry.withSentry(
       if (!success) {
         return new Response('Too Many Requests', { status: 429 });
       }
-      // TODO: once the sveltia-cms-auth OAuth flow is wired up, fetch the GitHub
-      // user from the access token and reject with 403 if
-      // `!isAllowedGitHubUser(login, env)`.
-      return new Response('OK', { status: 200 });
+      return authService.handleRequest(request, env);
     }
   } satisfies ExportedHandler<Env>
 );

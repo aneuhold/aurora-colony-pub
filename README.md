@@ -37,6 +37,7 @@ The main website for the Aurora Colony Pub.
 ### Assets
 
 - If size becomes an issue, then it can be investigated. But for now, it seems committing right to the repo is fine.
+- Assets are stored in `site/src/assets` so that Astro can optimize them at build time.
 
 ### Deployment
 
@@ -47,3 +48,11 @@ The main website for the Aurora Colony Pub.
 
 1. Install everything with `pnpm i`
 1. Checkout the [root package.json](package.json) for the commands.
+
+### Sveltia CMS Development
+
+1. Run `pnpm dev` like normal
+2. Navigate to http://localhost:4321/admin and select local mode. It will ask you to choose the repository, so choose the `aurora-colony-pub` folder, not the site folder.
+3. Make updates to see them make changes locally to the code. It works best with text updates. But you can add images. Just need to stop then start the dev server for that to work right because Astro needs to optimize them.
+
+When changing the content model itself — adding, updating, renaming, moving, or removing a collection or its fields — use the [`cms-content`](.claude/skills/cms-content/SKILL.md) skill (`/cms-content <what to change>` in Claude Code). It walks through the paired Sveltia + Astro edits so neither side falls out of sync.

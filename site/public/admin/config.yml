@@ -1,0 +1,86 @@
+backend:
+  name: github
+  repo: aneuhold/aurora-colony-pub
+  branch: main
+  base_url: https://aurora-cms-auth.agneuhold.workers.dev
+  auth_endpoint: auth
+
+# Per-collection media folders are used (see below), so these top-level
+# values exist only as a default and aren't relied on.
+media_folder: site/src/assets
+public_folder: /
+
+collections:
+  - name: site
+    label: Site
+    description: One-off pages and global text on the website.
+    files:
+      - name: hero
+        label: Homepage banner
+        file: site/src/content/hero.json
+        format: json
+        fields:
+          - {
+              name: title,
+              label: Title,
+              widget: string,
+              hint: "Shown as the big headline on the homepage."
+            }
+          - {
+              name: tagline,
+              label: Subtitle,
+              widget: string,
+              hint: "One short line shown under the title. Leave blank for none.",
+              required: false
+            }
+
+      - name: about
+        label: About section
+        file: site/src/content/about.md
+        format: frontmatter
+        media_folder: ../assets/about
+        public_folder: ../assets/about
+        fields:
+          - {
+              name: heading,
+              label: Heading,
+              widget: string,
+              hint: "Section heading shown above the About text on the homepage."
+            }
+          - {
+              name: body,
+              label: Text,
+              widget: markdown,
+              hint: "Free-form text — supports bold, links, headings, and inline images."
+            }
+
+  - name: gallery
+    label: Gallery photos
+    description: Photos shown in the gallery on the homepage. Lower display order shows first.
+    folder: site/src/content/gallery
+    create: true
+    delete: true
+    slug: "{{fields.alt | slugify}}-{{year}}{{month}}{{day}}"
+    format: json
+    media_folder: ../../assets/gallery
+    public_folder: ../../assets/gallery
+    fields:
+      - {
+          name: photo,
+          label: Photo,
+          widget: image,
+          hint: "Upload a JPG or PNG. It will be optimized automatically."
+        }
+      - {
+          name: alt,
+          label: Description,
+          widget: string,
+          hint: "Short description of the photo, used by screen readers and search engines."
+        }
+      - {
+          name: order,
+          label: Display order,
+          widget: number,
+          default: 0,
+          hint: "Lower numbers show first. Leave at 0 if you don't care about order."
+        }
