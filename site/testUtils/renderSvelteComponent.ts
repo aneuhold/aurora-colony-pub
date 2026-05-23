@@ -18,8 +18,8 @@ import type { Component } from 'svelte';
  * though the runtime value is the real Svelte component. Centralising the
  * widening here keeps individual tests free of inline casts.
  *
- * Remove this helper (and inline `render()` again) once the upstream fix
- * lands: https://github.com/withastro/astro/pull/16496.
+ * Will be removed once https://github.com/withastro/astro/pull/16496
+ * lands and `.svelte` imports type-check as `Component` directly.
  *
  * @param component The `.svelte` default export to mount
  * @param options Props or mount options for the component
@@ -27,4 +27,7 @@ import type { Component } from 'svelte';
 export const renderSvelteComponent = <C extends Component>(
   component: unknown,
   options?: SvelteComponentOptions<C>
-): RenderResult<C> => testingLibraryRender(component as C, options);
+): RenderResult<C> => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  return testingLibraryRender(component as never, options);
+};
