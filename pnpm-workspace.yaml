@@ -7,6 +7,8 @@ packages:
 # 7 * 24 * 60 minutes = 10080.
 minimumReleaseAge: 10080
 
+ignoreWorkspaceRootCheck: true
+
 # Cloudflare ships workerd builds on the same cadence as the Workers
 # runtime (often multiple times per week). Wrangler pins it exactly,
 # so the 1-week hold above would constantly block install/upgrade and
@@ -15,3 +17,8 @@ minimumReleaseAgeExclude:
   - workerd
   - '@cloudflare/workerd-*'
   - '@cloudflare/workers-types'
+
+allowBuilds:
+  esbuild: false
+  sharp: false
+  workerd: true

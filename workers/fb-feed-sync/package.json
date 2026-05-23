@@ -1,0 +1,23 @@
+{
+  "name": "@aurora/worker-fb-feed-sync",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "start": "wrangler dev --test-scheduled",
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "typegen": "wrangler types",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@sentry/cloudflare": "^10.53.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.6",
+    "@cloudflare/workers-types": "^4.20260522.1",
+    "vitest": "^4.1.6",
+    "wrangler": "^4.92.0"
+  }
+}
