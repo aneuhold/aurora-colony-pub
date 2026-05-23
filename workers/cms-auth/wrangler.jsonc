@@ -7,7 +7,7 @@
   "observability": { "enabled": true },
   "upload_source_maps": true,
   // Secrets set via `wrangler secret put`:
-  //   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET
   "ratelimits": [
     {
       "name": "RATE_LIMITER",

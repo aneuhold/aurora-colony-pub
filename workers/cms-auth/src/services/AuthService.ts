@@ -48,12 +48,12 @@ class AuthService {
     const state = stateCookieService.generateState();
     const setCookie = await stateCookieService.buildSetCookieHeader(
       state,
-      env.GITHUB_CLIENT_SECRET
+      env.GITHUB_CMS_CLIENT_SECRET
     );
     return new Response(null, {
       status: 302,
       headers: {
-        Location: gitHubOAuthService.buildAuthorizeUrl(env.GITHUB_CLIENT_ID, state),
+        Location: gitHubOAuthService.buildAuthorizeUrl(env.GITHUB_CMS_CLIENT_ID, state),
         'Set-Cookie': setCookie
       }
     });
@@ -77,7 +77,7 @@ class AuthService {
 
     const cookieState = await stateCookieService.readVerifiedState(
       request,
-      env.GITHUB_CLIENT_SECRET
+      env.GITHUB_CMS_CLIENT_SECRET
     );
     if (!cookieState || !stateCookieService.constantTimeEqual(cookieState, stateParam)) {
       return new Response('State mismatch', { status: 400 });
@@ -85,8 +85,8 @@ class AuthService {
 
     const token = await gitHubOAuthService.exchangeCodeForToken(
       code,
-      env.GITHUB_CLIENT_ID,
-      env.GITHUB_CLIENT_SECRET
+      env.GITHUB_CMS_CLIENT_ID,
+      env.GITHUB_CMS_CLIENT_SECRET
     );
     if (!token) {
       return new Response('Token exchange failed', { status: 502 });
