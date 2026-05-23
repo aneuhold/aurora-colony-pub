@@ -1,5 +1,5 @@
 import { cloudflareTest } from '@cloudflare/vitest-pool-workers';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [
@@ -8,6 +8,7 @@ export default defineConfig({
     })
   ],
   test: {
-    include: ['src/**/*.{test,spec}.ts', 'test/**/*.{test,spec}.ts']
+    include: ['src/**/*.{test,spec}.ts', 'test/**/*.{test,spec}.ts'],
+    exclude: [...configDefaults.exclude, '**/*.e2e.test.ts']
   }
 });
