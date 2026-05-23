@@ -1,3 +1,6 @@
+// The below nasty reference is required evidently. See the Astro docs here:
+// https://docs.astro.build/en/guides/testing/
+/// <reference types="vitest/config" />
 import { getViteConfig } from 'astro/config';
 
 export default getViteConfig({
