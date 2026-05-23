@@ -74,9 +74,29 @@ jobs:
             const previewUrl = process.env.PREVIEW_URL;
             const prodUrl = 'https://auroracolonypub.com';
 
-            const find = (url) =>
-              manifest.find((r) => r.url === url && r.isRepresentativeRun) ||
-              manifest.find((r) => r.url === url);
+            // Lighthouse normalizes URLs (adds trailing `/`) and follows redirects
+            // (e.g. apex → www), so manifest/links keys won't exactly equal the URL
+            // we passed in. Compare on host (sans `www.`) + pathname (sans trailing `/`).
+            const norm = (u) => {
+              try {
+                const x = new URL(u);
+                return x.host.replace(/^www\./, '') + x.pathname.replace(/\/+$/, '');
+              } catch {
+                return u;
+              }
+            };
+            const find = (url) => {
+              const target = norm(url);
+              return (
+                manifest.find((r) => norm(r.url) === target && r.isRepresentativeRun) ||
+                manifest.find((r) => norm(r.url) === target)
+              );
+            };
+            const linkFor = (url) => {
+              const target = norm(url);
+              const entry = Object.entries(links).find(([k]) => norm(k) === target);
+              return entry?.[1];
+            };
             const pr = find(previewUrl);
             const prod = find(prodUrl);
 
@@ -104,7 +124,7 @@ jobs:
             |----------|----|------|---|
             ${rows.join('\n')}
 
-            📊 [PR report](${links[previewUrl] || 'N/A'}) · [prod report](${links[prodUrl] || 'N/A'})`;
+            📊 [PR report](${linkFor(previewUrl) || 'N/A'}) · [prod report](${linkFor(prodUrl) || 'N/A'})`;
 
             // Sticky-comment behavior via REST: find prior comment by header marker.
             const { data: comments } = await github.rest.issues.listComments({
