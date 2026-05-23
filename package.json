@@ -12,7 +12,7 @@
     "lint": "eslint --cache",
     "check": "pnpm -r --parallel check",
     "test": "pnpm -r --parallel test",
-    "deploy:workers": "pnpm -r --parallel --filter \"./workers/*\" deploy",
+    "deploy:workers": "pnpm -r --parallel --filter \"./workers/*\" run deploy",
     "upgrade:deps": "pnpm up -r --latest"
   },
   "devDependencies": {
