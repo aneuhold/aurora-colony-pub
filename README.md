@@ -22,7 +22,7 @@ The main website for the Aurora Colony Pub.
 - For content that is dynamic, we use a backend of serverless functions. CloudFlare workers seems to be the plan. [Link to docs on the free-tier limits](https://developers.cloudflare.com/workers/platform/limits/). See [the details on the workers here](docs/worker-details.md).
 - For persistent storage, CloudFlare KV is going to be used to keep things simple, and in-house. This could have been a different NoSQL DB provider though. [Link to the docs for the free-tier limits](https://developers.cloudflare.com/kv/platform/limits/).
 - Transactional Email Service will be [Resend](https://resend.com/), so a lot of the hoops for email not being blocked by spam blockers can be jumped through more easily.
-- For the CMS, [Sveltia](https://sveltiacms.app/en/) is going to be tried first, but that isn't set in stone.
+- For the CMS, [Sveltia](https://sveltiacms.app/en/) seemed to be the best choice because we don't need a full editable UI, and just need targeted fields to be edited + images uploaded / removed. [Link to the Aurora Colony Pub CMS OAuth App settings in GitHub](https://github.com/settings/applications/3619717).
 
 ### Security
 
