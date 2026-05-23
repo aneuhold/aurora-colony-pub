@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aurora-contact",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  // Secrets set via `wrangler secret put`:
+  //   TURNSTILE_SECRET, RESEND_API_KEY
+  "vars": {},
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      // This is unique per cloudflare account, so this has to remain the same number from here on out.
+      "namespace_id": "1003",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+name: 'Pull Request: Site'
+
+# Root files (lockfile, base tsconfig, this workflow, etc.) can affect the
+# site build, so they're listed alongside `site/**` to force a rebuild when
+# they change.
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'site/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - '.github/workflows/pull-request-site.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: 'Build, deploy preview, and Lighthouse'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build site
+        run: pnpm build:site
+
+      - name: Deploy to Cloudflare Pages (preview)
+        id: pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site/dist --project-name=aurora-colony-pub-frontend --branch=${{ github.head_ref }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ steps.pages.outputs.deployment-url }}
+            https://auroracolonypub.com
+          runs: 3
+          temporaryPublicStorage: true
+
+      - name: Post sticky Lighthouse comment
+        if: always()
+        uses: actions/github-script@v9
+        env:
+          MANIFEST: ${{ steps.lighthouse.outputs.manifest }}
+          LINKS: ${{ steps.lighthouse.outputs.links }}
+          PREVIEW_URL: ${{ steps.pages.outputs.deployment-url }}
+        with:
+          script: |
+            const manifest = JSON.parse(process.env.MANIFEST || '[]');
+            const links = JSON.parse(process.env.LINKS || '{}');
+            const previewUrl = process.env.PREVIEW_URL;
+            const prodUrl = 'https://auroracolonypub.com';
+
+            // Lighthouse normalizes URLs (adds trailing `/`) and follows redirects
+            // (e.g. apex → www), so manifest/links keys won't exactly equal the URL
+            // we passed in. Compare on host (sans `www.`) + pathname (sans trailing `/`).
+            const norm = (u) => {
+              try {
+                const x = new URL(u);
+                return x.host.replace(/^www\./, '') + x.pathname.replace(/\/+$/, '');
+              } catch {
+                return u;
+              }
+            };
+            const find = (url) => {
+              const target = norm(url);
+              return (
+                manifest.find((r) => norm(r.url) === target && r.isRepresentativeRun) ||
+                manifest.find((r) => norm(r.url) === target)
+              );
+            };
+            const linkFor = (url) => {
+              const target = norm(url);
+              const entry = Object.entries(links).find(([k]) => norm(k) === target);
+              return entry?.[1];
+            };
+            const pr = find(previewUrl);
+            const prod = find(prodUrl);
+
+            const fmt = (n) => Math.round((n ?? 0) * 100);
+            const delta = (a, b) => {
+              const d = fmt(a) - fmt(b);
+              if (d > 0) return `🟢 +${d}`;
+              if (d < 0) return `🔴 ${d}`;
+              return '🟡 0';
+            };
+
+            const cats = ['performance', 'accessibility', 'best-practices', 'seo'];
+            const rows = cats.map((c) => {
+              const prScore = fmt(pr?.summary?.[c]);
+              const prodScore = fmt(prod?.summary?.[c]);
+              return `| ${c} | ${prScore} | ${prodScore} | ${delta(pr?.summary?.[c], prod?.summary?.[c])} |`;
+            });
+
+            const body = `## 🚦 Lighthouse: PR vs prod
+
+            🔗 PR preview: ${previewUrl}
+            🔗 prod: ${prodUrl}
+
+            | Category | PR | prod | Δ |
+            |----------|----|------|---|
+            ${rows.join('\n')}
+
+            📊 [PR report](${linkFor(previewUrl) || 'N/A'}) · [prod report](${linkFor(prodUrl) || 'N/A'})`;
+
+            // Sticky-comment behavior via REST: find prior comment by header marker.
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const prior = comments.find(
+              (c) => c.user.type === 'Bot' && c.body.includes('🚦 Lighthouse: PR vs prod')
+            );
+            if (prior) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: prior.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }

@@ -1,0 +1,37 @@
+{
+  "name": "aurora-colony-pub",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.2.2",
+  "scripts": {
+    "dev": "pnpm --filter ./site dev",
+    "build": "pnpm -r --parallel build",
+    "build:site": "pnpm --filter ./site build",
+    "build:workers": "pnpm -r --parallel --filter \"./workers/*\" build",
+    "preview": "pnpm --filter ./site preview",
+    "lint": "eslint --cache",
+    "check": "pnpm -r --parallel check",
+    "test": "pnpm -r --parallel test",
+    "test:e2e": "pnpm -r --parallel --filter \"./workers/*\" run test:e2e",
+    "deploy:workers": "pnpm -r --parallel --filter \"./workers/*\" run deploy",
+    "upgrade:deps": "pnpm up -r --latest"
+  },
+  "devDependencies": {
+    "@aneuhold/eslint-config": "^2.0.5",
+    "@cloudflare/vitest-pool-workers": "^0.16.6",
+    "@types/node": "^25.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "astro-eslint-parser": "^1.4.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.4.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-svelte": "^3.5.2",
+    "tsx": "^4.22.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6",
+    "wrangler": "^4.92.0"
+  }
+}

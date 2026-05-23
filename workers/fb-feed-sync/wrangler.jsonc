@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aurora-fb-feed-sync",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "AURORA_COLONY_PUB_KV",
+      "id": "8fed7593c2ac43debc5267788e2a5dd3"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      // This is unique per cloudflare account, so this has to remain the same number from here on out.
+      "namespace_id": "1002",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ]
+  // Secrets set via `wrangler secret put`:
+  //   FB_MANUAL_SYNC_TOKEN  — shared bearer token required on the manual /fetch endpoint
+}

@@ -1,0 +1,44 @@
+name: 'Pull Request: Workers'
+
+# Root files (lockfile, base tsconfig, this workflow, etc.) can affect worker
+# builds, so they're listed alongside `workers/**` to force a rebuild when
+# they change.
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'workers/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - '.github/workflows/pull-request-workers.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-workers:
+    name: 'Build workers'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      # `build:workers` runs `wrangler deploy --dry-run` for every worker in
+      # parallel via pnpm. One job is plenty — each build is small.
+      - name: Build workers
+        run: pnpm build:workers

@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aurora-fb-feed-read",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  "kv_namespaces": [
+    {
+      "binding": "AURORA_COLONY_PUB_KV",
+      "id": "8fed7593c2ac43debc5267788e2a5dd3"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      // This is unique per cloudflare account, so this has to remain the same number from here on out.
+      "namespace_id": "1001",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "extends": ["../tsconfig.base.json", "astro/tsconfigs/strict"],
+  "compilerOptions": {
+    "paths": {
+      "$components-astro/*": ["./src/components-astro/*"],
+      "$components-svelte/*": ["./src/components-svelte/*"],
+      "$util/*": ["./src/util/*"],
+      "$styles/*": ["./src/styles/*"]
+    }
+  },
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*",
+    "astro.config.ts",
+    "vitest.config.ts",
+    "testUtils/**/*"
+  ],
+  "exclude": ["dist"]
+}

@@ -1,0 +1,49 @@
+name: 'Main Branch: Deploy Site'
+
+# Root files (lockfile, base tsconfig, this workflow, etc.) can affect the
+# site build, so they're listed alongside `site/**` to force a deploy when
+# they change.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'site/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - '.github/workflows/main-branch-site.yml'
+
+jobs:
+  deploy-site:
+    name: 'Deploy site to Cloudflare Pages'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build site
+        run: pnpm build:site
+
+      - name: Deploy to Cloudflare Pages (production)
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site/dist --project-name=aurora-colony-pub-frontend --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
