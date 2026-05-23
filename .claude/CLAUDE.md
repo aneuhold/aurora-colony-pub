@@ -33,11 +33,8 @@ All commands run from the **repo root** — pnpm filters route them to the right
 - One folder per Worker.
 - Every Worker is wrapped with `Sentry.withSentry` from `@sentry/cloudflare` so unhandled errors auto-report. The DSN is hard-coded inline per Worker (it's a public identifier, not a secret).
 - Shared KV namespace: `aurora-colony-pub-kv` (single namespace for the whole project; bound as `AURORA_COLONY_PUB_KV`). Use key prefixes to separate concerns (e.g. `fb:post:123`, `contact:sub:456`).
-- Bindings expected per Worker:
-  - `fb-feed-read`, `fb-feed-sync`: `AURORA_COLONY_PUB_KV`.
-  - `fb-feed-sync` additionally has a cron trigger (`*/30 * * * *`).
-  - `contact`: secrets `TURNSTILE_SECRET`, `RESEND_API_KEY`.
-  - `cms-auth`: secrets `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`.
+- Every Worker has a `RATE_LIMITER` binding (Cloudflare's [`ratelimit`](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) binding) keyed by `CF-Connecting-IP`. The `fetch` handler should call `await env.RATE_LIMITER.limit({ key: ip })` first and return `429` on miss. Per-Worker `limit`/`period` lives in each `wrangler.jsonc`.
+- Per-Worker bindings, secrets, and vars are declared in each `wrangler.jsonc`; the `Env` interface in each `src/index.ts` is the source of truth for what the handler consumes.
 - Each Worker uses the shared `workers/tsconfig.base.json` (its own `tsconfig.json` is a two-line extender) and the shared `workers/vitest.shared.ts` (its own `vitest.config.ts` re-exports it). Don't duplicate either.
 - Tests use `@cloudflare/vitest-pool-workers` so `fetch`/KV bindings work inside Vitest.
 

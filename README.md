@@ -18,6 +18,8 @@ The main website for the Aurora Colony Pub.
   - Hidden input honeypot field
   - Worker-side rate-limiting
   - Basic format validation
+- General worker security
+  - Rate limits are applied, which is a built-in feature of CF workers, [link to docs](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/). See the code for the workers in the `wrangler.jsonc` file for each worker's current rate limits.
 
 ### Assets
 

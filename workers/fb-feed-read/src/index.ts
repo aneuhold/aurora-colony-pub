@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/cloudflare';
 
 interface Env {
   AURORA_COLONY_PUB_KV: KVNamespace;
+  RATE_LIMITER: RateLimit;
 }
 
 export default Sentry.withSentry(
@@ -13,7 +14,12 @@ export default Sentry.withSentry(
     tracesSampleRate: 1.0
   }),
   {
-    fetch(_request, _env, _ctx): Response {
+    async fetch(request, env, _ctx): Promise<Response> {
+      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+      const { success } = await env.RATE_LIMITER.limit({ key: ip });
+      if (!success) {
+        return new Response('Too Many Requests', { status: 429 });
+      }
       return new Response('OK', { status: 200 });
     }
   } satisfies ExportedHandler<Env>
