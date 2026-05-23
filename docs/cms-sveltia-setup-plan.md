@@ -64,7 +64,7 @@ Replace the single 200-check with:
 - `GET /callback` with no `code` returns 400.
 - `GET /callback` with a `code` but a mismatched `state` cookie returns 400.
 - Unknown routes return 404.
-- `isAllowedGitHubUser` unit-style check: returns `true`/`false` against the configured allowlist (covers the integration of `ALLOWED_GITHUB_USERS` from `wrangler.jsonc`).
+- `isAllowedGitHubUser` unit-style check: returns `true`/`false` against the hard-coded allowlist in `AuthService.isUserAllowed`.
 
 Outbound calls to GitHub for the success path are not exercised in integration tests — that would require mocking `fetch`, which adds noise for little value. The allowlist branch is testable via the helper directly. The e2e test stays as the smoke check.
 
@@ -215,7 +215,7 @@ Then a manual smoke check:
 5. Edit the About section body (including inserting an inline image), save → confirm commit.
 6. Add a photo to the Gallery collection, save → confirm commit.
 7. After Cloudflare Pages rebuilds, confirm all three changes render on `/` with optimized `<img srcset>` markup on both the Gallery photo and the inline About image.
-8. Try logging in from a GitHub account not in `ALLOWED_GITHUB_USERS` → confirm 403.
+8. Try logging in from a GitHub account not in the `AuthService.isUserAllowed` allowlist → confirm 403.
 
 ## Decisions (resolved open questions)
 

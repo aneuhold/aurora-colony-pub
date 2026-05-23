@@ -1,4 +1,4 @@
-import { env, exports } from 'cloudflare:workers';
+import { exports } from 'cloudflare:workers';
 import { describe, expect, it } from 'vitest';
 import authService from './services/AuthService';
 
@@ -36,7 +36,7 @@ describe('cms-auth', () => {
   });
 
   it('isUserAllowed honors the configured allowlist', () => {
-    expect(authService.isUserAllowed('aneuhold', env)).toBe(true);
-    expect(authService.isUserAllowed('someone-else', env)).toBe(false);
+    expect(authService.isUserAllowed('aneuhold')).toBe(true);
+    expect(authService.isUserAllowed('someone-else')).toBe(false);
   });
 });

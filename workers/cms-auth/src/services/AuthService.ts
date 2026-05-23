@@ -32,10 +32,10 @@ class AuthService {
    * a token and fetches the user.
    *
    * @param username GitHub login (e.g. `octocat`)
-   * @param env Worker env containing the allowlist
    */
-  isUserAllowed(username: string, env: Pick<Env, 'ALLOWED_GITHUB_USERS'>): boolean {
-    return env.ALLOWED_GITHUB_USERS.includes(username);
+  isUserAllowed(username: string): boolean {
+    const allowedUsers = ['aneuhold'];
+    return allowedUsers.includes(username);
   }
 
   /**
@@ -93,7 +93,7 @@ class AuthService {
     }
 
     const login = await gitHubOAuthService.fetchUserLogin(token);
-    if (!login || !this.isUserAllowed(login, env)) {
+    if (!login || !this.isUserAllowed(login)) {
       return new Response('Forbidden', { status: 403 });
     }
 

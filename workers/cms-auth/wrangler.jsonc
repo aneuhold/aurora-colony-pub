@@ -8,9 +8,6 @@
   "upload_source_maps": true,
   // Secrets set via `wrangler secret put`:
   //   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
-  "vars": {
-    "ALLOWED_GITHUB_USERS": ["aneuhold"]
-  },
   "ratelimits": [
     {
       "name": "RATE_LIMITER",
