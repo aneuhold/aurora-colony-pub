@@ -1,6 +1,7 @@
 packages:
   - site
   - workers/*
+  - packages/*
 
 # Hold back any package published within the last 7 days, so a freshly
 # released bad version can't sneak into installs/updates.
