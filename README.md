@@ -2,6 +2,17 @@
 
 The main website for the Aurora Colony Pub.
 
+## Deployments
+
+| Resource             | Type         | Cloudflare Dashboard                                                                                                                                |
+| -------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend site        | Pages        | [aurora-colony-pub-frontend](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/pages/view/aurora-colony-pub-frontend)                    |
+| Facebook feed (read) | Worker       | [aurora-fb-feed-read](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-read/production)            |
+| Facebook feed (sync) | Worker       | [aurora-fb-feed-sync](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-sync/production)            |
+| Contact form         | Worker       | [aurora-contact](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-contact/production)                      |
+| CMS auth             | Worker       | [aurora-cms-auth](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-cms-auth/production)                    |
+| Shared storage       | KV Namespace | [aurora-colony-pub-kv](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/kv/namespaces/8fed7593c2ac43debc5267788e2a5dd3/metrics) |
+
 ## Infrastructure
 
 - Focus is on incredibly performant frontend with outstanding SEO. So we use [Astro](https://astro.build/).
