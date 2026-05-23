@@ -1,17 +1,14 @@
+import { sharedContactFormConstants } from '@aurora/shared';
+
 /**
  * Tweakable values for the ContactForm island. Anything that might be
- * adjusted without a logic change — field limits, the Turnstile polling
- * budget, user-facing copy — lives here so the component and the service
- * stay focused on behavior.
- *
- * Length limits mirror the worker-side validation in
- * `workers/contact/src/index.ts`. Keep them in sync; the server is the
- * source of truth, the client just gives quicker feedback.
+ * adjusted without a logic change — Turnstile polling budget, user-facing
+ * copy — lives here so the component and the service stay focused on
+ * behavior. Field-length limits are spread in from `@aurora/shared` so the
+ * Worker and the island share a single source of truth.
  */
 export const contactFormConstants = {
-  maxNameLength: 100,
-  maxEmailLength: 254,
-  maxMessageLength: 5000,
+  ...sharedContactFormConstants,
   textareaRows: 5,
   /** Maximum time to wait for `window.turnstile` to be attached by the async script. */
   turnstilePollTimeoutMs: 5000,
