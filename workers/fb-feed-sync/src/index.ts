@@ -2,12 +2,14 @@ import * as Sentry from '@sentry/cloudflare';
 
 interface Env {
   AURORA_COLONY_PUB_KV: KVNamespace;
-  SENTRY_DSN: string;
 }
 
 export default Sentry.withSentry(
-  (env: Env) => ({
-    dsn: env.SENTRY_DSN,
+  (_: Env) => ({
+    dsn: 'https://01566343fcfee8c127d1831be35120d8@o4507319328702464.ingest.us.sentry.io/4511439640854528',
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
     tracesSampleRate: 1.0
   }),
   {

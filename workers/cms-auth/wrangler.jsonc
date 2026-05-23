@@ -7,6 +7,5 @@
   "observability": { "enabled": true },
   "upload_source_maps": true,
   // Secrets set via `wrangler secret put`:
-  //   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SENTRY_DSN
   "vars": {}
 }

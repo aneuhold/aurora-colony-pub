@@ -7,6 +7,6 @@
   "observability": { "enabled": true },
   "upload_source_maps": true,
   // Secrets set via `wrangler secret put`:
-  //   TURNSTILE_SECRET, RESEND_API_KEY, SENTRY_DSN
+  //   TURNSTILE_SECRET, RESEND_API_KEY
   "vars": {}
 }

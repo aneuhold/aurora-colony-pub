@@ -31,7 +31,7 @@ All commands run from the **repo root** — pnpm filters route them to the right
 ### Workers (`/workers/*`)
 
 - One folder per Worker.
-- Every Worker is wrapped with `Sentry.withSentry` from `@sentry/cloudflare` so unhandled errors auto-report. The wrapper reads `SENTRY_DSN` from `env`.
+- Every Worker is wrapped with `Sentry.withSentry` from `@sentry/cloudflare` so unhandled errors auto-report. The DSN is hard-coded inline per Worker (it's a public identifier, not a secret).
 - Shared KV namespace: `aurora-colony-pub-kv` (single namespace for the whole project; bound as `AURORA_COLONY_PUB_KV`). Use key prefixes to separate concerns (e.g. `fb:post:123`, `contact:sub:456`).
 - Bindings expected per Worker:
   - `fb-feed-read`, `fb-feed-sync`: `AURORA_COLONY_PUB_KV`.
