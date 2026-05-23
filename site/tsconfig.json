@@ -2,7 +2,8 @@
   "extends": ["../tsconfig.base.json", "astro/tsconfigs/strict"],
   "compilerOptions": {
     "paths": {
-      "$components/*": ["./src/components/*"],
+      "$components-astro/*": ["./src/components-astro/*"],
+      "$components-svelte/*": ["./src/components-svelte/*"],
       "$util/*": ["./src/util/*"],
       "$styles/*": ["./src/styles/*"]
     }

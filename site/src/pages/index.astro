@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components-astro/Hero.astro';
+import HelloIsland from '../components-svelte/HelloIsland.svelte';
+---
+
+<BaseLayout
+  title="Aurora Colony Pub — coming soon"
+  description="The Aurora Colony Pub website is on its way."
+>
+  <main>
+    <Hero title="Aurora Colony Pub" tagline="Coming soon." />
+    <HelloIsland client:load />
+  </main>
+</BaseLayout>

@@ -22,10 +22,10 @@ All commands run from the **repo root** — pnpm filters route them to the right
 ### Site (`/site`)
 
 - **Framework**: Astro 5 with `output: 'static'`. Pages live in `src/pages/`, shared layouts in `src/layouts/`.
-- **Components**: Prefer `.astro` components for anything that doesn't need client-side interactivity — they render at build time and ship **zero JS**. See `site/src/components/Hero.astro` for the pattern (`---` frontmatter for props, scoped `<style>`, no JS sent to the browser). Reach for a Svelte island only when you genuinely need reactivity.
-- **Islands**: Svelte 5 components in `src/components/*.svelte`, embedded in `.astro` files with `client:*` directives. Use runes (`$state`, `$derived`, `$effect`, `$props`).
+- **Components**: Split by runtime cost into two folders. `.astro` components live in `src/components-astro/` — prefer these for anything that doesn't need client-side interactivity, they render at build time and ship **zero JS**. See `site/src/components-astro/Hero.astro` for the pattern (`---` frontmatter for props, scoped `<style>`, no JS sent to the browser). Reach for a Svelte island only when you genuinely need reactivity.
+- **Islands**: Svelte 5 components in `src/components-svelte/*.svelte`, embedded in `.astro` files with `client:*` directives. Use runes (`$state`, `$derived`, `$effect`, `$props`).
 - **Styling**: Tailwind v4 only. **No component library** — write Svelte 5 components directly, use Tailwind utilities, follow the token names in `site/src/styles/global.css` (`--background`, `--foreground`, `--primary`, ...). Do not introduce shadcn-svelte, bits-ui, or any other UI kit without an explicit ask.
-- **Path aliases**: `$components/*`, `$util/*`, `$styles/*` (see `site/tsconfig.json`).
+- **Path aliases**: `$components-astro/*`, `$components-svelte/*`, `$util/*`, `$styles/*` (see `site/tsconfig.json`).
 - **Tests**: Vitest + `@testing-library/svelte`, jsdom environment. Vitest reads the Astro plugin set via `getViteConfig`.
 
 ### Workers (`/workers/*`)

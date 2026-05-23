@@ -21,8 +21,9 @@ export default [
       '**/node_modules/**',
       '**/build/**',
       '**/worker-configuration.d.ts',
-      // Shared workers Vitest config — trivial re-export base; not part of any tsconfig.
-      'workers/vitest.shared.ts'
+      // Shared workers Vitest configs — trivial re-export bases; not part of any tsconfig.
+      'workers/vitest.shared.ts',
+      'workers/vitest.e2e.shared.ts'
     ]
   }
 ];
