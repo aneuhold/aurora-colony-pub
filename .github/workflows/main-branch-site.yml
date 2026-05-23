@@ -1,9 +1,19 @@
-name: 'Main Branch Actions'
+name: 'Main Branch: Deploy Site'
 
+# Root files (lockfile, base tsconfig, this workflow, etc.) can affect the
+# site build, so they're listed alongside `site/**` to force a deploy when
+# they change.
 on:
   push:
     branches:
       - main
+    paths:
+      - 'site/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - '.github/workflows/main-branch-site.yml'
 
 jobs:
   deploy-site:
@@ -39,29 +49,3 @@ jobs:
           directory: site/dist
           branch: main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy-workers:
-    name: 'Deploy workers'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Set up PNPM
-        uses: pnpm/action-setup@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      # `deploy:workers` runs `wrangler deploy` for every worker in parallel
-      # via pnpm. One job is plenty — each deploy is small.
-      - name: Deploy workers
-        run: pnpm deploy:workers
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
