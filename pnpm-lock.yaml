@@ -77,6 +77,9 @@ importers:
       astro:
         specifier: ^6.3.3
         version: 6.3.3(@types/node@25.8.0)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.4)(tsx@4.22.0)(yaml@2.9.0)
+      sharp:
+        specifier: ^0.34.0
+        version: 0.34.5
       svelte:
         specifier: ^5.55.7
         version: 5.55.7(@typescript-eslint/types@8.59.3)

@@ -20,6 +20,7 @@
     "@sveltia/cms": "^0.161.1",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
+    "sharp": "^0.34.0",
     "svelte": "^5.55.7",
     "tailwindcss": "^4.3.0"
   },
