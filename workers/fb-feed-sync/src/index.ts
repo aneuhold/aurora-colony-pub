@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/cloudflare';
 
 interface Env {
-  FB_FEED: KVNamespace;
+  AURORA_COLONY_PUB_KV: KVNamespace;
   SENTRY_DSN: string;
 }
 
@@ -15,7 +15,7 @@ export default Sentry.withSentry(
       return new Response('OK', { status: 200 });
     },
     scheduled(_event, _env, _ctx): void {
-      // TODO: fetch Facebook feed and write to FB_FEED KV.
+      // TODO: fetch Facebook feed and write to AURORA_COLONY_PUB_KV.
     }
   } satisfies ExportedHandler<Env>
 );

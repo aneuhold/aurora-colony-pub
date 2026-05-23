@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/cloudflare';
 
 interface Env {
-  FB_FEED: KVNamespace;
+  AURORA_COLONY_PUB_KV: KVNamespace;
   SENTRY_DSN: string;
 }
 
