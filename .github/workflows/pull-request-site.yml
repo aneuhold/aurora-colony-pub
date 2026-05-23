@@ -48,6 +48,9 @@ jobs:
     name: 'Deploy Cloudflare Pages preview'
     runs-on: ubuntu-latest
     needs: build-site
+    permissions:
+      contents: read
+      deployments: write
     outputs:
       preview-url: ${{ steps.pages.outputs.url }}
     steps:
