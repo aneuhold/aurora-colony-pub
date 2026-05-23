@@ -19,6 +19,8 @@
     "@aneuhold/eslint-config": "^2.0.5",
     "@cloudflare/vitest-pool-workers": "^0.16.6",
     "@types/node": "^25.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "astro-eslint-parser": "^1.4.0",
     "concurrently": "^9.2.1",
     "eslint": "^10.4.0",

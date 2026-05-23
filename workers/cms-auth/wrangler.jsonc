@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aurora-cms-auth",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  // Secrets set via `wrangler secret put`:
+  //   GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SENTRY_DSN
+  "vars": {}
+}
