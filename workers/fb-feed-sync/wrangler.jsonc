@@ -6,6 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "upload_source_maps": true,
+  "dev": { "port": 8789 },
   "triggers": {
     "crons": ["*/30 * * * *"]
   },

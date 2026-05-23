@@ -6,6 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "upload_source_maps": true,
+  "dev": { "port": 8788 },
   "kv_namespaces": [
     {
       "binding": "AURORA_COLONY_PUB_KV",

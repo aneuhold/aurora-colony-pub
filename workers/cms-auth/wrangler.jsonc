@@ -6,6 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "upload_source_maps": true,
+  "dev": { "port": 8790 },
   // Secrets set via `wrangler secret put`:
   //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET
   "ratelimits": [
