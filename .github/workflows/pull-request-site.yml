@@ -15,6 +15,10 @@ on:
       - 'tsconfig.base.json'
       - '.github/workflows/pull-request-site.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   preview:
     name: 'Build, deploy preview, and Lighthouse'
@@ -51,12 +55,6 @@ jobs:
           command: pages deploy site/dist --project-name=aurora-colony-pub-frontend --branch=${{ github.head_ref }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Warm Cloudflare edge cache
-        run: |
-          for _ in 1 2; do
-            curl -sSL -o /dev/null "${{ steps.pages.outputs.deployment-url }}"
-          done
-
       - name: Run Lighthouse CI
         id: lighthouse
         uses: treosh/lighthouse-ci-action@v12
@@ -64,7 +62,7 @@ jobs:
           urls: |
             ${{ steps.pages.outputs.deployment-url }}
             https://auroracolonypub.com
-          runs: 1
+          runs: 3
           temporaryPublicStorage: true
 
       - name: Post sticky Lighthouse comment

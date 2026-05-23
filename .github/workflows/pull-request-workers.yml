@@ -15,6 +15,10 @@ on:
       - 'tsconfig.base.json'
       - '.github/workflows/pull-request-workers.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-workers:
     name: 'Build workers'
