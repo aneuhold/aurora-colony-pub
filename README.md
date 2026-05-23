@@ -28,6 +28,7 @@ The main website for the Aurora Colony Pub.
 ### Deployment
 
 - Uses GitHub Actions for most of the build process to keep things centralized
+- The token used for the GitHub actions as far as CloudFlare is described [here](docs/cloudflare-token-setup.md).
 
 ## Development
 
