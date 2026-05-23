@@ -26,3 +26,8 @@ The main website for the Aurora Colony Pub.
 ### Deployment
 
 - Uses GitHub Actions for most of the build process to keep things centralized
+
+## Development
+
+1. Install everything with `pnpm i`
+1. Checkout the [root package.json](package.json) for the commands.

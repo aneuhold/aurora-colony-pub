@@ -1,0 +1,17 @@
+packages:
+  - site
+  - workers/*
+
+# Hold back any package published within the last 7 days, so a freshly
+# released bad version can't sneak into installs/updates.
+# 7 * 24 * 60 minutes = 10080.
+minimumReleaseAge: 10080
+
+# Cloudflare ships workerd builds on the same cadence as the Workers
+# runtime (often multiple times per week). Wrangler pins it exactly,
+# so the 1-week hold above would constantly block install/upgrade and
+# offers no real protection against a Cloudflare-published runtime.
+minimumReleaseAgeExclude:
+  - workerd
+  - '@cloudflare/workerd-*'
+  - '@cloudflare/workers-types'

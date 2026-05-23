@@ -1,0 +1,14 @@
+.DS_Store
+node_modules
+dist/
+build/
+.astro/
+.wrangler/
+.dev.vars
+worker-configuration.d.ts
+.env
+.env.*
+!.env.example
+
+# ESLint
+.eslintcache
