@@ -31,6 +31,7 @@
     "prettier-plugin-svelte": "^3.5.2",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.6",
+    "wrangler": "^4.92.0"
   }
 }
