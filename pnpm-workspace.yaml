@@ -19,6 +19,6 @@ minimumReleaseAgeExclude:
   - '@cloudflare/workers-types'
 
 allowBuilds:
-  esbuild: false
-  sharp: false
+  esbuild: true
+  sharp: true
   workerd: true
