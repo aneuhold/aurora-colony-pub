@@ -2,6 +2,11 @@ import * as Sentry from '@sentry/cloudflare';
 import type { Env } from './Env';
 import authService from './services/AuthService';
 
+/**
+ * All of the code for this worker comes from here: https://github.com/sveltia/sveltia-cms-auth/blob/main/src/index.js
+ *
+ * It was just refactored to be cleaner.
+ */
 export default Sentry.withSentry(
   (_: Env) => ({
     dsn: 'https://d1b5a6eb0f2eeb49e18a88529e016ff0@o4507319328702464.ingest.us.sentry.io/4511439647735808',

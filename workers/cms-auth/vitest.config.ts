@@ -1,19 +1,7 @@
-import { cloudflareTest } from '@cloudflare/vitest-pool-workers';
-import { configDefaults, defineConfig } from 'vitest/config';
+import { createWorkerVitestConfig } from '../vitest.shared';
 
-// Override the shared config so miniflare can inject test values for the
-// OAuth secrets that aren't declared in wrangler.jsonc.
-export default defineConfig({
-  plugins: [
-    cloudflareTest({
-      wrangler: { configPath: './wrangler.jsonc' },
-      miniflare: {
-        bindings: {}
-      }
-    })
-  ],
-  test: {
-    include: ['src/**/*.{test,spec}.ts', 'test/**/*.{test,spec}.ts'],
-    exclude: [...configDefaults.exclude, '**/*.e2e.test.ts']
-  }
+// Inject a test stand-in for GITHUB_CLIENT_SECRET so Web Crypto's HMAC can
+// import a non-zero-length key when signing/verifying the OAuth state cookie.
+export default createWorkerVitestConfig({
+  bindings: { GITHUB_CLIENT_SECRET: 'test-client-secret', GITHUB_CLIENT_ID: 'test-client-id' }
 });
