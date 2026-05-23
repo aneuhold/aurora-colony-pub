@@ -1,10 +1,6 @@
 import * as Sentry from '@sentry/cloudflare';
-
-interface Env {
-  TURNSTILE_SECRET: string;
-  RESEND_API_KEY: string;
-  RATE_LIMITER: RateLimit;
-}
+import type { Env } from './Env';
+import contactService from './services/ContactService';
 
 export default Sentry.withSentry(
   (_: Env) => ({
@@ -16,12 +12,7 @@ export default Sentry.withSentry(
   }),
   {
     async fetch(request, env, _ctx): Promise<Response> {
-      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-      const { success } = await env.RATE_LIMITER.limit({ key: ip });
-      if (!success) {
-        return new Response('Too Many Requests', { status: 429 });
-      }
-      return new Response('OK', { status: 200 });
+      return contactService.handleRequest(request, env);
     }
   } satisfies ExportedHandler<Env>
 );
