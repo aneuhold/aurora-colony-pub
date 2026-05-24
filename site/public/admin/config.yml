@@ -75,6 +75,13 @@ collections:
               widget: string,
               hint: 'Public contact email — also used as a mailto: link.'
             }
+          - {
+              name: orderUrl,
+              label: DoorDash URL,
+              widget: string,
+              required: false,
+              hint: 'Full URL to the DoorDash storefront. When set, the Order button appears in the nav and on the home hero. Leave blank to hide both.'
+            }
 
       - name: hours
         label: Hours

@@ -23,7 +23,8 @@ const contact = defineCollection({
   loader: glob({ pattern: 'contact.json', base: 'src/content' }),
   schema: z.object({
     phone: z.string(),
-    email: z.string()
+    email: z.string(),
+    orderUrl: z.url().optional()
   })
 });
 

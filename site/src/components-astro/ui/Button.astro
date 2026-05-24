@@ -6,10 +6,20 @@ interface Props {
   href?: string;
   type?: 'button' | 'submit';
   disabled?: boolean;
+  target?: '_blank' | '_self';
+  rel?: string;
   class?: string;
 }
 
-const { variant = 'primary', href, type = 'button', disabled, class: className } = Astro.props;
+const {
+  variant = 'primary',
+  href,
+  type = 'button',
+  disabled,
+  target,
+  rel,
+  class: className
+} = Astro.props;
 
 const variantClass: Record<Variant, string> = {
   primary:
@@ -28,7 +38,7 @@ const classes = [variantClass[variant], className];
 
 {
   href ? (
-    <a href={href} class:list={classes}>
+    <a href={href} target={target} rel={rel} class:list={classes}>
       <slot />
     </a>
   ) : (

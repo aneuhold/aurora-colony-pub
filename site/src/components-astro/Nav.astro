@@ -1,5 +1,9 @@
 ---
+import { getEntry } from 'astro:content';
+import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
+import MobileNav from '$components-svelte/MobileNav';
+import DoorDashIcon from '../assets/icons/doordash.svg';
 import LogoInverted from '../assets/logo-inverted.svg';
 
 type NavLink = {
@@ -20,20 +24,27 @@ const isCurrent = (href: string): boolean => {
   const normalized = href.replace(/\/$/, '') || '/';
   return normalized === currentPath;
 };
+
+const contactEntry = await getEntry('contact', 'contact');
+if (!contactEntry) {
+  throw new Error('Missing contact content entry');
+}
+const { orderUrl } = contactEntry.data;
 ---
 
 <nav
   class="sticky top-0 z-40 bg-background/85 font-body backdrop-blur supports-backdrop-filter:bg-background/70"
 >
-  <Container size="wide" class="flex items-center justify-between px-6 py-3 md:py-4">
+  <Container size="wide" class="flex items-center justify-between gap-4 px-6 py-3 md:py-4">
     <a
       href="/"
       aria-label="Aurora Colony Pub home"
-      class="block text-foreground transition-opacity duration-snap ease-soft hover:opacity-80"
+      class="block shrink-0 text-foreground transition-opacity duration-snap ease-soft hover:opacity-80"
     >
       <LogoInverted class="h-10 w-auto md:h-12" />
     </a>
-    <ul class="flex list-none items-center gap-5 p-0 md:gap-7">
+
+    <ul class="hidden list-none items-center gap-5 p-0 md:flex md:gap-7">
       {
         links.map((link) => (
           <li>
@@ -48,5 +59,25 @@ const isCurrent = (href: string): boolean => {
         ))
       }
     </ul>
+
+    <div class="flex items-center gap-2">
+      {
+        orderUrl && (
+          <Button
+            variant="primary"
+            href={orderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="gap-2"
+          >
+            <DoorDashIcon aria-hidden="true" class="h-4 w-4" />
+            <span>Order</span>
+          </Button>
+        )
+      }
+      <div class="md:hidden">
+        <MobileNav links={links} currentPath={currentPath} client:load />
+      </div>
+    </div>
   </Container>
 </nav>
