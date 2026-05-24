@@ -14,11 +14,13 @@
   },
   "dependencies": {
     "@aurora/shared": "workspace:*",
-    "@sentry/cloudflare": "^10.53.1"
+    "@sentry/cloudflare": "^10.53.1",
+    "he": "^1.2.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.6",
     "@cloudflare/workers-types": "^4.20260522.1",
+    "@types/he": "^1.2.3",
     "vitest": "^4.1.6",
     "wrangler": "^4.92.0"
   }

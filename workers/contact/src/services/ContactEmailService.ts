@@ -1,3 +1,4 @@
+import he from 'he';
 import { contactWorkerConstants } from '../util/contactWorkerConstants';
 
 interface TurnstileVerifyResponse {
@@ -63,11 +64,11 @@ class ContactEmailService {
     const htmlBody = `
 <!doctype html>
 <html><body>
-<p><strong>Name:</strong> ${this.escapeHtml(payload.name)}</p>
-<p><strong>Email:</strong> ${this.escapeHtml(payload.email)}</p>
-<p><strong>IP:</strong> ${this.escapeHtml(ip)}</p>
+<p><strong>Name:</strong> ${he.escape(payload.name)}</p>
+<p><strong>Email:</strong> ${he.escape(payload.email)}</p>
+<p><strong>IP:</strong> ${he.escape(ip)}</p>
 <hr />
-<p style="white-space:pre-wrap">${this.escapeHtml(payload.message)}</p>
+<p style="white-space:pre-wrap">${he.escape(payload.message)}</p>
 </body></html>`.trim();
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -85,15 +86,6 @@ class ContactEmailService {
       })
     });
     return response.ok;
-  }
-
-  private escapeHtml(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 }
 
