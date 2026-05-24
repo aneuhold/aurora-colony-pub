@@ -1,6 +1,6 @@
 ---
 import Container from '$components-astro/ui/Container.astro';
-import Logo from '../assets/logo.svg';
+import LogoInverted from '../assets/logo-inverted.svg';
 
 type NavLink = {
   href: string;
@@ -31,7 +31,7 @@ const isCurrent = (href: string): boolean => {
       aria-label="Aurora Colony Pub home"
       class="block text-foreground transition-opacity duration-snap ease-soft hover:opacity-80"
     >
-      <Logo class="h-10 w-auto md:h-12" />
+      <LogoInverted class="h-10 w-auto md:h-12" />
     </a>
     <ul class="flex list-none items-center gap-5 p-0 md:gap-7">
       {
@@ -40,7 +40,7 @@ const isCurrent = (href: string): boolean => {
             <a
               href={link.href}
               aria-current={isCurrent(link.href) ? 'page' : undefined}
-              class="font-display text-base text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-lg aria-[aria-current=page]:text-foreground aria-[aria-current=page]:underline aria-[aria-current=page]:decoration-accent aria-[aria-current=page]:decoration-2 aria-[aria-current=page]:underline-offset-8"
+              class="font-display text-base text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-lg aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
             >
               {link.label}
             </a>
