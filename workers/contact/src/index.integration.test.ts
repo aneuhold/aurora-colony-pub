@@ -1,5 +1,5 @@
 import { exports } from 'cloudflare:workers';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { contactWorkerConstants } from './util/contactWorkerConstants';
 
 const ORIGIN = contactWorkerConstants.allowedOrigins[0];
@@ -90,6 +90,17 @@ const postContact = (
 };
 
 describe('contact worker', () => {
+  // First call into the Worker spins up miniflare's pool — ~4-5s in CI cold-start.
+  // Pay that cost here so the first real test doesn't blow past the 5s default timeout.
+  beforeAll(async () => {
+    setupFetchMock();
+    const response = await exports.default.fetch('https://contact.example.com/', {
+      method: 'GET'
+    });
+    await response.text();
+    vi.restoreAllMocks();
+  }, 30_000);
+
   beforeEach(() => {
     setupFetchMock();
   });
