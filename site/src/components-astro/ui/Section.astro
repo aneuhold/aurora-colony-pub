@@ -5,9 +5,10 @@ interface Props {
   background?: Background;
   as?: keyof HTMLElementTagNameMap;
   class?: string;
+  id?: string;
 }
 
-const { background = 'default', as = 'section', class: className } = Astro.props as Props;
+const { background = 'default', as = 'section', class: className, id } = Astro.props as Props;
 
 const Tag = as;
 
@@ -18,6 +19,6 @@ const backgroundClass: Record<Background, string> = {
 };
 ---
 
-<Tag class:list={['px-6 py-16 md:py-24', backgroundClass[background], className]}>
+<Tag id={id} class:list={['px-6 py-16 md:py-24', backgroundClass[background], className]}>
   <slot />
 </Tag>

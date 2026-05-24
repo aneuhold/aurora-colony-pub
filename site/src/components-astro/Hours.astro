@@ -1,0 +1,29 @@
+---
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('hours', 'hours');
+if (!entry) {
+  throw new Error('Missing hours content entry');
+}
+const { weekly, happyHour } = entry.data;
+---
+
+<div class="font-body">
+  <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
+    {
+      weekly.map((row) => (
+        <>
+          <dt class="text-foreground/70">{row.label}</dt>
+          <dd>
+            {row.open} – {row.close}
+          </dd>
+        </>
+      ))
+    }
+  </dl>
+  <p class="mt-4 text-foreground/70">
+    <span class="font-medium text-foreground">Happy hour</span>
+    {' · '}{happyHour.label}, {happyHour.start} – {happyHour.end}
+    {happyHour.note && <span class="block text-sm">{happyHour.note}</span>}
+  </p>
+</div>

@@ -1,0 +1,50 @@
+---
+import { getEntry } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Hours from '$components-astro/Hours.astro';
+import SiteInfo from '$components-astro/SiteInfo.astro';
+
+const socialEntry = await getEntry('socialMediaLinks', 'social-media-links');
+if (!socialEntry) {
+  throw new Error('Missing socialMediaLinks content entry');
+}
+const { links } = socialEntry.data;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="border-t border-foreground/10 bg-foreground/5 px-6 py-12 font-body">
+  <Container>
+    <div class="grid gap-10 md:grid-cols-3">
+      <div>
+        <h2 class="mb-3 font-display text-lg">Hours</h2>
+        <Hours />
+      </div>
+      <div>
+        <h2 class="mb-3 text-lg">Find us</h2>
+        <SiteInfo />
+      </div>
+      <div>
+        <h2 class="mb-3 font-display text-lg">Follow along</h2>
+        {
+          links.length > 0 && (
+            <ul class="list-none space-y-1 p-0">
+              {links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <p class="mt-6 text-sm text-foreground/60">© {currentYear} Aurora Colony Pub</p>
+      </div>
+    </div>
+  </Container>
+</footer>

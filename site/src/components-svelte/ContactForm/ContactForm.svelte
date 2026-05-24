@@ -96,8 +96,6 @@
 </svelte:head>
 
 <section class="mx-auto w-full max-w-xl px-6 py-12" data-testid="contact-form">
-  <h2 class="mb-6 font-display text-3xl md:text-4xl">Contact us</h2>
-
   {#if status === 'success'}
     <p
       data-testid="contact-form-success"

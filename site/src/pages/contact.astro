@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
 import ContactForm from '$components-svelte/ContactForm';
 ---
 
@@ -8,6 +11,11 @@ import ContactForm from '$components-svelte/ContactForm';
    Scoped to this page since this is where the form lives. -->
   <link slot="head" rel="preconnect" href="https://challenges.cloudflare.com" />
   <main>
+    <Section>
+      <Container size="narrow">
+        <Heading level={1}>Contact us</Heading>
+      </Container>
+    </Section>
     <ContactForm client:idle />
   </main>
 </BaseLayout>

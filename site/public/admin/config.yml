@@ -11,31 +11,33 @@ media_folder: site/src/assets
 public_folder: /
 
 collections:
-  - name: site
-    label: Site
-    description: One-off pages and global text on the website.
+  - name: pubInfo
+    label: General Pub Info
+    description: Site-wide pub info shown across the home, menu, about, contact, and footer.
     files:
-      - name: hero
-        label: Homepage banner
-        file: site/src/content/hero.json
+      - name: titleTagline
+        label: Title + Tagline
+        file: site/src/content/title-tagline.json
         format: json
+        editor:
+          preview: false
         fields:
           - {
               name: title,
               label: Title,
               widget: string,
-              hint: "Shown as the big headline on the homepage."
+              hint: 'Big headline shown at the top of the home page.'
             }
           - {
               name: tagline,
-              label: Subtitle,
+              label: Tagline,
               widget: string,
-              hint: "One short line shown under the title. Leave blank for none.",
-              required: false
+              required: false,
+              hint: 'One short line shown under the title. Leave blank for none.'
             }
 
       - name: about
-        label: About section
+        label: About
         file: site/src/content/about.md
         format: frontmatter
         media_folder: ../assets/about
@@ -45,22 +47,129 @@ collections:
               name: heading,
               label: Heading,
               widget: string,
-              hint: "Section heading shown above the About text on the homepage."
+              hint: 'Heading shown above the About text.'
             }
           - {
               name: body,
               label: Text,
               widget: markdown,
-              hint: "Free-form text — supports bold, links, headings, and inline images."
+              hint: 'Free-form text — supports bold, links, headings, and inline images.'
             }
 
+      - name: locationContact
+        label: Location + Contact Info
+        file: site/src/content/location-contact.json
+        format: json
+        editor:
+          preview: false
+        fields:
+          - {
+              name: address,
+              label: Address,
+              widget: string,
+              hint: 'Street address shown on the home page, contact page, and footer.'
+            }
+          - {
+              name: phone,
+              label: Phone,
+              widget: string,
+              hint: "Phone number, formatted however you'd like it shown — e.g. (503) 678-9994."
+            }
+          - {
+              name: email,
+              label: Email,
+              widget: string,
+              hint: 'Public contact email — also used as a mailto: link.'
+            }
+
+      - name: hours
+        label: Hours
+        file: site/src/content/hours.json
+        format: json
+        editor:
+          preview: false
+        fields:
+          - name: weekly
+            label: Weekly hours
+            widget: list
+            hint: 'One entry per day or day-range. Entries render in the order shown here.'
+            fields:
+              - { name: label, label: Day(s), widget: string, hint: 'e.g. Mon–Thu, Fri, Sat, Sun' }
+              - { name: open, label: Open, widget: string, hint: 'e.g. 11:00 AM' }
+              - { name: close, label: Close, widget: string, hint: 'e.g. 10:00 PM' }
+          - name: happyHour
+            label: Happy hour
+            widget: object
+            hint: 'Shown as a single line under the weekly table.'
+            fields:
+              - { name: label, label: Day(s), widget: string, hint: 'e.g. Mon–Fri' }
+              - { name: start, label: Start, widget: string, hint: 'e.g. 3:00 PM' }
+              - { name: end, label: End, widget: string, hint: 'e.g. 6:00 PM' }
+              - {
+                  name: note,
+                  label: Note,
+                  widget: string,
+                  required: false,
+                  hint: 'Optional fine print — e.g. Dine-in only. No substitutions.'
+                }
+
+      - name: socialMediaLinks
+        label: Social Media Links
+        file: site/src/content/social-media-links.json
+        format: json
+        editor:
+          preview: false
+        fields:
+          - name: links
+            label: Links
+            widget: list
+            summary: '{{fields.label}} — {{fields.url}}'
+            hint: 'Each entry becomes one link in the footer. Add as many as you want — Facebook, Instagram, Yelp, etc.'
+            fields:
+              - {
+                  name: label,
+                  label: Label,
+                  widget: string,
+                  hint: 'What the link should say — e.g. Facebook, Instagram.'
+                }
+              - { name: url, label: URL, widget: string, hint: 'Full URL including https://.' }
+
+  - name: menuImages
+    label: Menu Images
+    description: Menu images shown on the menu page. One entry per menu page.
+    folder: site/src/content/menu-images
+    create: true
+    delete: true
+    slug: '{{fields.category}}-{{fields.order}}'
+    format: json
+    media_folder: ../../assets/menus
+    public_folder: ../../assets/menus
+    fields:
+      - { name: title, label: Title, widget: string, hint: 'e.g. Main Menu — Page 1' }
+      - {
+          name: category,
+          label: Category,
+          widget: select,
+          options: [main, breakfast, kids, happy-hour],
+          default: main,
+          hint: 'Which menu does this page belong to?'
+        }
+      - { name: image, label: Image, widget: image, hint: 'Upload the menu image. JPG or PNG.' }
+      - {
+          name: order,
+          label: Display order,
+          widget: number,
+          default: 0,
+          hint: 'Lower numbers show first within the same menu.'
+        }
+
   - name: gallery
-    label: Gallery photos
+    label: Gallery Photos
     description: Photos shown in the gallery on the homepage. Lower display order shows first.
     folder: site/src/content/gallery
     create: true
     delete: true
-    slug: "{{fields.alt | slugify}}-{{year}}{{month}}{{day}}"
+    slug: '{{fields.alt | slugify}}-{{year}}{{month}}{{day}}'
     format: json
     media_folder: ../../assets/gallery
     public_folder: ../../assets/gallery
@@ -69,13 +178,13 @@ collections:
           name: photo,
           label: Photo,
           widget: image,
-          hint: "Upload a JPG or PNG. It will be optimized automatically."
+          hint: 'Upload a JPG or PNG. It will be optimized automatically.'
         }
       - {
           name: alt,
           label: Description,
           widget: string,
-          hint: "Short description of the photo, used by screen readers and search engines."
+          hint: 'Short description of the photo, used by screen readers and search engines.'
         }
       - {
           name: order,

@@ -1,16 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuDisplay from '$components-astro/MenuDisplay.astro';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 ---
 
-<BaseLayout title="Menu — Aurora Colony Pub" description="Our menu is coming soon.">
+<BaseLayout title="Menus — Aurora Colony Pub" description="Our menus at Aurora Colony Pub.">
   <main>
     <Section>
       <Container size="narrow">
-        <Heading level={1}>Menu</Heading>
-        <p class="mt-4 text-foreground/70">Coming soon.</p>
+        <Heading level={1}>Menus</Heading>
+        <p class="mt-4 text-foreground/70">
+          Tap any menu page to open the full image. Pricing and availability may vary.
+        </p>
+      </Container>
+    </Section>
+
+    <MenuDisplay />
+
+    <Section>
+      <Container size="narrow">
+        <p class="text-sm italic text-foreground/60">
+          Consuming raw or under-cooked eggs and meats may increase your risk of foodborne illness
+          — especially if you suffer from a medical condition.
+        </p>
       </Container>
     </Section>
   </main>

@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+
+type MenuCategory = 'main' | 'breakfast' | 'kids' | 'happy-hour';
+
+type CategoryDisplay = {
+  id: MenuCategory;
+  label: string;
+};
+
+const categoryOrder: CategoryDisplay[] = [
+  { id: 'main', label: 'Main menu' },
+  { id: 'breakfast', label: 'Breakfast' },
+  { id: 'kids', label: 'Kids' },
+  { id: 'happy-hour', label: 'Happy hour' }
+];
+
+const all = (await getCollection('menuImages')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+const groupedByCategory = new Map<MenuCategory, CollectionEntry<'menuImages'>[]>();
+for (const entry of all) {
+  const list = groupedByCategory.get(entry.data.category) ?? [];
+  list.push(entry);
+  groupedByCategory.set(entry.data.category, list);
+}
+
+let globalIndex = 0;
+---
+
+{
+  categoryOrder.map((category) => {
+    const entries = groupedByCategory.get(category.id) ?? [];
+    if (entries.length === 0) return null;
+    return (
+      <Section background={category.id === 'main' ? 'default' : 'muted'} id={category.id}>
+        <Container size="narrow">
+          <Heading level={2}>{category.label}</Heading>
+          <div class="mt-8 flex flex-col gap-8">
+            {entries.map((entry) => {
+              const isFirst = globalIndex === 0;
+              globalIndex += 1;
+              return (
+                <figure class="m-0 overflow-hidden rounded-md border border-foreground/10">
+                  <Image
+                    src={entry.data.image}
+                    alt={entry.data.title}
+                    widths={[640, 960, 1280]}
+                    sizes="(min-width: 768px) 768px, 100vw"
+                    loading={isFirst ? 'eager' : 'lazy'}
+                    class="block h-auto w-full"
+                  />
+                </figure>
+              );
+            })}
+          </div>
+        </Container>
+      </Section>
+    );
+  })
+}

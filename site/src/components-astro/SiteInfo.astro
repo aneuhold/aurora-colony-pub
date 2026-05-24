@@ -1,0 +1,30 @@
+---
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('locationContact', 'location-contact');
+if (!entry) {
+  throw new Error('Missing locationContact content entry');
+}
+const { address, phone, email } = entry.data;
+const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
+---
+
+<address class="not-italic font-body leading-relaxed">
+  <p>{address}</p>
+  <p class="mt-2">
+    <a
+      href={telHref}
+      class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+    >
+      {phone}
+    </a>
+  </p>
+  <p>
+    <a
+      href={`mailto:${email}`}
+      class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+    >
+      {email}
+    </a>
+  </p>
+</address>

@@ -4,8 +4,8 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { defineCollection } from 'astro:content';
 
-const hero = defineCollection({
-  loader: glob({ pattern: 'hero.json', base: 'src/content' }),
+const titleTagline = defineCollection({
+  loader: glob({ pattern: 'title-tagline.json', base: 'src/content' }),
   schema: z.object({
     title: z.string(),
     tagline: z.string().optional()
@@ -19,6 +19,57 @@ const about = defineCollection({
   })
 });
 
+const locationContact = defineCollection({
+  loader: glob({ pattern: 'location-contact.json', base: 'src/content' }),
+  schema: z.object({
+    address: z.string(),
+    phone: z.string(),
+    email: z.string()
+  })
+});
+
+const hours = defineCollection({
+  loader: glob({ pattern: 'hours.json', base: 'src/content' }),
+  schema: z.object({
+    weekly: z.array(
+      z.object({
+        label: z.string(),
+        open: z.string(),
+        close: z.string()
+      })
+    ),
+    happyHour: z.object({
+      label: z.string(),
+      start: z.string(),
+      end: z.string(),
+      note: z.string().optional()
+    })
+  })
+});
+
+const socialMediaLinks = defineCollection({
+  loader: glob({ pattern: 'social-media-links.json', base: 'src/content' }),
+  schema: z.object({
+    links: z.array(
+      z.object({
+        label: z.string(),
+        url: z.url()
+      })
+    )
+  })
+});
+
+const menuImages = defineCollection({
+  loader: glob({ pattern: '*.json', base: 'src/content/menu-images' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      category: z.enum(['main', 'breakfast', 'kids', 'happy-hour']),
+      image: image(),
+      order: z.number().default(0)
+    })
+});
+
 const gallery = defineCollection({
   loader: glob({ pattern: '*.json', base: 'src/content/gallery' }),
   schema: ({ image }) =>
@@ -29,4 +80,12 @@ const gallery = defineCollection({
     })
 });
 
-export const collections = { hero, about, gallery };
+export const collections = {
+  titleTagline,
+  about,
+  locationContact,
+  hours,
+  socialMediaLinks,
+  menuImages,
+  gallery
+};
