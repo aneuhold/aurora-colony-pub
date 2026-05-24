@@ -8,22 +8,25 @@ if (!entry) {
 const { weekly, happyHour } = entry.data;
 ---
 
-<div class="font-body">
-  <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
-    {
-      weekly.map((row) => (
-        <>
-          <dt class="text-foreground/70">{row.label}</dt>
-          <dd>
-            {row.open} – {row.close}
-          </dd>
-        </>
-      ))
-    }
-  </dl>
-  <p class="mt-4 text-foreground/70">
-    <span class="font-medium text-foreground">Happy hour</span>
-    {' · '}{happyHour.label}, {happyHour.start} – {happyHour.end}
-    {happyHour.note && <span class="block text-sm">{happyHour.note}</span>}
-  </p>
-</div>
+<dl class="inline-grid grid-cols-[1fr_2fr] gap-x-6 gap-y-2 text-left font-body">
+  {
+    weekly.map((row) => (
+      <>
+        <dt class="text-foreground/70">{row.label}</dt>
+        <dd>
+          {row.open} – {row.close}
+        </dd>
+      </>
+    ))
+  }
+  <dt class="mt-2 border-t border-foreground/10 pt-3 text-foreground/70">Happy hour</dt>
+  <dd class="mt-2 border-t border-foreground/10 pt-3">
+    {happyHour.start} – {happyHour.end}
+    <span class="text-foreground/60">({happyHour.label})</span>
+  </dd>
+</dl>
+{
+  happyHour.note && (
+    <span class="mt-1 block text-center text-sm text-foreground/60">{happyHour.note}</span>
+  )
+}

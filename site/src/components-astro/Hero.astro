@@ -6,6 +6,7 @@ import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import OpenNowChip from '$components-svelte/OpenNowChip';
+import dateTimeService from '$util/DateTime.service';
 import heroPhoto from '../assets/gallery/interior-wood-bar.jpg';
 import LogoInverted from '../assets/logo-inverted.svg';
 
@@ -25,33 +26,9 @@ if (!locationEntry) {
   throw new Error('Missing locationContact content entry');
 }
 
-const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const todayLabel = dayLabels[new Date().getDay()];
+const todayIdx = new Date().getDay();
 const todayRow =
-  hoursEntry.data.weekly.find((row) => {
-    const normalized = row.label.replace(/[–—]/g, '-');
-    const parts = normalized.split('-').map((s) => s.trim());
-    if (parts.length === 1) return parts[0] === todayLabel;
-    const labelIdx: Record<string, number> = {
-      Sun: 0,
-      Mon: 1,
-      Tue: 2,
-      Wed: 3,
-      Thu: 4,
-      Fri: 5,
-      Sat: 6
-    };
-    const start = labelIdx[parts[0]];
-    const end = labelIdx[parts[1]];
-    const today = labelIdx[todayLabel];
-    if (start === undefined || end === undefined || today === undefined) return false;
-    let i = start;
-    while (true) {
-      if (i === today) return true;
-      if (i === end) return false;
-      i = (i + 1) % 7;
-    }
-  }) ?? hoursEntry.data.weekly[0];
+  dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
 
 const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import openNowChipService, { type HoursRow } from './OpenNowChip.service';
+import type { HoursRow } from '$util/DateTime.service';
+import openNowChipService from './OpenNowChip.service';
 
 const weekly: HoursRow[] = [
   { label: 'Mon–Thu', open: '11:00 AM', close: '10:00 PM' },
@@ -15,47 +16,6 @@ const at = (dayIdx: number, hour: number, minute: number): Date => {
   d.setHours(hour, minute, 0, 0);
   return d;
 };
-
-describe('openNowChipService.parseTimeOfDay', () => {
-  it('parses morning times', () => {
-    expect(openNowChipService.parseTimeOfDay('9:00 AM')).toEqual({ hour: 9, minute: 0 });
-  });
-
-  it('parses afternoon times into 24-hour clock', () => {
-    expect(openNowChipService.parseTimeOfDay('3:30 PM')).toEqual({ hour: 15, minute: 30 });
-  });
-
-  it('treats 12:00 AM as midnight (hour 0)', () => {
-    expect(openNowChipService.parseTimeOfDay('12:00 AM')).toEqual({ hour: 0, minute: 0 });
-  });
-
-  it('treats 12:00 PM as noon (hour 12)', () => {
-    expect(openNowChipService.parseTimeOfDay('12:00 PM')).toEqual({ hour: 12, minute: 0 });
-  });
-
-  it('returns null for malformed input', () => {
-    expect(openNowChipService.parseTimeOfDay('not a time')).toBeNull();
-    expect(openNowChipService.parseTimeOfDay('25:00 AM')).toBeNull();
-  });
-});
-
-describe('openNowChipService.expandLabel', () => {
-  it('expands a single-day label', () => {
-    expect(openNowChipService.expandLabel('Fri')).toEqual([5]);
-  });
-
-  it('expands an en-dash range', () => {
-    expect(openNowChipService.expandLabel('Mon–Thu')).toEqual([1, 2, 3, 4]);
-  });
-
-  it('expands an ascii-hyphen range', () => {
-    expect(openNowChipService.expandLabel('Mon-Thu')).toEqual([1, 2, 3, 4]);
-  });
-
-  it('expands a range that wraps the week', () => {
-    expect(openNowChipService.expandLabel('Sat–Mon')).toEqual([6, 0, 1]);
-  });
-});
 
 describe('openNowChipService.computeStatus', () => {
   it('reports open during normal weekday hours', () => {
