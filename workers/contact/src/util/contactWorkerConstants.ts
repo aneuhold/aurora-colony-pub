@@ -1,16 +1,10 @@
 /**
- * Public, non-secret constants for the contact Worker.
+ * Public, non-secret constants for the contact Worker. CORS origins are
+ * shared across all workers — see `@aurora/workers-shared`.
  */
 export const contactWorkerConstants = {
   /** Inbox the form submissions are delivered to. */
   ownerEmail: 'agneuhold@gmail.com',
   /** `From` header used on outgoing Resend emails. */
-  fromEmail: 'Aurora Colony Pub <onboarding@resend.dev>',
-  /** Origins permitted to POST to this Worker (CORS allowlist). */
-  allowedOrigins: [
-    'https://aurora-colony-pub-frontend.pages.dev',
-    'https://auroracolonypub.com',
-    'https://www.auroracolonypub.com',
-    'http://localhost:4321'
-  ]
+  fromEmail: 'Aurora Colony Pub <onboarding@resend.dev>'
 };

@@ -1,7 +1,15 @@
 import { graphPostsToWorkerPosts, type WorkerFbFeedResponse } from '@aurora/shared';
+import {
+  checkIpRateLimit,
+  corsHeaders,
+  isAllowedOrigin,
+  jsonResponse
+} from '@aurora/workers-shared';
 import type { Env } from '../Env';
 import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
 import { mockFbGraphResponse } from '../util/mockFbGraphResponse';
+
+const CORS_METHODS = ['GET', 'OPTIONS'] as const;
 
 /**
  * Read-only Facebook feed singleton. Returns the latest snapshot the sync
@@ -19,9 +27,9 @@ class FbFeedReadService {
    */
   async handleRequest(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get('Origin');
-    const echoedOrigin = origin && this.isAllowedOrigin(origin) ? origin : '';
+    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     const cors: Record<string, string> = echoedOrigin
-      ? this.corsHeaders(echoedOrigin)
+      ? corsHeaders(echoedOrigin, CORS_METHODS)
       : { Vary: 'Origin' };
 
     if (request.method === 'OPTIONS') {
@@ -34,13 +42,11 @@ class FbFeedReadService {
       });
     }
     if (origin !== null && !echoedOrigin) {
-      return this.jsonResponse({ error: 'Forbidden origin' }, 403, cors);
+      return jsonResponse({ error: 'Forbidden origin' }, 403, cors);
     }
 
-    const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    const { success: rateOk } = await env.RATE_LIMITER.limit({ key: ip });
-    if (!rateOk) {
-      return this.jsonResponse({ error: 'Too Many Requests' }, 429, cors);
+    if (!(await checkIpRateLimit(request, env))) {
+      return jsonResponse({ error: 'Too Many Requests' }, 429, cors);
     }
 
     const stored = await env.AURORA_COLONY_PUB_KV.get<WorkerFbFeedResponse>(
@@ -48,7 +54,7 @@ class FbFeedReadService {
       'json'
     );
     if (stored !== null) {
-      return this.jsonResponse(stored, 200, {
+      return jsonResponse(stored, 200, {
         ...cors,
         'Cache-Control': fbFeedReadConstants.cacheControl
       });
@@ -58,34 +64,9 @@ class FbFeedReadService {
       posts: graphPostsToWorkerPosts(mockFbGraphResponse),
       syncedAt: new Date().toISOString()
     };
-    return this.jsonResponse(payload, 200, {
+    return jsonResponse(payload, 200, {
       ...cors,
       'Cache-Control': fbFeedReadConstants.cacheControl
-    });
-  }
-
-  private isAllowedOrigin(origin: string): boolean {
-    return fbFeedReadConstants.allowedOrigins.includes(origin);
-  }
-
-  private corsHeaders(origin: string): Record<string, string> {
-    return {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
-      Vary: 'Origin'
-    };
-  }
-
-  private jsonResponse(
-    body: unknown,
-    status: number,
-    extraHeaders: Record<string, string>
-  ): Response {
-    return new Response(JSON.stringify(body), {
-      status,
-      headers: { 'Content-Type': 'application/json', ...extraHeaders }
     });
   }
 }

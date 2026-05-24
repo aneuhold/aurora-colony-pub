@@ -59,6 +59,19 @@ importers:
 
   packages/shared: {}
 
+  packages/workers-shared:
+    dependencies:
+      '@sentry/cloudflare':
+        specifier: ^10.53.1
+        version: 10.53.1(@cloudflare/workers-types@4.20260522.1)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260522.1
+        version: 4.20260522.1
+      vitest:
+        specifier: ^4.1.6
+        version: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.8.0)(jsdom@29.1.1)(vite@7.3.3(@types/node@25.8.0)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.0)(yaml@2.9.0))
+
   site:
     dependencies:
       '@astrojs/check':
@@ -119,6 +132,9 @@ importers:
 
   workers/cms-auth:
     dependencies:
+      '@aurora/workers-shared':
+        specifier: workspace:*
+        version: link:../../packages/workers-shared
       '@sentry/cloudflare':
         specifier: ^10.53.1
         version: 10.53.1(@cloudflare/workers-types@4.20260522.1)
@@ -141,6 +157,9 @@ importers:
       '@aurora/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@aurora/workers-shared':
+        specifier: workspace:*
+        version: link:../../packages/workers-shared
       '@sentry/cloudflare':
         specifier: ^10.53.1
         version: 10.53.1(@cloudflare/workers-types@4.20260522.1)
@@ -169,6 +188,9 @@ importers:
       '@aurora/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@aurora/workers-shared':
+        specifier: workspace:*
+        version: link:../../packages/workers-shared
       '@sentry/cloudflare':
         specifier: ^10.53.1
         version: 10.53.1(@cloudflare/workers-types@4.20260522.1)
@@ -188,6 +210,9 @@ importers:
 
   workers/fb-feed-sync:
     dependencies:
+      '@aurora/workers-shared':
+        specifier: workspace:*
+        version: link:../../packages/workers-shared
       '@sentry/cloudflare':
         specifier: ^10.53.1
         version: 10.53.1(@cloudflare/workers-types@4.20260522.1)

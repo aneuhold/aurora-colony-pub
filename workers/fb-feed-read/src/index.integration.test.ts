@@ -1,17 +1,18 @@
 import type { WorkerFbFeedResponse } from '@aurora/shared';
+import { allowedOrigins } from '@aurora/workers-shared';
+import {
+  createTestIpGenerator,
+  installSentryOnlyFetchMock
+} from '@aurora/workers-shared/test-utils';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fbFeedReadConstants } from './util/fbFeedReadConstants';
 import { mockFbGraphResponse } from './util/mockFbGraphResponse';
 
-const ORIGIN = fbFeedReadConstants.allowedOrigins[0];
+const ORIGIN = allowedOrigins[0];
 const FORBIDDEN_ORIGIN = 'https://evil.example.com';
 
-let ipCounter = 0;
-const nextIp = (): string => {
-  ipCounter += 1;
-  return `203.0.113.${ipCounter}`;
-};
+const nextIp = createTestIpGenerator();
 
 const get = (init: { origin?: string | null; method?: string } = {}): Promise<Response> => {
   const headers: Record<string, string> = { 'CF-Connecting-IP': nextIp() };
@@ -23,18 +24,6 @@ const get = (init: { origin?: string | null; method?: string } = {}): Promise<Re
   return exports.default.fetch('https://fb-feed-read.example.com/', {
     method: init.method ?? 'GET',
     headers
-  });
-};
-
-const allowSentryFetch = (): void => {
-  // The Sentry SDK fires-and-forgets to its ingest. Allow those and reject
-  // any other outbound call so the test only sees what we expect.
-  vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (/^https:\/\/[^/]*\.ingest\.[^/]*sentry\.io\//.test(url)) {
-      return Promise.resolve(new Response(null, { status: 200 }));
-    }
-    return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
   });
 };
 
@@ -50,7 +39,7 @@ describe('fb-feed-read worker', () => {
   beforeAll(async () => {
     // Pay miniflare's first-call cold start here so the first real test
     // doesn't trip the 5s default timeout.
-    allowSentryFetch();
+    installSentryOnlyFetchMock();
     const response = await exports.default.fetch('https://fb-feed-read.example.com/', {
       method: 'OPTIONS',
       headers: { Origin: ORIGIN }
@@ -60,7 +49,7 @@ describe('fb-feed-read worker', () => {
   }, 30_000);
 
   beforeEach(() => {
-    allowSentryFetch();
+    installSentryOnlyFetchMock();
   });
 
   afterEach(async () => {

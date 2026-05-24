@@ -1,5 +1,6 @@
 /**
- * Public, non-secret constants for the fb-feed-read Worker.
+ * Public, non-secret constants for the fb-feed-read Worker. CORS origins
+ * are shared across all workers — see `@aurora/workers-shared`.
  */
 export const fbFeedReadConstants = {
   /**
@@ -9,13 +10,6 @@ export const fbFeedReadConstants = {
    * code change.
    */
   kvKey: 'fb:feed:latest',
-  /** Origins permitted to call this Worker (CORS allowlist). */
-  allowedOrigins: [
-    'https://aurora-colony-pub-frontend.pages.dev',
-    'https://auroracolonypub.com',
-    'https://www.auroracolonypub.com',
-    'http://localhost:4321'
-  ],
   /**
    * Browser cache hint. Two minutes keeps the island snappy without
    * holding stale posts long once the real sync worker is producing data.
