@@ -7,5 +7,10 @@ export const contactWorkerConstants = {
   /** `From` header used on outgoing Resend emails. */
   fromEmail: 'Aurora Colony Pub <onboarding@resend.dev>',
   /** Origins permitted to POST to this Worker (CORS allowlist). */
-  allowedOrigins: ['https://aurora-colony-pub-frontend.pages.dev', 'http://localhost:4321']
+  allowedOrigins: [
+    'https://aurora-colony-pub-frontend.pages.dev',
+    'https://auroracolonypub.com',
+    'https://www.auroracolonypub.com',
+    'http://localhost:4321'
+  ]
 };

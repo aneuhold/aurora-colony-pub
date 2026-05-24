@@ -32,8 +32,10 @@
   $effect(() => {
     if (!turnstileEl) return;
     const target = turnstileEl;
-    void (async () => {
-      widgetId = await contactFormService.mountTurnstile(target, {
+    let cancelled = false;
+
+    const mountWidget = async (): Promise<void> => {
+      const id = await contactFormService.mountTurnstile(target, {
         onToken: (token) => {
           turnstileToken = token;
         },
@@ -44,8 +46,18 @@
           turnstileToken = '';
         }
       });
-    })();
+      // If the effect was torn down while we were awaiting the script load,
+      // remove the widget here — the cleanup function already ran with widgetId still null.
+      if (cancelled) {
+        if (id !== null) contactFormService.removeTurnstile(id);
+        return;
+      }
+      widgetId = id;
+    };
+    void mountWidget();
+
     return () => {
+      cancelled = true;
       if (widgetId !== null) {
         contactFormService.removeTurnstile(widgetId);
         widgetId = null;
@@ -136,7 +148,7 @@
         ></textarea>
       </label>
 
-      <!-- Honeypot: hidden from real users, bots tend to fill it. -->
+      <!-- Honeypot: hidden from real users (visually + AT), bots tend to fill it. -->
       <input
         data-testid="contact-form-honeypot"
         type="text"
@@ -145,7 +157,7 @@
         autocomplete="off"
         aria-hidden="true"
         bind:value={website}
-        class="absolute -left-2499.75"
+        class="pointer-events-none absolute -z-10 h-0 w-0 overflow-hidden opacity-0"
       />
 
       <div bind:this={turnstileEl} data-testid="contact-form-turnstile"></div>

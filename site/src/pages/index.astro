@@ -17,6 +17,10 @@ if (!hero) {
   title="Aurora Colony Pub — coming soon"
   description="The Aurora Colony Pub website is on its way."
 >
+  <!-- Warm the TLS handshake to Turnstile so the script (loaded later by the ContactForm island) downloads fast. 
+   We only want it on this page, which contains the contact form, and not every page. Which is why it isn't in the root
+   layout. -->
+  <link slot="head" rel="preconnect" href="https://challenges.cloudflare.com" />
   <main>
     <Hero title={hero.data.title} tagline={hero.data.tagline} />
     <HelloIsland client:load />

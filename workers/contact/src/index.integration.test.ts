@@ -44,9 +44,14 @@ const setupFetchMock = (options: FetchMockOptions = {}): { resendCalls: ResendCa
           })
         );
       }
-      // Sentry's transport fetches its ingest endpoint on captured errors.
-      // Swallow with a 200 so it doesn't surface as an uncaught exception in tests.
-      return Promise.resolve(new Response(null, { status: 200 }));
+      // Hosts Sentry's transport posts trace / error envelopes to. Allowlisted so
+      // the SDK's fire-and-forget fetches don't blow up the test, while still
+      // letting us throw on any *other* unexpected outbound call.
+      const SENTRY_INGEST_PATTERN = /^https:\/\/[^/]*\.ingest\.[^/]*sentry\.io\//;
+      if (SENTRY_INGEST_PATTERN.test(url)) {
+        return Promise.resolve(new Response(null, { status: 200 }));
+      }
+      return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
     }
   );
   return { resendCalls };
