@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import Button from '$components-astro/ui/Button.astro';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+import buildingPhoto from '../assets/gallery/exterior-full-building.jpg';
+---
+
+<Section>
+  <Container size="wide">
+    <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+      <div class="reveal order-2 md:order-1">
+        <Heading level={2}>A 1930s neighborhood place.</Heading>
+        <p class="mt-5 max-w-prose text-lg leading-relaxed text-foreground/80">
+          Halfway between Salem and Portland on old 99E, in a wood-frame building that started life
+          as a grocery store, then a barber shop, then a tavern. Sloping concrete floors, tin roof,
+          and the original meat-locker door still keeping our kegs cold.
+        </p>
+        <div class="mt-6">
+          <Button variant="link" href="/about">Read the story →</Button>
+        </div>
+      </div>
+      <figure class="reveal order-1 m-0 overflow-hidden rounded-lg border border-foreground/10 md:order-2">
+        <Image
+          src={buildingPhoto}
+          alt="The pub in daylight — white wood-frame walls, black tin roof and the big roadside sign."
+          widths={[480, 768, 1080]}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          loading="lazy"
+          class="block h-auto w-full"
+        />
+      </figure>
+    </div>
+  </Container>
+</Section>

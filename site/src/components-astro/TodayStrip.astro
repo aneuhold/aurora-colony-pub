@@ -1,0 +1,67 @@
+---
+import { getEntry } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Section from '$components-astro/ui/Section.astro';
+import dateTimeService from '$util/DateTime.service';
+import pubMapService from '$util/PubMap/PubMap.service';
+
+const hoursEntry = await getEntry('hours', 'hours');
+if (!hoursEntry) {
+  throw new Error('Missing hours content entry');
+}
+const contactEntry = await getEntry('contact', 'contact');
+if (!contactEntry) {
+  throw new Error('Missing contact content entry');
+}
+
+const now = new Date();
+const todayIdx = now.getDay();
+
+const todayRow =
+  dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
+
+const { phone } = contactEntry.data;
+const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
+const { happyHour } = hoursEntry.data;
+const isHappyHourDay = dateTimeService.labelCoversDay(happyHour.label, todayIdx);
+
+const todayHoursLine = `${todayRow.open} – ${todayRow.close}`;
+const happyHourLine = isHappyHourDay
+  ? `Happy hour ${happyHour.start} – ${happyHour.end}`
+  : null;
+---
+
+<Section padding="tight" background="muted" class="border-y border-foreground/10">
+  <Container size="wide">
+    <div class="grid gap-8 md:grid-cols-3 md:gap-12">
+      <div>
+        <p class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">Today</p>
+        <p class="mt-2 text-xl text-foreground md:text-2xl">{todayHoursLine}</p>
+        {happyHourLine && <p class="mt-1 text-foreground/70">{happyHourLine}</p>}
+      </div>
+      <div>
+        <p class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">Find us</p>
+        <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">{pubMapService.address}</p>
+        <a
+          href={pubMapService.mapsSearchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-2 inline-block text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+        >
+          Get directions
+        </a>
+      </div>
+      <div>
+        <p class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">Call</p>
+        <p class="mt-2">
+          <a
+            href={telHref}
+            class="font-display text-3xl tracking-tight text-foreground transition-colors duration-snap ease-soft hover:text-primary md:text-4xl"
+          >
+            {phone}
+          </a>
+        </p>
+      </div>
+    </div>
+  </Container>
+</Section>

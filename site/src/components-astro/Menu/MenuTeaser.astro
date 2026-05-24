@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+import type { MenuCategory } from './menuTypes';
+
+type FeaturedCategory = Exclude<MenuCategory, 'kids'>;
+
+interface Card {
+  category: FeaturedCategory;
+  label: string;
+  href: string;
+  entry: CollectionEntry<'menuImages'>;
+}
+
+const all = (await getCollection('menuImages')).sort((a, b) => a.data.order - b.data.order);
+
+const firstOf = (cat: FeaturedCategory): CollectionEntry<'menuImages'> | undefined =>
+  all.find((entry) => entry.data.category === cat);
+
+const featured: { category: FeaturedCategory; label: string; href: string }[] = [
+  { category: 'main', label: 'Main', href: '/menu#main' },
+  { category: 'breakfast', label: 'Breakfast', href: '/menu#breakfast' },
+  { category: 'happy-hour', label: 'Happy hour', href: '/menu#happy-hour' }
+];
+
+const cards: Card[] = featured.flatMap((f) => {
+  const entry = firstOf(f.category);
+  return entry ? [{ ...f, entry }] : [];
+});
+
+const hasKids = all.some((entry) => entry.data.category === 'kids');
+---
+
+<Section>
+  <Container size="wide">
+    <Heading level={2}>The menus.</Heading>
+    <p class="mt-3 max-w-prose text-foreground/70">Tap any page to see it full size.</p>
+    <ul class="mt-10 grid list-none gap-4 p-0 md:grid-cols-3">
+      {
+        cards.map((card) => (
+          <li class="reveal">
+            <a
+              href={card.href}
+              class="group relative block overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 transition-transform duration-snap ease-soft hover:-translate-y-1"
+            >
+              <Image
+                src={card.entry.data.image}
+                alt={card.entry.data.title}
+                widths={[320, 640, 960]}
+                sizes="(min-width: 768px) 33vw, 100vw"
+                loading="lazy"
+                class="block h-72 w-full object-cover transition-transform duration-glide ease-soft group-hover:scale-[1.02]"
+              />
+              <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-foreground/80 via-foreground/40 to-transparent p-5">
+                <span class="font-display text-2xl tracking-tight text-background">
+                  {card.label}
+                </span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      hasKids && (
+        <p class="mt-6 text-sm text-foreground/70">
+          Got little ones?{' '}
+          <a
+            href="/menu#kids"
+            class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+          >
+            The kids menu lives here.
+          </a>
+        </p>
+      )
+    }
+  </Container>
+</Section>

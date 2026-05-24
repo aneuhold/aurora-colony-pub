@@ -1,5 +1,9 @@
 ---
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+import Footer from '$components-astro/Footer.astro';
+import Nav from '$components-astro/Nav.astro';
 
 interface Props {
   title: string;
@@ -17,9 +21,15 @@ const { title, description } = Astro.props;
     {description && <meta name="description" content={description} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <Font cssVariable="--font-zilla-slab" preload />
+    <Font cssVariable="--font-inter" preload />
+    <ClientRouter />
     <slot name="head" />
   </head>
-  <body>
+  <body class="bg-background bg-paper font-body text-foreground">
+    <Nav />
+    <div class="h-px bg-foreground/10"></div>
     <slot />
+    <Footer />
   </body>
 </html>

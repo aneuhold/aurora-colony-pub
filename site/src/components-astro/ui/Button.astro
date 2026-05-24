@@ -1,0 +1,39 @@
+---
+type Variant = 'primary' | 'accent' | 'ghost' | 'inverted' | 'link';
+
+interface Props {
+  variant?: Variant;
+  href?: string;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+  class?: string;
+}
+
+const { variant = 'primary', href, type = 'button', disabled, class: className } = Astro.props;
+
+const variantClass: Record<Variant, string> = {
+  primary:
+    'inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-snap ease-soft hover:bg-primary/90 disabled:opacity-50',
+  accent:
+    'inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 font-medium text-accent-foreground transition-colors duration-snap ease-soft hover:bg-accent/90 disabled:opacity-50',
+  ghost:
+    'inline-flex items-center justify-center rounded-md px-4 py-2 font-medium text-foreground transition-colors duration-snap ease-soft hover:bg-foreground/5 disabled:opacity-50',
+  inverted:
+    'inline-flex items-center justify-center rounded-md bg-foreground/60 px-4 py-2 font-medium text-background ring-1 ring-background/30 backdrop-blur-sm transition-colors duration-snap ease-soft hover:bg-foreground/75 disabled:opacity-50',
+  link: 'text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline'
+};
+
+const classes = [variantClass[variant], className];
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} disabled={disabled} class:list={classes}>
+      <slot />
+    </button>
+  )
+}

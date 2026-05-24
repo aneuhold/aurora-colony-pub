@@ -1,0 +1,34 @@
+---
+type Level = 0 | 1 | 2 | 3 | 4;
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'p';
+
+interface Props {
+  level: Level;
+  as?: HeadingTag;
+  class?: string;
+}
+
+const { level, as, class: className } = Astro.props as Props;
+
+const defaultTag: Record<Level, HeadingTag> = {
+  0: 'h1',
+  1: 'h1',
+  2: 'h2',
+  3: 'h3',
+  4: 'h4'
+};
+
+const sizeClass: Record<Level, string> = {
+  0: 'text-5xl md:text-7xl lg:text-8xl leading-[1.05]',
+  1: 'text-4xl md:text-5xl',
+  2: 'text-3xl md:text-4xl',
+  3: 'text-2xl md:text-3xl',
+  4: 'text-xl md:text-2xl'
+};
+
+const Tag = as ?? defaultTag[level];
+---
+
+<Tag class:list={['font-display leading-tight tracking-tight', sizeClass[level], className]}>
+  <slot />
+</Tag>
