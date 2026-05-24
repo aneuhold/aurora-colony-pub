@@ -17,6 +17,7 @@
     "@astrojs/check": "^0.9.9",
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/svelte": "^8.1.1",
+    "@aurora/shared": "workspace:*",
     "@sveltia/cms": "^0.161.1",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
@@ -28,6 +29,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
     "@testing-library/user-event": "^14.6.1",
+    "@types/cloudflare-turnstile": "^0.2.2",
     "jsdom": "^29.1.1",
     "vitest": "^4.1.6"
   }

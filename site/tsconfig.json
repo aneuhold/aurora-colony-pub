@@ -6,7 +6,8 @@
       "$components-svelte/*": ["./src/components-svelte/*"],
       "$util/*": ["./src/util/*"],
       "$styles/*": ["./src/styles/*"]
-    }
+    },
+    "types": ["cloudflare-turnstile"]
   },
   "include": [
     ".astro/types.d.ts",

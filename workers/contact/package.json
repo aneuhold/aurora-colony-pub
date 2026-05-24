@@ -4,21 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --env-file ../../.env",
     "check": "wrangler types > /dev/null && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
-    "start": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir=dist",
     "typegen": "wrangler types",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@sentry/cloudflare": "^10.53.1"
+    "@aurora/shared": "workspace:*",
+    "@sentry/cloudflare": "^10.53.1",
+    "he": "^1.2.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.16.6",
     "@cloudflare/workers-types": "^4.20260522.1",
+    "@types/he": "^1.2.3",
     "vitest": "^4.1.6",
     "wrangler": "^4.92.0"
   }

@@ -4,7 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@11.2.2",
   "scripts": {
-    "dev": "pnpm --filter ./site dev",
+    "dev": "concurrently -n site,contact,fb-read,fb-sync,cms-auth -c blue,green,yellow,magenta,cyan \"pnpm --filter ./site dev\" \"pnpm --filter ./workers/contact dev\" \"pnpm --filter ./workers/fb-feed-read dev\" \"pnpm --filter ./workers/fb-feed-sync dev\" \"pnpm --filter ./workers/cms-auth dev\"",
+    "dev:site": "pnpm --filter ./site dev",
     "build": "pnpm -r --parallel build",
     "build:site": "pnpm --filter ./site build",
     "build:workers": "pnpm -r --parallel --filter \"./workers/*\" build",

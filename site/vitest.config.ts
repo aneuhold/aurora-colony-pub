@@ -4,6 +4,10 @@
 import { getViteConfig } from 'astro/config';
 
 export default getViteConfig({
+  // Force Vite to resolve packages via their `browser` export
+  resolve: {
+    conditions: ['browser']
+  },
   test: {
     environment: 'jsdom',
     include: ['src/**/*.{test,spec}.{ts,svelte.ts}'],
