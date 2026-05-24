@@ -36,20 +36,20 @@ breaks if the user changes their FB password, loses Page admin, etc.).
      need to call `GET /{page-id}/posts`
      ([use-case mapping](https://developers.facebook.com/docs/development/create-an-app/use-cases-permission-mapping/),
      [permission reference](https://developers.facebook.com/docs/permissions/)).
-   - **Business Portfolio**: connect to the one created in step 1.
-4. **System User + non-expiring Page Access Token**
+   - **Business Portfolio**: connect to the freelance portfolio.
+3. **System User + non-expiring Page Access Token**
    ([docs](https://developers.facebook.com/docs/business-management-apis/system-users/),
    [token generation](https://developers.facebook.com/docs/business-management-apis/system-users/install-apps-and-generate-tokens/))
    - In Business Settings → Users → **System Users** → Add. Type: Admin.
    - Add Assets → Pages → select the pub's Page → grant content/management
      access.
-   - **Generate New Token** → pick the app from step 3 → select scopes
+   - **Generate New Token** → pick the app from step 2 → select scopes
      `pages_show_list` + `pages_read_engagement` → **leave
      "Set token expiration" off** so it's non-expiring (the alternative is
      a 60-day expiring token; we don't want that). Copy the token now —
      it's only shown once.
    - From the Page's About section, copy the **Page ID**.
-5. **Smoke-test the token before wiring secrets**
+4. **Smoke-test the token before wiring secrets**
    ([Standard vs Advanced Access](https://developers.facebook.com/docs/graph-api/overview/access-levels/))
    - `curl "https://graph.facebook.com/v21.0/{PAGE_ID}/posts?fields=id,message,permalink_url&limit=1&access_token={TOKEN}"`
    - **Posts come back** → Standard Access is enough; the app can stay in
@@ -64,14 +64,13 @@ breaks if the user changes their FB password, loses Page admin, etc.).
      certainly already satisfies this on their side; ours may not, but
      since the Page is shared into our portfolio rather than owned by
      it, Standard Access is the expected path.
-6. **Wrangler secrets** (sync worker only — the read worker doesn't talk to
+5. **Wrangler secrets** (sync worker only — the read worker doesn't talk to
    Facebook)
    - `pnpm --filter ./workers/fb-feed-sync exec wrangler secret put FB_PAGE_ID`
    - `pnpm --filter ./workers/fb-feed-sync exec wrangler secret put FB_PAGE_ACCESS_TOKEN`
-7. **Local `.env`** — add `FB_PAGE_ID` and `FB_PAGE_ACCESS_TOKEN` so
+6. **Local `.env`** — add `FB_PAGE_ID` and `FB_PAGE_ACCESS_TOKEN` so
    `wrangler dev --env-file ../../.env` picks them up locally (matches the
    pattern already used for `FB_MANUAL_SYNC_TOKEN`).
-8. **README table** is already populated; no change needed there.
 
 Open question worth flagging: System User tokens don't expire by time, but
 they can still be invalidated — Page admin role removed, password reset on
