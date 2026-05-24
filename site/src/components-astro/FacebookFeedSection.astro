@@ -1,0 +1,25 @@
+---
+import FacebookFeed from '$components-svelte/FacebookFeed';
+import Container from './ui/Container.astro';
+import Heading from './ui/Heading.astro';
+import Section from './ui/Section.astro';
+---
+
+<Section>
+  <Container size="wide">
+    <div class="flex flex-wrap items-baseline justify-between gap-3">
+      <Heading level={2}>Lately at the pub.</Heading>
+      <a
+        href="https://www.facebook.com/theauroracolonypub/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-display text-sm uppercase tracking-[0.18em] text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+      >
+        Follow on Facebook →
+      </a>
+    </div>
+    <div class="mt-10">
+      <FacebookFeed client:visible />
+    </div>
+  </Container>
+</Section>

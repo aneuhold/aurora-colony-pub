@@ -166,6 +166,9 @@ importers:
 
   workers/fb-feed-read:
     dependencies:
+      '@aurora/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@sentry/cloudflare':
         specifier: ^10.53.1
         version: 10.53.1(@cloudflare/workers-types@4.20260522.1)

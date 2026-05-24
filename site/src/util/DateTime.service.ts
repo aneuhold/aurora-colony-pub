@@ -10,6 +10,29 @@ export interface HoursRow {
 }
 
 class DateTimeService {
+  /**
+   * Short day labels indexed by JS `Date.getDay()` (0=Sun..6=Sat).
+   *
+   * Kept as a hand-typed literal (not derived from `Intl`) because these
+   * exact strings are content-author input — `hours.yaml` rows use
+   * `"Mon–Thu"`, `"Fri"`, etc., and `expandDayLabel` matches against this
+   * map. Deriving from CLDR risks the labels shifting under us and silently
+   * breaking the CMS content match.
+   */
+  private static readonly SHORT_DAY_LABELS: readonly string[] = [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat'
+  ];
+
+  /**
+   * Reverse of {@link SHORT_DAY_LABELS}. Hand-typed for the same reason:
+   * the keys are the literal strings the CMS author writes in hours rows.
+   */
   private static readonly DAY_LABEL_TO_INDEX: Record<string, number> = {
     Sun: 0,
     Mon: 1,
@@ -20,15 +43,22 @@ class DateTimeService {
     Sat: 6
   };
 
-  private static readonly SHORT_DAY_LABELS: readonly string[] = [
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat'
-  ];
+  /**
+   * Two-week threshold past which the relative-time formatter switches
+   * from "Nd ago" to an absolute month-day date. Keeps the FB feed cards
+   * readable for older entries.
+   */
+  private static readonly RELATIVE_DAYS_CUTOFF = 14;
+
+  private static readonly RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat('en', {
+    numeric: 'always',
+    style: 'narrow'
+  });
+
+  private static readonly ABSOLUTE_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
 
   /** Short day labels indexed by JS `Date.getDay()` (0=Sun..6=Sat). */
   readonly shortDayLabels = DateTimeService.SHORT_DAY_LABELS;
@@ -120,6 +150,36 @@ class DateTimeService {
    */
   shortDayLabel(date: Date): string {
     return DateTimeService.SHORT_DAY_LABELS[date.getDay()];
+  }
+
+  /**
+   * Converts an ISO timestamp into a short relative-time string ("Just now",
+   * "12m ago", "3h ago", "2d ago"). Past the two-week cutoff it switches to
+   * an absolute "MMM d" date so older entries still read clearly. The "Nm /
+   * Nh / Nd ago" and "MMM d" strings come from `Intl` — only the unit
+   * bucket selection and the "Just now" sentinel live here.
+   *
+   * @param iso Timestamp in any form `Date` accepts (Graph's `+0000`
+   *   suffix and standard `Z` suffix both work)
+   * @param now Optional reference time — defaults to `new Date()`. Lets
+   *   tests pin the clock.
+   */
+  formatRelativeTime(iso: string, now: Date = new Date()): string {
+    const then = new Date(iso);
+    const diffSec = Math.max(0, Math.floor((now.getTime() - then.getTime()) / 1000));
+    if (diffSec < 60) return 'Just now';
+    const rel = DateTimeService.RELATIVE_TIME_FORMATTER;
+    if (diffSec < 60 * 60) {
+      return rel.format(-Math.floor(diffSec / 60), 'minute');
+    }
+    if (diffSec < 60 * 60 * 24) {
+      return rel.format(-Math.floor(diffSec / (60 * 60)), 'hour');
+    }
+    const days = Math.floor(diffSec / (60 * 60 * 24));
+    if (days < DateTimeService.RELATIVE_DAYS_CUTOFF) {
+      return rel.format(-days, 'day');
+    }
+    return DateTimeService.ABSOLUTE_DATE_FORMATTER.format(then);
   }
 }
 

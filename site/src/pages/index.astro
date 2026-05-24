@@ -2,6 +2,7 @@
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AboutTeaser from '$components-astro/AboutTeaser.astro';
+import FacebookFeedSection from '$components-astro/FacebookFeedSection.astro';
 import Gallery from '$components-astro/Gallery';
 import Hero from '$components-astro/Hero.astro';
 import MenuTeaser from '$components-astro/Menu/MenuTeaser.astro';
@@ -20,6 +21,7 @@ if (!titleTagline) {
 >
   <main>
     <Hero title={titleTagline.data.title} tagline={titleTagline.data.tagline} />
+    <FacebookFeedSection />
     <TodayStrip />
     <MenuTeaser />
     <PatioCallout />
