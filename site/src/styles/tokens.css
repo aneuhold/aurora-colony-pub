@@ -6,13 +6,18 @@
        color-mix can't express (multi-stop gradients, distinct semantic states).
      - Add a :root primitives layer (palette -> semantic) when a second theme exists. */
 @theme {
-  --color-background: oklch(0.99 0 0);
-  --color-foreground: oklch(0.15 0 0);
-  --color-primary: oklch(0.55 0.16 70);
-  --color-primary-foreground: oklch(0.99 0 0);
+  --color-background: oklch(0.98 0.006 80);
+  --color-foreground: oklch(0.2 0.012 60);
+  --color-primary: oklch(0.5 0.13 55);
+  --color-primary-foreground: oklch(0.98 0.006 80);
 
   /* Typography — 2 vars. Tailwind generates font-display and font-body.
+     The literal font families (Zilla Slab + Inter) are configured in
+     astro.config.ts under `fonts`, and the Font components in BaseLayout.astro
+     wire the --font-zilla-slab and --font-inter CSS variables. Swap providers
+     or weights there; this file is the only place to switch which face plays
+     which role.
      Expand when needed: add --font-mono if monospace is required. */
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-zilla-slab);
+  --font-body: var(--font-inter);
 }
