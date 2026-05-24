@@ -105,7 +105,7 @@
                   {dateTimeService.formatRelativeTime(post.createdAt)}
                 </time>
                 {#if post.message}
-                  <p class="leading-relaxed text-foreground/80 line-clamp-3">
+                  <p class="whitespace-pre-line leading-relaxed text-foreground/80">
                     {post.message}
                   </p>
                 {/if}
