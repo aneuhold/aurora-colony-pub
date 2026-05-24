@@ -24,7 +24,11 @@ const locationContact = defineCollection({
   schema: z.object({
     address: z.string(),
     phone: z.string(),
-    email: z.string()
+    email: z.string(),
+    geo: z.object({
+      lat: z.number(),
+      lng: z.number()
+    })
   })
 });
 

@@ -1,14 +1,19 @@
-/* Motion — 2 durations, 1 easing, 1 named animation.
-   Tailwind generates duration-snap, duration-glide, ease-soft, animate-fade-up.
+/* Motion — 3 durations, 1 easing, named animations.
+   Tailwind generates duration-snap, duration-glide, duration-slow, ease-soft,
+   animate-fade-up, animate-fade-in.
+   The two-duration rule still applies for interactive bits (snap for hovers,
+   glide for transitions); --duration-slow exists only for the hero fade-in
+   so the photo doesn't visibly shift on first paint.
    Expand when needed:
-     - Additional durations (--duration-slow) for a longer beat.
      - Additional easings (--ease-bounce) for a different feel.
-     - Additional named animations (--animate-fade-in, --animate-slide-up) per pattern. */
+     - Additional named animations (--animate-slide-up) per pattern. */
 @theme {
   --duration-snap: 150ms;
   --duration-glide: 400ms;
+  --duration-slow: 700ms;
   --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-fade-up: fade-up var(--duration-glide) var(--ease-soft) both;
+  --animate-fade-in: fade-in var(--duration-slow) var(--ease-soft) both;
   --animate-slide-in-left: slide-in-left var(--duration-glide) var(--ease-soft) both;
   --animate-slide-in-right: slide-in-right var(--duration-glide) var(--ease-soft) both;
 }
@@ -21,6 +26,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

@@ -1,24 +1,17 @@
 ---
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import AboutTeaser from '$components-astro/AboutTeaser.astro';
 import Gallery from '$components-astro/Gallery';
 import Hero from '$components-astro/Hero.astro';
-import Button from '$components-astro/ui/Button.astro';
-import Container from '$components-astro/ui/Container.astro';
-import Heading from '$components-astro/ui/Heading.astro';
-import Section from '$components-astro/ui/Section.astro';
+import MenuTeaser from '$components-astro/MenuTeaser.astro';
+import PatioCallout from '$components-astro/PatioCallout.astro';
+import TodayStrip from '$components-astro/TodayStrip.astro';
 
 const titleTagline = await getEntry('titleTagline', 'title-tagline');
 if (!titleTagline) {
   throw new Error('Missing titleTagline content entry');
 }
-
-const menuLinks: { href: string; label: string }[] = [
-  { href: '/menu#main', label: 'Main' },
-  { href: '/menu#breakfast', label: 'Breakfast' },
-  { href: '/menu#kids', label: 'Kids' },
-  { href: '/menu#happy-hour', label: 'Happy hour' }
-];
 ---
 
 <BaseLayout
@@ -27,22 +20,10 @@ const menuLinks: { href: string; label: string }[] = [
 >
   <main>
     <Hero title={titleTagline.data.title} tagline={titleTagline.data.tagline} />
-
-    <Section>
-      <Container size="narrow">
-        <Heading level={2}>Our menus</Heading>
-        <div class="mt-6 flex flex-wrap gap-x-4 gap-y-2">
-          {
-            menuLinks.map((link) => (
-              <Button variant="link" href={link.href}>
-                {link.label}
-              </Button>
-            ))
-          }
-        </div>
-      </Container>
-    </Section>
-
-    <Gallery />
+    <TodayStrip />
+    <MenuTeaser />
+    <PatioCallout />
+    <Gallery limit={9} />
+    <AboutTeaser />
   </main>
 </BaseLayout>
