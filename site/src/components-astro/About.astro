@@ -11,22 +11,13 @@ if (!entry) {
 const { Content } = await render(entry);
 ---
 
-<Section class="reveal">
+<Section class="reveal-left">
   <Container size="narrow">
     <Heading level={2}>{entry.data.heading}</Heading>
-    <div class="about-body mt-6 leading-relaxed text-foreground/80">
+    <div
+      class="mt-6 leading-relaxed text-foreground/80 [&_a]:text-primary [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-md"
+    >
       <Content />
     </div>
   </Container>
 </Section>
-
-<style>
-  .about-body :global(a) {
-    color: var(--color-primary);
-  }
-  .about-body :global(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0.5rem;
-  }
-</style>

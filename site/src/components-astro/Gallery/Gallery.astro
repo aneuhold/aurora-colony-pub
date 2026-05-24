@@ -10,11 +10,11 @@ const entries = galleryService.sortEntries(await getCollection('gallery'));
 
 {
   entries.length > 0 && (
-    <Section class="reveal">
+    <Section>
       <Container>
         <ul class="grid list-none grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 p-0">
           {entries.map((entry) => (
-            <li>
+            <li class="reveal-right">
               <figure class="m-0 overflow-hidden rounded-md border border-foreground/10">
                 <Image
                   src={entry.data.photo}
