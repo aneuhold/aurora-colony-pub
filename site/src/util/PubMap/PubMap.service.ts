@@ -1,47 +1,23 @@
-export interface Geo {
-  lat: number;
-  lng: number;
-}
-
-/**
- * Escapes a string for safe interpolation into an HTML attribute or text node.
- * Used by the popup HTML builder so a malicious address can't inject markup.
- *
- * @param input Untrusted string
- */
-const escapeHtml = (input: string): string =>
-  input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-
 class PubMapService {
+  readonly address = '21568 Hwy 99E NE, Aurora, OR 97002';
+  readonly geo = { lat: 45.23118591485641, lng: -122.75530786008731 };
+  readonly cityLabel = 'Aurora, OR';
+  /** Opens a Google Maps search result for the address. */
+  readonly mapsSearchUrl = `https://www.google.com/maps/?q=${encodeURIComponent(this.address)}`;
   /**
-   * Builds a Google Maps directions URL from a geo coordinate. We use Google
-   * here because most visitors have it as their default maps app; the page
-   * itself is tracking-free because the tile layer is OSM, not Google.
-   *
-   * @param geo Lat/lng pair
+   * Google Maps directions URL pointing at the pub. We use Google here
+   * because most visitors have it as their default maps app; the page itself
+   * is tracking-free because the tile layer is OSM, not Google.
    */
-  buildDirectionsUrl(geo: Geo): string {
-    return `https://www.google.com/maps/dir/?api=1&destination=${geo.lat},${geo.lng}`;
-  }
-
+  readonly directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${this.geo.lat},${this.geo.lng}`;
   /**
-   * Builds the popup HTML for the map marker. Both `label` and
-   * `directionsUrl` are escaped.
-   *
-   * @param label Place label shown in bold
-   * @param directionsUrl URL the "Get directions" link points to
+   * Pre-built popup HTML for the Leaflet map marker. All inputs are
+   * hardcoded constants — no escaping needed because nothing untrusted ever
+   * reaches this string.
    */
-  buildPopupHtml(label: string, directionsUrl: string): string {
-    return (
-      `<strong>${escapeHtml(label)}</strong><br>` +
-      `<a href="${escapeHtml(directionsUrl)}" target="_blank" rel="noopener noreferrer">Get directions →</a>`
-    );
-  }
+  readonly popupHtml =
+    `<strong>${this.address}</strong><br>` +
+    `<a href="${this.directionsUrl}" target="_blank" rel="noopener noreferrer">Get directions →</a>`;
 
   /**
    * Returns true when the user has requested reduced motion. Wrapping

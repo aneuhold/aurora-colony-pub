@@ -9,8 +9,6 @@ import Section from '$components-astro/ui/Section.astro';
 import ContactForm from '$components-svelte/ContactForm';
 import PubMap from '$components-svelte/PubMap';
 import pubMapService from '$util/PubMap/PubMap.service';
-
-const directionsUrl = pubMapService.buildDirectionsUrl();
 ---
 
 <BaseLayout title="Contact — Aurora Colony Pub" description="Get in touch with Aurora Colony Pub.">
@@ -44,7 +42,7 @@ const directionsUrl = pubMapService.buildDirectionsUrl();
               <Hours />
             </div>
             <div class="mt-8">
-              <Button variant="primary" href={directionsUrl}>Get directions</Button>
+              <Button variant="primary" href={pubMapService.directionsUrl}>Get directions</Button>
             </div>
           </aside>
 

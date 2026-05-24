@@ -22,8 +22,7 @@
 
   $effect(() => {
     if (!el) return;
-    const { geo, address } = pubMapService;
-    const directionsUrl = pubMapService.buildDirectionsUrl();
+    const { geo, popupHtml } = pubMapService;
     let map: LMap | undefined;
     let cancelled = false;
 
@@ -53,10 +52,7 @@
         maxZoom: 19
       }).addTo(map);
 
-      L.marker([geo.lat, geo.lng])
-        .addTo(map)
-        .bindPopup(pubMapService.buildPopupHtml(address, directionsUrl))
-        .openPopup();
+      L.marker([geo.lat, geo.lng]).addTo(map).bindPopup(popupHtml).openPopup();
     };
 
     void init();

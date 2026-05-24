@@ -1,32 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import pubMapService from './PubMap.service';
 
-describe('pubMapService.buildDirectionsUrl', () => {
-  it('builds a Google directions URL from lat/lng', () => {
-    const url = pubMapService.buildDirectionsUrl({ lat: 45.2347, lng: -122.7548 });
-    expect(url).toBe('https://www.google.com/maps/dir/?api=1&destination=45.2347,-122.7548');
-  });
-});
-
-describe('pubMapService.buildPopupHtml', () => {
-  it('wraps the label in <strong> and links the directions URL', () => {
-    const html = pubMapService.buildPopupHtml('Aurora Colony Pub', 'https://example.com/dir');
-    expect(html).toContain('<strong>Aurora Colony Pub</strong>');
-    expect(html).toContain('href="https://example.com/dir"');
-    expect(html).toContain('target="_blank"');
-    expect(html).toContain('rel="noopener noreferrer"');
+describe('pubMapService precomputed location info', () => {
+  it('encodes the address in the maps search URL', () => {
+    expect(pubMapService.mapsSearchUrl).toBe(
+      `https://www.google.com/maps/?q=${encodeURIComponent(pubMapService.address)}`
+    );
   });
 
-  it('escapes HTML in the label', () => {
-    const html = pubMapService.buildPopupHtml('<img src=x>', 'https://example.com');
-    expect(html).not.toContain('<img');
-    expect(html).toContain('&lt;img src=x&gt;');
+  it('exposes the hardcoded "City, ST" label', () => {
+    expect(pubMapService.cityLabel).toBe('Aurora, OR');
   });
 
-  it('escapes HTML in the directions URL', () => {
-    const html = pubMapService.buildPopupHtml('Place', 'https://example.com/"><script>');
-    expect(html).not.toContain('<script>');
-    expect(html).toContain('&quot;');
+  it('builds the directions URL from the pub geo', () => {
+    expect(pubMapService.directionsUrl).toBe(
+      `https://www.google.com/maps/dir/?api=1&destination=${pubMapService.geo.lat},${pubMapService.geo.lng}`
+    );
+  });
+
+  it('precomputes popup HTML containing the address and directions URL', () => {
+    expect(pubMapService.popupHtml).toContain(`<strong>${pubMapService.address}</strong>`);
+    expect(pubMapService.popupHtml).toContain(`href="${pubMapService.directionsUrl}"`);
+    expect(pubMapService.popupHtml).toContain('target="_blank"');
+    expect(pubMapService.popupHtml).toContain('rel="noopener noreferrer"');
   });
 });
 
