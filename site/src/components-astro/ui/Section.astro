@@ -1,0 +1,23 @@
+---
+type Background = 'default' | 'muted' | 'primary';
+
+interface Props {
+  background?: Background;
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+const { background = 'default', as = 'section', class: className } = Astro.props as Props;
+
+const Tag = as;
+
+const backgroundClass: Record<Background, string> = {
+  default: '',
+  muted: 'bg-foreground/5',
+  primary: 'bg-primary text-primary-foreground'
+};
+---
+
+<Tag class:list={['px-6 py-16 md:py-24', backgroundClass[background], className]}>
+  <slot />
+</Tag>

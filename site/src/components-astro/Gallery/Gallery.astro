@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Section from '$components-astro/ui/Section.astro';
 import galleryService from './Gallery.service';
 
 const entries = galleryService.sortEntries(await getCollection('gallery'));
@@ -8,47 +10,25 @@ const entries = galleryService.sortEntries(await getCollection('gallery'));
 
 {
   entries.length > 0 && (
-    <section class="gallery">
-      <ul>
-        {entries.map((entry) => (
-          <li>
-            <figure>
-              <Image
-                src={entry.data.photo}
-                alt={entry.data.alt}
-                widths={[320, 640, 960, 1280]}
-                sizes="(min-width: 768px) 33vw, 100vw"
-                loading="lazy"
-              />
-            </figure>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <Section class="reveal">
+      <Container>
+        <ul class="grid list-none grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 p-0">
+          {entries.map((entry) => (
+            <li>
+              <figure class="m-0 overflow-hidden rounded-md border border-foreground/10">
+                <Image
+                  src={entry.data.photo}
+                  alt={entry.data.alt}
+                  widths={[320, 640, 960, 1280]}
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  loading="lazy"
+                  class="block h-auto w-full"
+                />
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </Section>
   )
 }
-
-<style>
-  .gallery {
-    padding: 2rem 1.5rem;
-  }
-  .gallery ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    gap: 1rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .gallery figure {
-    margin: 0;
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    overflow: hidden;
-  }
-  .gallery img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-</style>

@@ -1,4 +1,8 @@
 ---
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+
 interface Props {
   title: string;
   tagline?: string;
@@ -7,22 +11,11 @@ interface Props {
 const { title, tagline } = Astro.props;
 ---
 
-<section class="hero">
-  <h1>{title}</h1>
-  {tagline && <p>{tagline}</p>}
-</section>
-
-<style>
-  .hero {
-    padding: 4rem 1.5rem;
-    text-align: center;
-  }
-  .hero h1 {
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    margin: 0 0 0.5rem;
-  }
-  .hero p {
-    color: var(--muted-foreground);
-    margin: 0;
-  }
-</style>
+<Section>
+  <Container size="narrow">
+    <div class="text-center">
+      <Heading level={1}>{title}</Heading>
+      {tagline && <p class="mt-4 text-foreground/70">{tagline}</p>}
+    </div>
+  </Container>
+</Section>

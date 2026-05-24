@@ -1,0 +1,37 @@
+---
+type NavLink = {
+  href: string;
+  label: string;
+};
+
+const links: NavLink[] = [
+  { href: '/', label: 'Home' },
+  { href: '/menu', label: 'Menu' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' }
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const isCurrent = (href: string): boolean => {
+  const normalized = href.replace(/\/$/, '') || '/';
+  return normalized === currentPath;
+};
+---
+
+<nav class="flex items-center gap-6 px-6 py-4 font-body">
+  {
+    links.map((link) => (
+      <a
+        href={link.href}
+        aria-current={isCurrent(link.href) ? 'page' : undefined}
+        class:list={[
+          'text-foreground/70 transition-colors duration-snap ease-soft hover:text-foreground',
+          isCurrent(link.href) && 'font-medium text-foreground'
+        ]}
+      >
+        {link.label}
+      </a>
+    ))
+  }
+</nav>

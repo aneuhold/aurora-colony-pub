@@ -1,5 +1,8 @@
 ---
 import { getEntry, render } from 'astro:content';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
 
 const entry = await getEntry('about', 'about');
 if (!entry) {
@@ -8,32 +11,20 @@ if (!entry) {
 const { Content } = await render(entry);
 ---
 
-<section class="about">
-  <h2>{entry.data.heading}</h2>
-  <div class="about__body">
-    <Content />
-  </div>
-</section>
+<Section class="reveal">
+  <Container size="narrow">
+    <Heading level={2}>{entry.data.heading}</Heading>
+    <div class="about-body mt-6 leading-relaxed text-foreground/80">
+      <Content />
+    </div>
+  </Container>
+</Section>
 
 <style>
-  .about {
-    padding: 2rem 1.5rem;
-    max-width: 48rem;
-    margin: 0 auto;
+  .about-body :global(a) {
+    color: var(--color-primary);
   }
-  .about h2 {
-    color: var(--foreground);
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    margin: 0 0 1rem;
-  }
-  .about__body {
-    color: var(--muted-foreground);
-    line-height: 1.6;
-  }
-  .about__body :global(a) {
-    color: var(--primary);
-  }
-  .about__body :global(img) {
+  .about-body :global(img) {
     max-width: 100%;
     height: auto;
     border-radius: 0.5rem;

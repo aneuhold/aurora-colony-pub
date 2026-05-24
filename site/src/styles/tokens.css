@@ -1,0 +1,18 @@
+/* Colors — 4 vars. Tints/shades/state colors come from opacity modifiers
+   (e.g. text-foreground/60 for muted, bg-primary/80 for hover, border-foreground/10 for borders).
+   Expand when needed:
+     - Add --color-muted / --color-border if opacity-on-foreground gives the wrong hue.
+     - Add --color-primary-50..-900 numbered shades only if you need a step ramp that
+       color-mix can't express (multi-stop gradients, distinct semantic states).
+     - Add a :root primitives layer (palette -> semantic) when a second theme exists. */
+@theme {
+  --color-background: oklch(0.99 0 0);
+  --color-foreground: oklch(0.15 0 0);
+  --color-primary: oklch(0.55 0.16 70);
+  --color-primary-foreground: oklch(0.99 0 0);
+
+  /* Typography — 2 vars. Tailwind generates font-display and font-body.
+     Expand when needed: add --font-mono if monospace is required. */
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}

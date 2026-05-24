@@ -96,18 +96,18 @@
 </svelte:head>
 
 <section class="mx-auto w-full max-w-xl px-6 py-12" data-testid="contact-form">
-  <h2 class="mb-6 text-2xl font-semibold text-[color:var(--foreground)]">Contact us</h2>
+  <h2 class="mb-6 font-display text-3xl md:text-4xl">Contact us</h2>
 
   {#if status === 'success'}
     <p
       data-testid="contact-form-success"
-      class="rounded-md border border-[color:var(--border)] bg-[color:var(--muted)] p-4 text-[color:var(--foreground)]"
+      class="rounded-md border border-foreground/10 bg-foreground/5 p-4 text-foreground"
     >
       {contactFormConstants.successMessage}
     </p>
   {:else}
     <form class="flex flex-col gap-4" onsubmit={handleSubmit} novalidate>
-      <label class="flex flex-col gap-1 text-sm text-[color:var(--foreground)]">
+      <label class="flex flex-col gap-1 text-sm text-foreground">
         Name
         <input
           data-testid="contact-form-name"
@@ -117,11 +117,11 @@
           maxlength={contactFormConstants.maxNameLength}
           autocomplete="name"
           bind:value={name}
-          class="rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 text-[color:var(--foreground)]"
+          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
         />
       </label>
 
-      <label class="flex flex-col gap-1 text-sm text-[color:var(--foreground)]">
+      <label class="flex flex-col gap-1 text-sm text-foreground">
         Email
         <input
           data-testid="contact-form-email"
@@ -131,11 +131,11 @@
           maxlength={contactFormConstants.maxEmailLength}
           autocomplete="email"
           bind:value={email}
-          class="rounded-md border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 text-[color:var(--foreground)]"
+          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
         />
       </label>
 
-      <label class="flex flex-col gap-1 text-sm text-[color:var(--foreground)]">
+      <label class="flex flex-col gap-1 text-sm text-foreground">
         Message
         <textarea
           data-testid="contact-form-message"
@@ -144,7 +144,7 @@
           rows={contactFormConstants.textareaRows}
           maxlength={contactFormConstants.maxMessageLength}
           bind:value={message}
-          class="rounded-md border border-(--border) bg-(--background) px-3 py-2 text-[color:var(--foreground)]"
+          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
         ></textarea>
       </label>
 
@@ -172,7 +172,7 @@
         data-testid="contact-form-submit"
         type="submit"
         disabled={!canSubmit}
-        class="rounded-md bg-[color:var(--primary)] px-4 py-2 font-medium text-[color:var(--primary-foreground)] disabled:opacity-50"
+        class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-snap ease-soft hover:bg-primary/90 disabled:opacity-50"
       >
         {status === 'submitting'
           ? contactFormConstants.submitBusyLabel
