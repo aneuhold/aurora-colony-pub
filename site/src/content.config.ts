@@ -19,16 +19,11 @@ const about = defineCollection({
   })
 });
 
-const locationContact = defineCollection({
-  loader: glob({ pattern: 'location-contact.json', base: 'src/content' }),
+const contact = defineCollection({
+  loader: glob({ pattern: 'contact.json', base: 'src/content' }),
   schema: z.object({
-    address: z.string(),
     phone: z.string(),
-    email: z.string(),
-    geo: z.object({
-      lat: z.number(),
-      lng: z.number()
-    })
+    email: z.string()
   })
 });
 
@@ -87,7 +82,7 @@ const gallery = defineCollection({
 export const collections = {
   titleTagline,
   about,
-  locationContact,
+  contact,
   hours,
   socialMediaLinks,
   menuImages,

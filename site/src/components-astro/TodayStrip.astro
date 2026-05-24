@@ -3,29 +3,27 @@ import { getEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Section from '$components-astro/ui/Section.astro';
 import dateTimeService from '$util/DateTime.service';
+import pubMapService from '$util/PubMap/PubMap.service';
 
 const hoursEntry = await getEntry('hours', 'hours');
 if (!hoursEntry) {
   throw new Error('Missing hours content entry');
 }
-const locationEntry = await getEntry('locationContact', 'location-contact');
-if (!locationEntry) {
-  throw new Error('Missing locationContact content entry');
+const contactEntry = await getEntry('contact', 'contact');
+if (!contactEntry) {
+  throw new Error('Missing contact content entry');
 }
 
 const now = new Date();
 const todayIdx = now.getDay();
-const todayLabel = dateTimeService.shortDayLabel(now);
 
 const todayRow =
   dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
 
-const { address, phone } = locationEntry.data;
+const { phone } = contactEntry.data;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
-const mapsHref = `https://www.google.com/maps/?q=${encodeURIComponent(address)}`;
 const { happyHour } = hoursEntry.data;
-const isHappyHourDay =
-  happyHour.label.includes(todayLabel) || happyHour.label.toLowerCase().includes('every');
+const isHappyHourDay = dateTimeService.labelCoversDay(happyHour.label, todayIdx);
 
 const todayHoursLine = `${todayRow.open} – ${todayRow.close}`;
 const happyHourLine = isHappyHourDay
@@ -43,9 +41,9 @@ const happyHourLine = isHappyHourDay
       </div>
       <div>
         <p class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">Find us</p>
-        <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">{address}</p>
+        <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">{pubMapService.address}</p>
         <a
-          href={mapsHref}
+          href={pubMapService.mapsSearchUrl}
           target="_blank"
           rel="noopener noreferrer"
           class="mt-2 inline-block text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"

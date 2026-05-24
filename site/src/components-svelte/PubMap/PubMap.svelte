@@ -7,6 +7,8 @@
   Leaflet touches `window` at module top level, so the JS import is dynamic
   inside the effect (browser-only). The CSS import is fine — Vite extracts it
   and it never runs as JS.
+
+  Pub address/geo come from `pubMapService` so there's a single source of truth.
 -->
 <script lang="ts">
   import 'leaflet/dist/leaflet.css';
@@ -14,20 +16,14 @@
   import markerIcon from 'leaflet/dist/images/marker-icon.png';
   import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
   import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-  import pubMapService, { type Geo } from './PubMap.service';
-
-  interface Props {
-    geo: Geo;
-    label: string;
-    directionsUrl: string;
-  }
-
-  const { geo, label, directionsUrl }: Props = $props();
+  import pubMapService from '$util/PubMap/PubMap.service';
 
   let el = $state<HTMLDivElement | null>(null);
 
   $effect(() => {
     if (!el) return;
+    const { geo, address } = pubMapService;
+    const directionsUrl = pubMapService.buildDirectionsUrl();
     let map: LMap | undefined;
     let cancelled = false;
 
@@ -59,7 +55,7 @@
 
       L.marker([geo.lat, geo.lng])
         .addTo(map)
-        .bindPopup(pubMapService.buildPopupHtml(label, directionsUrl))
+        .bindPopup(pubMapService.buildPopupHtml(address, directionsUrl))
         .openPopup();
     };
 

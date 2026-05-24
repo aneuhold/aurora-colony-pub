@@ -7,6 +7,7 @@ import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import OpenNowChip from '$components-svelte/OpenNowChip';
 import dateTimeService from '$util/DateTime.service';
+import pubMapService from '$util/PubMap/PubMap.service';
 import heroPhoto from '../assets/gallery/interior-wood-bar.jpg';
 import LogoInverted from '../assets/logo-inverted.svg';
 
@@ -21,25 +22,12 @@ const hoursEntry = await getEntry('hours', 'hours');
 if (!hoursEntry) {
   throw new Error('Missing hours content entry');
 }
-const locationEntry = await getEntry('locationContact', 'location-contact');
-if (!locationEntry) {
-  throw new Error('Missing locationContact content entry');
-}
 
 const todayIdx = new Date().getDay();
 const todayRow =
   dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
 
 const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
-
-const cityFromAddress = (address: string): string => {
-  const parts = address.split(',').map((s) => s.trim());
-  if (parts.length < 2) return address;
-  const city = parts[parts.length - 2];
-  const stateAbbrev = parts[parts.length - 1].split(/\s+/)[0];
-  return `${city}, ${stateAbbrev}`;
-};
-const cityLabel = cityFromAddress(locationEntry.data.address);
 ---
 
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
@@ -71,7 +59,7 @@ const cityLabel = cityFromAddress(locationEntry.data.address);
         <span aria-hidden="true">·</span>
         <span>{todayHoursLabel}</span>
         <span aria-hidden="true">·</span>
-        <span>{cityLabel}</span>
+        <span>{pubMapService.cityLabel}</span>
       </div>
       <div class="mt-8 flex flex-wrap items-center gap-3">
         <Button variant="accent" href="/menu">See the menu</Button>

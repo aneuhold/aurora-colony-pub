@@ -4,8 +4,9 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
+import type { MenuCategory } from './menuTypes';
 
-type FeaturedCategory = 'main' | 'breakfast' | 'happy-hour';
+type FeaturedCategory = Exclude<MenuCategory, 'kids'>;
 
 interface Card {
   category: FeaturedCategory;
@@ -43,7 +44,7 @@ const hasKids = all.some((entry) => entry.data.category === 'kids');
           <li class="reveal">
             <a
               href={card.href}
-              class="group relative block overflow-hidden rounded-lg border border-foreground/10 bg-foreground/3 transition-transform duration-snap ease-soft hover:-translate-y-1"
+              class="group relative block overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 transition-transform duration-snap ease-soft hover:-translate-y-1"
             >
               <Image
                 src={card.entry.data.image}

@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-
-type MenuCategory = 'main' | 'breakfast' | 'kids' | 'happy-hour';
+import type { MenuCategory } from './menuTypes';
 
 const labels: Record<MenuCategory, string> = {
   main: 'Main',
@@ -31,7 +30,7 @@ const items = order
         <li class="shrink-0 md:shrink">
           <a
             href={`#${item.id}`}
-            class="inline-block rounded-full border border-foreground/10 bg-foreground/3 px-3 py-1 text-sm font-medium text-foreground/80 transition-colors duration-snap ease-soft hover:border-accent/40 hover:text-foreground md:rounded-md md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-base md:text-foreground/70 md:hover:text-accent"
+            class="inline-block rounded-full border border-foreground/10 bg-foreground/5 px-3 py-1 text-sm font-medium text-foreground/80 transition-colors duration-snap ease-soft hover:border-accent/40 hover:text-foreground md:rounded-md md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-base md:text-foreground/70 md:hover:text-accent"
           >
             {item.label}
           </a>

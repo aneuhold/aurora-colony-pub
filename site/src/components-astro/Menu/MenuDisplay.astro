@@ -2,8 +2,7 @@
 import { Image } from 'astro:assets';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import Heading from '$components-astro/ui/Heading.astro';
-
-type MenuCategory = 'main' | 'breakfast' | 'kids' | 'happy-hour';
+import type { MenuCategory } from './menuTypes';
 
 type CategoryDisplay = {
   id: MenuCategory;

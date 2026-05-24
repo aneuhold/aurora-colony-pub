@@ -69,6 +69,32 @@ describe('dateTimeService.rowForDay', () => {
   });
 });
 
+describe('dateTimeService.labelCoversDay', () => {
+  it('returns true for a single-day label match', () => {
+    expect(dateTimeService.labelCoversDay('Fri', 5)).toBe(true);
+  });
+
+  it('returns false for a single-day label miss', () => {
+    expect(dateTimeService.labelCoversDay('Fri', 4)).toBe(false);
+  });
+
+  it('returns true for an en-dash range that covers the day', () => {
+    expect(dateTimeService.labelCoversDay('Mon–Fri', 3)).toBe(true); // Wed
+  });
+
+  it('returns false for an en-dash range that does not cover the day', () => {
+    expect(dateTimeService.labelCoversDay('Mon–Fri', 0)).toBe(false); // Sun
+  });
+
+  it('returns true for a wrap-around range that covers the day', () => {
+    expect(dateTimeService.labelCoversDay('Sat–Mon', 0)).toBe(true); // Sun
+  });
+
+  it('returns false for an unrecognized label', () => {
+    expect(dateTimeService.labelCoversDay('Funday', 1)).toBe(false);
+  });
+});
+
 describe('dateTimeService.shortDayLabel', () => {
   it('returns Sun for a Sunday', () => {
     expect(dateTimeService.shortDayLabel(new Date(2026, 0, 4))).toBe('Sun'); // 2026-01-04

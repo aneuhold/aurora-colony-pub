@@ -56,19 +56,13 @@ collections:
               hint: 'Free-form text — supports bold, links, headings, and inline images.'
             }
 
-      - name: locationContact
-        label: Location + Contact Info
-        file: site/src/content/location-contact.json
+      - name: contact
+        label: Contact Info
+        file: site/src/content/contact.json
         format: json
         editor:
           preview: false
         fields:
-          - {
-              name: address,
-              label: Address,
-              widget: string,
-              hint: 'Street address shown on the home page, contact page, and footer.'
-            }
           - {
               name: phone,
               label: Phone,

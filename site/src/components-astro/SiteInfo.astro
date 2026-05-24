@@ -1,16 +1,17 @@
 ---
 import { getEntry } from 'astro:content';
+import pubMapService from '$util/PubMap/PubMap.service';
 
-const entry = await getEntry('locationContact', 'location-contact');
+const entry = await getEntry('contact', 'contact');
 if (!entry) {
-  throw new Error('Missing locationContact content entry');
+  throw new Error('Missing contact content entry');
 }
-const { address, phone, email } = entry.data;
+const { phone, email } = entry.data;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 ---
 
 <address class="not-italic font-body leading-relaxed">
-  <p>{address}</p>
+  <p>{pubMapService.address}</p>
   <p class="mt-2">
     <a
       href={telHref}

@@ -96,9 +96,21 @@ class DateTimeService {
    */
   rowForDay(rows: HoursRow[], dayIdx: number): HoursRow | undefined {
     for (const row of rows) {
-      if (this.expandDayLabel(row.label).includes(dayIdx)) return row;
+      if (this.labelCoversDay(row.label, dayIdx)) return row;
     }
     return undefined;
+  }
+
+  /**
+   * Returns true when the given day-range label covers the given day index.
+   * Accepts single-day labels ("Fri"), range labels with en-dash, em-dash, or
+   * hyphen ("Mon–Fri", "Sat-Sun"), and wrap-around ranges ("Sat–Mon").
+   *
+   * @param label Day-range label
+   * @param dayIdx Day index from `Date.getDay()` (0=Sun..6=Sat)
+   */
+  labelCoversDay(label: string, dayIdx: number): boolean {
+    return this.expandDayLabel(label).includes(dayIdx);
   }
 
   /**
