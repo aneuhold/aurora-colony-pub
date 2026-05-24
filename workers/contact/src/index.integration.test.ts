@@ -1,8 +1,14 @@
+import { allowedOrigins } from '@aurora/workers-shared';
+import {
+  createTestIpGenerator,
+  fetchInputUrl,
+  sentryIngestAwareFetch
+} from '@aurora/workers-shared/test-utils';
 import { exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { contactWorkerConstants } from './util/contactWorkerConstants';
 
-const ORIGIN = contactWorkerConstants.allowedOrigins[0];
+const ORIGIN = allowedOrigins[0];
 const FORBIDDEN_ORIGIN = 'https://evil.example.com';
 
 interface ResendCall {
@@ -15,18 +21,12 @@ interface FetchMockOptions {
   resendStatus?: number;
 }
 
-const requestUrl = (input: RequestInfo | URL): string => {
-  if (typeof input === 'string') return input;
-  if (input instanceof URL) return input.href;
-  return input.url;
-};
-
 const setupFetchMock = (options: FetchMockOptions = {}): { resendCalls: ResendCall[] } => {
   const { turnstileSuccess = true, resendStatus = 200 } = options;
   const resendCalls: ResendCall[] = [];
   vi.spyOn(globalThis, 'fetch').mockImplementation(
-    (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-      const url = requestUrl(input);
+    sentryIngestAwareFetch((input, init) => {
+      const url = fetchInputUrl(input);
       if (url.startsWith('https://challenges.cloudflare.com/turnstile/v0/siteverify')) {
         return Promise.resolve(
           new Response(JSON.stringify({ success: turnstileSuccess }), {
@@ -44,24 +44,13 @@ const setupFetchMock = (options: FetchMockOptions = {}): { resendCalls: ResendCa
           })
         );
       }
-      // Hosts Sentry's transport posts trace / error envelopes to. Allowlisted so
-      // the SDK's fire-and-forget fetches don't blow up the test, while still
-      // letting us throw on any *other* unexpected outbound call.
-      const SENTRY_INGEST_PATTERN = /^https:\/\/[^/]*\.ingest\.[^/]*sentry\.io\//;
-      if (SENTRY_INGEST_PATTERN.test(url)) {
-        return Promise.resolve(new Response(null, { status: 200 }));
-      }
       return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
-    }
+    })
   );
   return { resendCalls };
 };
 
-let ipCounter = 0;
-const nextIp = (): string => {
-  ipCounter += 1;
-  return `203.0.113.${ipCounter}`;
-};
+const nextIp = createTestIpGenerator();
 
 const validBody = {
   name: 'Alice Example',

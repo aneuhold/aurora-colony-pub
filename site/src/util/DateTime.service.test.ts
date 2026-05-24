@@ -104,3 +104,41 @@ describe('dateTimeService.shortDayLabel', () => {
     expect(dateTimeService.shortDayLabel(new Date(2026, 0, 7))).toBe('Wed');
   });
 });
+
+describe('dateTimeService.formatRelativeTime', () => {
+  const now = new Date('2026-05-24T12:00:00.000Z');
+
+  const cases: { label: string; iso: string; expected: string }[] = [
+    {
+      label: 'just now (under 60s)',
+      iso: '2026-05-24T11:59:30.000Z',
+      expected: 'Just now'
+    },
+    {
+      label: 'minutes ago',
+      iso: '2026-05-24T11:48:00.000Z',
+      expected: '12m ago'
+    },
+    {
+      label: 'hours ago',
+      iso: '2026-05-24T09:00:00.000Z',
+      expected: '3h ago'
+    },
+    {
+      label: 'days ago (under the 14-day cutoff)',
+      iso: '2026-05-22T12:00:00.000Z',
+      expected: '2d ago'
+    },
+    {
+      label: 'absolute date past the 14-day cutoff',
+      iso: '2026-05-01T12:00:00.000Z',
+      expected: 'May 1'
+    }
+  ];
+
+  for (const { label, iso, expected } of cases) {
+    it(label, () => {
+      expect(dateTimeService.formatRelativeTime(iso, now)).toBe(expected);
+    });
+  }
+});

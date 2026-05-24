@@ -25,8 +25,4 @@ const { weekly, happyHour } = entry.data;
     <span class="text-foreground/60">({happyHour.label})</span>
   </dd>
 </dl>
-{
-  happyHour.note && (
-    <span class="mt-1 block text-center text-sm text-foreground/60">{happyHour.note}</span>
-  )
-}
+{happyHour.note && <span class="mt-1 block text-sm text-foreground/60">{happyHour.note}</span>}

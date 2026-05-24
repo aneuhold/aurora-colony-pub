@@ -1,7 +1,12 @@
 import type { WorkerContactSubmitPayload } from '@aurora/shared';
 import { sharedContactFormConstants } from '@aurora/shared';
+import {
+  checkIpRateLimit,
+  corsHeaders,
+  isAllowedOrigin,
+  jsonResponse
+} from '@aurora/workers-shared';
 import type { Env } from '../Env';
-import { contactWorkerConstants } from '../util/contactWorkerConstants';
 import contactEmailService from './ContactEmailService';
 
 type ValidationResult =
@@ -9,6 +14,7 @@ type ValidationResult =
   | { ok: false; field: string; error: string };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CORS_METHODS = ['POST', 'OPTIONS'] as const;
 
 /**
  * Contact form orchestration singleton. Owns the request lifecycle (CORS,
@@ -26,9 +32,9 @@ class ContactService {
    */
   async handleRequest(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get('Origin');
-    const echoedOrigin = origin && this.isAllowedOrigin(origin) ? origin : '';
+    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     const cors: Record<string, string> = echoedOrigin
-      ? this.corsHeaders(echoedOrigin)
+      ? corsHeaders(echoedOrigin, CORS_METHODS)
       : { Vary: 'Origin' };
 
     if (request.method === 'OPTIONS') {
@@ -41,31 +47,30 @@ class ContactService {
       });
     }
     if (!echoedOrigin) {
-      return this.jsonResponse({ error: 'Forbidden origin' }, 403, cors);
+      return jsonResponse({ error: 'Forbidden origin' }, 403, cors);
     }
 
-    const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    const { success: rateOk } = await env.RATE_LIMITER.limit({ key: ip });
-    if (!rateOk) {
-      return this.jsonResponse({ error: 'Too Many Requests' }, 429, cors);
+    if (!(await checkIpRateLimit(request, env))) {
+      return jsonResponse({ error: 'Too Many Requests' }, 429, cors);
     }
+    const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
 
     let raw: unknown;
     try {
       raw = await request.json();
     } catch {
-      return this.jsonResponse({ field: 'body', error: 'Malformed JSON' }, 400, cors);
+      return jsonResponse({ field: 'body', error: 'Malformed JSON' }, 400, cors);
     }
 
     const validated = this.validateBody(raw);
     if (!validated.ok) {
-      return this.jsonResponse({ field: validated.field, error: validated.error }, 400, cors);
+      return jsonResponse({ field: validated.field, error: validated.error }, 400, cors);
     }
     const { body } = validated;
 
     if (body.website.length > 0) {
       // Honeypot tripped — silently 200 so bots don't learn anything.
-      return this.jsonResponse({ ok: true }, 200, cors);
+      return jsonResponse({ ok: true }, 200, cors);
     }
 
     const turnstileOk = await contactEmailService.verifyTurnstileToken(
@@ -74,7 +79,7 @@ class ContactService {
       ip
     );
     if (!turnstileOk) {
-      return this.jsonResponse(
+      return jsonResponse(
         { field: 'turnstileToken', error: 'Captcha verification failed' },
         400,
         cors
@@ -87,34 +92,9 @@ class ContactService {
       env.RESEND_API_KEY
     );
     if (!sent) {
-      return this.jsonResponse({ error: 'Failed to send message' }, 502, cors);
+      return jsonResponse({ error: 'Failed to send message' }, 502, cors);
     }
-    return this.jsonResponse({ ok: true }, 200, cors);
-  }
-
-  private isAllowedOrigin(origin: string): boolean {
-    return contactWorkerConstants.allowedOrigins.includes(origin);
-  }
-
-  private corsHeaders(origin: string): Record<string, string> {
-    return {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
-      Vary: 'Origin'
-    };
-  }
-
-  private jsonResponse(
-    body: unknown,
-    status: number,
-    extraHeaders: Record<string, string>
-  ): Response {
-    return new Response(JSON.stringify(body), {
-      status,
-      headers: { 'Content-Type': 'application/json', ...extraHeaders }
-    });
+    return jsonResponse({ ok: true }, 200, cors);
   }
 
   private validateBody(raw: unknown): ValidationResult {

@@ -9,6 +9,7 @@ import OpenNowChip from '$components-svelte/OpenNowChip';
 import dateTimeService from '$util/DateTime.service';
 import pubMapService from '$util/PubMap/PubMap.service';
 import heroPhoto from '../assets/gallery/interior-wood-bar.jpg';
+import DoorDashIcon from '../assets/icons/doordash.svg';
 import LogoInverted from '../assets/logo-inverted.svg';
 
 interface Props {
@@ -22,6 +23,11 @@ const hoursEntry = await getEntry('hours', 'hours');
 if (!hoursEntry) {
   throw new Error('Missing hours content entry');
 }
+const contactEntry = await getEntry('contact', 'contact');
+if (!contactEntry) {
+  throw new Error('Missing contact content entry');
+}
+const { orderUrl } = contactEntry.data;
 
 const todayIdx = new Date().getDay();
 const todayRow =
@@ -63,7 +69,21 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
       </div>
       <div class="mt-8 flex flex-wrap items-center gap-3">
         <Button variant="accent" href="/menu">See the menu</Button>
-        <Button variant="inverted" href="/contact">Get directions</Button>
+        <Button variant="inverted" href="/contact#map">Get directions</Button>
+        {
+          orderUrl && (
+            <Button
+              variant="primary"
+              href={orderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="gap-2"
+            >
+              <DoorDashIcon aria-hidden="true" class="h-4 w-4" />
+              <span>Order now</span>
+            </Button>
+          )
+        }
       </div>
     </div>
   </Container>
