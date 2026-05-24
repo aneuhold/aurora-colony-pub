@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuDisplay from '$components-astro/Menu/MenuDisplay.astro';
+import MenuSectionIndex from '$components-astro/Menu/MenuSectionIndex.astro';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+---
+
+<BaseLayout title="Menus — Aurora Colony Pub" description="Our menus at Aurora Colony Pub.">
+  <main>
+    <Section padding="tight">
+      <Container size="wide">
+        <Heading level={1}>Menus.</Heading>
+        <p class="mt-4 max-w-prose font-display text-lg text-foreground/70 md:text-xl">
+          Breakfast, the main menu, kids, and happy hour. Tap any page to enlarge — pricing and
+          availability may vary.
+        </p>
+      </Container>
+    </Section>
+
+    <Section>
+      <Container size="wide">
+        <div class="grid gap-10 md:grid-cols-[1fr_12rem] md:gap-16">
+          <div>
+            <MenuDisplay />
+          </div>
+          <aside class="order-first md:order-last">
+            <MenuSectionIndex />
+          </aside>
+        </div>
+      </Container>
+    </Section>
+  </main>
+</BaseLayout>

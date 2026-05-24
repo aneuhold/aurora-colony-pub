@@ -1,31 +1,29 @@
 ---
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import About from '$components-astro/About.astro';
+import AboutTeaser from '$components-astro/AboutTeaser.astro';
 import Gallery from '$components-astro/Gallery';
 import Hero from '$components-astro/Hero.astro';
-import ContactForm from '$components-svelte/ContactForm';
-import HelloIsland from '$components-svelte/HelloIsland.svelte';
+import MenuTeaser from '$components-astro/Menu/MenuTeaser.astro';
+import PatioCallout from '$components-astro/PatioCallout.astro';
+import TodayStrip from '$components-astro/TodayStrip.astro';
 
-const hero = await getEntry('hero', 'hero');
-if (!hero) {
-  throw new Error('Missing hero content entry');
+const titleTagline = await getEntry('titleTagline', 'title-tagline');
+if (!titleTagline) {
+  throw new Error('Missing titleTagline content entry');
 }
 ---
 
 <BaseLayout
-  title="Aurora Colony Pub — coming soon"
-  description="The Aurora Colony Pub website is on its way."
+  title="Aurora Colony Pub"
+  description="A historic neighborhood pub in Aurora, Oregon — family friendly until 9 pm."
 >
-  <!-- Warm the TLS handshake to Turnstile so the script (loaded later by the ContactForm island) downloads fast. 
-   We only want it on this page, which contains the contact form, and not every page. Which is why it isn't in the root
-   layout. -->
-  <link slot="head" rel="preconnect" href="https://challenges.cloudflare.com" />
   <main>
-    <Hero title={hero.data.title} tagline={hero.data.tagline} />
-    <HelloIsland client:load />
-    <About />
-    <Gallery />
-    <ContactForm client:idle />
+    <Hero title={titleTagline.data.title} tagline={titleTagline.data.tagline} />
+    <TodayStrip />
+    <MenuTeaser />
+    <PatioCallout />
+    <Gallery limit={9} />
+    <AboutTeaser />
   </main>
 </BaseLayout>

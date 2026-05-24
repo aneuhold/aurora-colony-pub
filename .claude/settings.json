@@ -2,9 +2,7 @@
   "enabledPlugins": {
     "cloudflare@cloudflare": true
   },
-  "mcpServers": {
-    "cloudflare-api": {
-      "url": "https://mcp.cloudflare.com/mcp"
-    }
+  "permissions": {
+    "additionalDirectories": ["../workout", "../portfolio"]
   }
 }

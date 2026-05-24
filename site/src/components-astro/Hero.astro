@@ -1,28 +1,70 @@
 ---
+import { Image } from 'astro:assets';
+import { getEntry } from 'astro:content';
+import Button from '$components-astro/ui/Button.astro';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+import OpenNowChip from '$components-svelte/OpenNowChip';
+import dateTimeService from '$util/DateTime.service';
+import pubMapService from '$util/PubMap/PubMap.service';
+import heroPhoto from '../assets/gallery/interior-wood-bar.jpg';
+import LogoInverted from '../assets/logo-inverted.svg';
+
 interface Props {
   title: string;
   tagline?: string;
 }
 
 const { title, tagline } = Astro.props;
+
+const hoursEntry = await getEntry('hours', 'hours');
+if (!hoursEntry) {
+  throw new Error('Missing hours content entry');
+}
+
+const todayIdx = new Date().getDay();
+const todayRow =
+  dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
+
+const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 ---
 
-<section class="hero">
-  <h1>{title}</h1>
-  {tagline && <p>{tagline}</p>}
-</section>
+<Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
+  <Image
+    src={heroPhoto}
+    alt="Inside the pub — wood paneling, neon signs and the long bar."
+    widths={[768, 1280, 1920, 2560]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-0 h-full w-full object-cover"
+  />
+  <div class="absolute inset-0 bg-linear-to-t from-foreground/70 via-foreground/30 to-transparent">
+  </div>
 
-<style>
-  .hero {
-    padding: 4rem 1.5rem;
-    text-align: center;
-  }
-  .hero h1 {
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    margin: 0 0 0.5rem;
-  }
-  .hero p {
-    color: var(--muted-foreground);
-    margin: 0;
-  }
-</style>
+  <LogoInverted
+    aria-hidden="true"
+    class="absolute left-6 top-8 z-10 h-16 w-auto text-background md:left-12 md:top-12 md:h-20"
+  />
+
+  <Container size="wide" class="relative px-6 pb-16 text-background md:pb-24">
+    <div class="animate-fade-in">
+      <Heading level={0}>{title}</Heading>
+      {tagline && <p class="mt-3 font-display text-xl text-background/85 md:text-2xl">{tagline}</p>}
+      <div
+        class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-background/85 md:text-base"
+      >
+        <OpenNowChip weekly={hoursEntry.data.weekly} client:idle />
+        <span aria-hidden="true">·</span>
+        <span>{todayHoursLabel}</span>
+        <span aria-hidden="true">·</span>
+        <span>{pubMapService.cityLabel}</span>
+      </div>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <Button variant="accent" href="/menu">See the menu</Button>
+        <Button variant="inverted" href="/contact">Get directions</Button>
+      </div>
+    </div>
+  </Container>
+</Section>

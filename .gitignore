@@ -14,6 +14,7 @@ build/
 
 # generated
 worker-configuration.d.ts
+.playwright-mcp
 
 # logs
 *-debug.log*

@@ -1,0 +1,14 @@
+{
+  "weekly": [
+    { "label": "Mon–Thu", "open": "11:00 AM", "close": "10:00 PM" },
+    { "label": "Fri", "open": "11:00 AM", "close": "12:00 AM" },
+    { "label": "Sat", "open": "9:00 AM", "close": "12:00 AM" },
+    { "label": "Sun", "open": "9:00 AM", "close": "10:00 PM" }
+  ],
+  "happyHour": {
+    "label": "Mon–Fri",
+    "start": "3:00 PM",
+    "end": "6:00 PM",
+    "note": "Dine-in only. No substitutions."
+  }
+}
