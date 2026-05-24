@@ -1,0 +1,37 @@
+---
+import { Image } from 'astro:assets';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+import patioPhoto from '../assets/gallery/patio-outdoor-dining.jpg';
+---
+
+<Section background="muted">
+  <Container size="wide">
+    <div class="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+      <figure class="reveal m-0 overflow-hidden rounded-lg border border-foreground/10">
+        <Image
+          src={patioPhoto}
+          alt="Sunny afternoon on the patio, four friends around a black table eating burgers and fries."
+          widths={[480, 768, 1080]}
+          sizes="(min-width: 768px) 50vw, 100vw"
+          loading="lazy"
+          class="block h-auto w-full"
+        />
+      </figure>
+      <div class="reveal">
+        <Heading level={2}>Out on the patio.</Heading>
+        <p class="mt-5 max-w-prose text-lg leading-relaxed text-foreground/80">
+          A newer addition that welcomes weary antique shoppers and the locals alike — a relaxing
+          place to sit on a warm day, kids and all.
+        </p>
+        <span
+          class="mt-6 inline-flex items-center gap-2 rounded-full bg-accent/15 px-3 py-1 text-sm font-medium text-accent"
+        >
+          <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+          Family friendly until 9 pm
+        </span>
+      </div>
+    </div>
+  </Container>
+</Section>

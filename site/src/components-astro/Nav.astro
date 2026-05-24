@@ -1,4 +1,7 @@
 ---
+import Container from '$components-astro/ui/Container.astro';
+import Logo from '../assets/logo.svg';
+
 type NavLink = {
   href: string;
   label: string;
@@ -19,19 +22,31 @@ const isCurrent = (href: string): boolean => {
 };
 ---
 
-<nav class="flex items-center gap-6 px-6 py-4 font-body">
-  {
-    links.map((link) => (
-      <a
-        href={link.href}
-        aria-current={isCurrent(link.href) ? 'page' : undefined}
-        class:list={[
-          'text-foreground/70 transition-colors duration-snap ease-soft hover:text-foreground',
-          isCurrent(link.href) && 'font-medium text-foreground'
-        ]}
-      >
-        {link.label}
-      </a>
-    ))
-  }
+<nav
+  class="sticky top-0 z-40 bg-background/85 font-body backdrop-blur supports-backdrop-filter:bg-background/70"
+>
+  <Container size="wide" class="flex items-center justify-between px-6 py-3 md:py-4">
+    <a
+      href="/"
+      aria-label="Aurora Colony Pub home"
+      class="block text-foreground transition-opacity duration-snap ease-soft hover:opacity-80"
+    >
+      <Logo class="h-10 w-auto md:h-12" />
+    </a>
+    <ul class="flex list-none items-center gap-5 p-0 md:gap-7">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isCurrent(link.href) ? 'page' : undefined}
+              class="font-display text-base text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-lg aria-[aria-current=page]:text-foreground aria-[aria-current=page]:underline aria-[aria-current=page]:decoration-accent aria-[aria-current=page]:decoration-2 aria-[aria-current=page]:underline-offset-8"
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Container>
 </nav>

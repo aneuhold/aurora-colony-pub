@@ -1,5 +1,5 @@
 ---
-type Variant = 'primary' | 'ghost' | 'link';
+type Variant = 'primary' | 'accent' | 'ghost' | 'link';
 
 interface Props {
   variant?: Variant;
@@ -14,6 +14,8 @@ const { variant = 'primary', href, type = 'button', disabled, class: className }
 const variantClass: Record<Variant, string> = {
   primary:
     'inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-snap ease-soft hover:bg-primary/90 disabled:opacity-50',
+  accent:
+    'inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 font-medium text-accent-foreground transition-colors duration-snap ease-soft hover:bg-accent/90 disabled:opacity-50',
   ghost:
     'inline-flex items-center justify-center rounded-md px-4 py-2 font-medium text-foreground transition-colors duration-snap ease-soft hover:bg-foreground/5 disabled:opacity-50',
   link: 'text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline'

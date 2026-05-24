@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+
+type MenuCategory = 'main' | 'breakfast' | 'kids' | 'happy-hour';
+
+const labels: Record<MenuCategory, string> = {
+  main: 'Main',
+  breakfast: 'Breakfast',
+  kids: 'Kids',
+  'happy-hour': 'Happy hour'
+};
+
+const order: MenuCategory[] = ['main', 'breakfast', 'kids', 'happy-hour'];
+
+const all = await getCollection('menuImages');
+const present = new Set(all.map((entry) => entry.data.category as MenuCategory));
+const items = order
+  .filter((cat) => present.has(cat))
+  .map((cat) => ({ id: cat, label: labels[cat] }));
+---
+
+<nav aria-label="Menu sections" class="md:sticky md:top-24 md:self-start">
+  <p class="hidden font-display text-sm uppercase tracking-[0.18em] text-foreground/60 md:block">
+    Jump to
+  </p>
+  <ul
+    class="-mx-6 flex list-none gap-2 overflow-x-auto px-6 py-1 md:mx-0 md:mt-4 md:flex-col md:gap-1 md:overflow-visible md:px-0"
+  >
+    {
+      items.map((item) => (
+        <li class="shrink-0 md:shrink">
+          <a
+            href={`#${item.id}`}
+            class="inline-block rounded-full border border-foreground/10 bg-foreground/3 px-3 py-1 text-sm font-medium text-foreground/80 transition-colors duration-snap ease-soft hover:border-accent/40 hover:text-foreground md:rounded-md md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-base md:text-foreground/70 md:hover:text-accent"
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

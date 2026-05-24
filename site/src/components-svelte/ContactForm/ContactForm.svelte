@@ -95,7 +95,7 @@
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </svelte:head>
 
-<section class="mx-auto w-full max-w-xl px-6 py-12" data-testid="contact-form">
+<div class="w-full" data-testid="contact-form">
   {#if status === 'success'}
     <p
       data-testid="contact-form-success"
@@ -104,9 +104,11 @@
       {contactFormConstants.successMessage}
     </p>
   {:else}
-    <form class="flex flex-col gap-4" onsubmit={handleSubmit} novalidate>
-      <label class="flex flex-col gap-1 text-sm text-foreground">
-        Name
+    <form class="flex flex-col gap-5" onsubmit={handleSubmit} novalidate>
+      <label class="flex flex-col gap-2">
+        <span class="font-display text-sm uppercase tracking-[0.18em] text-foreground/70">
+          Name
+        </span>
         <input
           data-testid="contact-form-name"
           type="text"
@@ -115,12 +117,14 @@
           maxlength={contactFormConstants.maxNameLength}
           autocomplete="name"
           bind:value={name}
-          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
+          class="rounded-md border border-foreground/15 bg-background px-3 py-2 text-foreground transition-colors duration-snap ease-soft focus:border-primary focus:outline-none"
         />
       </label>
 
-      <label class="flex flex-col gap-1 text-sm text-foreground">
-        Email
+      <label class="flex flex-col gap-2">
+        <span class="font-display text-sm uppercase tracking-[0.18em] text-foreground/70">
+          Email
+        </span>
         <input
           data-testid="contact-form-email"
           type="email"
@@ -129,12 +133,14 @@
           maxlength={contactFormConstants.maxEmailLength}
           autocomplete="email"
           bind:value={email}
-          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
+          class="rounded-md border border-foreground/15 bg-background px-3 py-2 text-foreground transition-colors duration-snap ease-soft focus:border-primary focus:outline-none"
         />
       </label>
 
-      <label class="flex flex-col gap-1 text-sm text-foreground">
-        Message
+      <label class="flex flex-col gap-2">
+        <span class="font-display text-sm uppercase tracking-[0.18em] text-foreground/70">
+          Message
+        </span>
         <textarea
           data-testid="contact-form-message"
           name="message"
@@ -142,7 +148,7 @@
           rows={contactFormConstants.textareaRows}
           maxlength={contactFormConstants.maxMessageLength}
           bind:value={message}
-          class="rounded-md border border-foreground/10 bg-background px-3 py-2 text-foreground"
+          class="rounded-md border border-foreground/15 bg-background px-3 py-2 text-foreground transition-colors duration-snap ease-soft focus:border-primary focus:outline-none"
         ></textarea>
       </label>
 
@@ -170,7 +176,7 @@
         data-testid="contact-form-submit"
         type="submit"
         disabled={!canSubmit}
-        class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors duration-snap ease-soft hover:bg-primary/90 disabled:opacity-50"
+        class="inline-flex items-center justify-center self-start rounded-md bg-primary px-5 py-2 font-medium text-primary-foreground transition-colors duration-snap ease-soft hover:bg-primary/90 disabled:opacity-50"
       >
         {status === 'submitting'
           ? contactFormConstants.submitBusyLabel
@@ -178,4 +184,4 @@
       </button>
     </form>
   {/if}
-</section>
+</div>

@@ -26,10 +26,9 @@ const { title, description } = Astro.props;
     <ClientRouter />
     <slot name="head" />
   </head>
-  <body class="bg-background font-body text-foreground">
-    <header>
-      <Nav />
-    </header>
+  <body class="bg-background bg-paper font-body text-foreground">
+    <Nav />
+    <div class="h-px bg-foreground/10"></div>
     <slot />
     <Footer />
   </body>

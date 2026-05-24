@@ -1,14 +1,22 @@
 ---
 type Background = 'default' | 'muted' | 'primary';
+type Padding = 'default' | 'tight' | 'hero';
 
 interface Props {
   background?: Background;
+  padding?: Padding;
   as?: keyof HTMLElementTagNameMap;
   class?: string;
   id?: string;
 }
 
-const { background = 'default', as = 'section', class: className, id } = Astro.props as Props;
+const {
+  background = 'default',
+  padding = 'default',
+  as = 'section',
+  class: className,
+  id
+} = Astro.props as Props;
 
 const Tag = as;
 
@@ -17,8 +25,14 @@ const backgroundClass: Record<Background, string> = {
   muted: 'bg-foreground/5',
   primary: 'bg-primary text-primary-foreground'
 };
+
+const paddingClass: Record<Padding, string> = {
+  default: 'px-6 py-16 md:py-24',
+  tight: 'px-6 py-10 md:py-14',
+  hero: 'px-0 py-0'
+};
 ---
 
-<Tag id={id} class:list={['px-6 py-16 md:py-24', backgroundClass[background], className]}>
+<Tag id={id} class:list={[paddingClass[padding], backgroundClass[background], className]}>
   <slot />
 </Tag>

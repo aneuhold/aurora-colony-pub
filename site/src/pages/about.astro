@@ -1,10 +1,39 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import About from '$components-astro/About.astro';
+import Gallery from '$components-astro/Gallery';
+import Container from '$components-astro/ui/Container.astro';
+import Heading from '$components-astro/ui/Heading.astro';
+import Section from '$components-astro/ui/Section.astro';
+import aboutHeroPhoto from '../assets/gallery/interior-bar-red-ceiling.jpg';
 ---
 
 <BaseLayout title="About — Aurora Colony Pub" description="About the Aurora Colony Pub.">
   <main>
+    <Section padding="hero" class="relative flex min-h-[40svh] items-end overflow-hidden">
+      <Image
+        src={aboutHeroPhoto}
+        alt="Red ceiling glowing over the bar, neon signs reflecting off the wood."
+        widths={[768, 1280, 1920, 2560]}
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+      <div
+        class="absolute inset-0 bg-linear-to-t from-foreground/70 via-foreground/30 to-transparent"
+      >
+      </div>
+      <Container size="wide" class="relative px-6 pb-12 text-background md:pb-16">
+        <div class="animate-fade-in">
+          <Heading level={1} class="text-background">About the pub.</Heading>
+        </div>
+      </Container>
+    </Section>
+
     <About />
+
+    <Gallery heading="More from the room." />
   </main>
 </BaseLayout>
