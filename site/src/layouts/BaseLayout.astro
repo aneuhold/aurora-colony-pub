@@ -2,6 +2,7 @@
 import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+import Footer from '$components-astro/Footer.astro';
 import Nav from '$components-astro/Nav.astro';
 
 interface Props {
@@ -30,5 +31,6 @@ const { title, description } = Astro.props;
       <Nav />
     </header>
     <slot />
+    <Footer />
   </body>
 </html>
