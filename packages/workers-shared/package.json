@@ -11,9 +11,6 @@
     "check": "tsc",
     "test": "vitest run"
   },
-  "dependencies": {
-    "@sentry/cloudflare": "^10.53.1"
-  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260522.1",
     "vitest": "^4.1.6"

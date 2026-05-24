@@ -16,9 +16,9 @@ const nextIp = createTestIpGenerator();
 
 const get = (init: { origin?: string | null; method?: string } = {}): Promise<Response> => {
   const headers: Record<string, string> = { 'CF-Connecting-IP': nextIp() };
-  if (init.origin !== null && init.origin !== undefined) {
+  if (typeof init.origin === 'string') {
     headers.Origin = init.origin;
-  } else if (init.origin !== null) {
+  } else if (init.origin === undefined) {
     headers.Origin = ORIGIN;
   }
   return exports.default.fetch('https://fb-feed-read.example.com/', {

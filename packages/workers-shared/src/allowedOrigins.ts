@@ -14,9 +14,12 @@ export const allowedOrigins: readonly string[] = [
 ];
 
 /**
- * True when `origin` is on the {@link allowedOrigins} allowlist. Pass the
- * raw `Origin` header value — case-sensitive scheme + host comparison.
+ * True when `origin` is on the {@link allowedOrigins} allowlist. Match is
+ * case-insensitive (RFC 3986 — scheme and host are case-insensitive); the
+ * allowlist itself is lowercase so a `toLowerCase()` on the input is
+ * sufficient.
  *
  * @param origin Raw `Origin` request header value
  */
-export const isAllowedOrigin = (origin: string): boolean => allowedOrigins.includes(origin);
+export const isAllowedOrigin = (origin: string): boolean =>
+  allowedOrigins.includes(origin.toLowerCase());
