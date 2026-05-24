@@ -7,7 +7,7 @@ import {
 } from '@aurora/workers-shared';
 import type { Env } from '../Env';
 import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
-import { mockFbGraphResponse } from '../util/mockFbGraphResponse';
+import { buildMockFbGraphResponse } from '../util/mockFbGraphResponse';
 
 const CORS_METHODS = ['GET', 'OPTIONS'] as const;
 
@@ -60,8 +60,9 @@ class FbFeedReadService {
       });
     }
 
+    const photoBaseOrigin = echoedOrigin || fbFeedReadConstants.defaultPhotoOrigin;
     const payload: WorkerFbFeedResponse = {
-      posts: graphPostsToWorkerPosts(mockFbGraphResponse),
+      posts: graphPostsToWorkerPosts(buildMockFbGraphResponse(photoBaseOrigin)),
       syncedAt: new Date().toISOString()
     };
     return jsonResponse(payload, 200, {

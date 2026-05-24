@@ -7,7 +7,7 @@ import {
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fbFeedReadConstants } from './util/fbFeedReadConstants';
-import { mockFbGraphResponse } from './util/mockFbGraphResponse';
+import { buildMockFbGraphResponse, mockFbPostCount } from './util/mockFbGraphResponse';
 
 const ORIGIN = allowedOrigins[0];
 const FORBIDDEN_ORIGIN = 'https://evil.example.com';
@@ -69,9 +69,27 @@ describe('fb-feed-read worker', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe(fbFeedReadConstants.cacheControl);
     const body = await response.json<WorkerFbFeedResponse>();
-    expect(body.posts).toHaveLength(mockFbGraphResponse.data.length);
-    expect(body.posts[0].id).toBe(mockFbGraphResponse.data[0].id);
+    expect(body.posts).toHaveLength(mockFbPostCount);
+    const firstSeedId = buildMockFbGraphResponse('https://example.test').data[0].id;
+    expect(body.posts[0].id).toBe(firstSeedId);
     expect(typeof body.syncedAt).toBe('string');
+  });
+
+  it('anchors photo URLs at the allowlisted caller origin', async () => {
+    const response = await get();
+    const body = await response.json<WorkerFbFeedResponse>();
+    const firstWithImage = body.posts.find((post) => post.imageUrl !== undefined);
+    expect(firstWithImage?.imageUrl).toMatch(new RegExp(`^${ORIGIN}/fb-mock/.+\\.jpg$`));
+  });
+
+  it('falls back to the default photo origin when no Origin header is present', async () => {
+    const response = await exports.default.fetch('https://fb-feed-read.example.com/', {
+      method: 'GET',
+      headers: { 'CF-Connecting-IP': nextIp() }
+    });
+    const body = await response.json<WorkerFbFeedResponse>();
+    const firstWithImage = body.posts.find((post) => post.imageUrl !== undefined);
+    expect(firstWithImage?.imageUrl?.startsWith(fbFeedReadConstants.defaultPhotoOrigin)).toBe(true);
   });
 
   it('returns the KV-stored payload verbatim when one is present', async () => {
