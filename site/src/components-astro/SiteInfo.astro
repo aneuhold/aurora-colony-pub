@@ -12,6 +12,16 @@ const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 
 <address class="not-italic font-body leading-relaxed">
   <p>{pubMapService.address}</p>
+  <p class="mt-1">
+    <a
+      href={pubMapService.directionsUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+    >
+      Get directions →
+    </a>
+  </p>
   <p class="mt-2">
     <a
       href={telHref}

@@ -4,13 +4,12 @@ The steps that need to be completed if the owner of Aurora Colony Pub accepts th
 
 ## 1. Point all prod-URL references at `auroracolonypub.com`
 
-Three files still hard-code the `pages.dev` URL:
+Two files still hard-code the `pages.dev` URL:
 
 - `.github/workflows/pull-request-site.yml` — the `urls:` block under `Run Lighthouse CI` (line ~66) **and** the `prodUrl` constant in the `Post sticky Lighthouse comment` script (line ~82). Replace both with `https://auroracolonypub.com`.
-- `site/astro.config.ts` — change `site:` from `https://aurora-colony-pub-frontend.pages.dev` to `https://auroracolonypub.com`. This is what every canonical URL, OG URL, and sitemap entry is built from, so it has to flip before the build that gets deployed to the real domain.
-- `site/public/robots.txt` — replace the `Sitemap:` URL with `https://auroracolonypub.com/sitemap-index.xml`.
+- `site/astro.config.ts` — change `site:` from `https://aurora-colony-pub-frontend.pages.dev` to `https://auroracolonypub.com`. This is what every canonical URL, OG URL, sitemap entry, and the `Sitemap:` line in `robots.txt` is built from, so it has to flip before the build that gets deployed to the real domain.
 
-Then re-run `pnpm build` so `sitemap-index.xml`/`sitemap-0.xml` regenerate with the new origin, and confirm a couple of canonical/OG tags in `site/dist/` reference the new domain.
+Then re-run `pnpm build` so `sitemap-index.xml`/`sitemap-0.xml` and `robots.txt` regenerate with the new origin, and confirm a couple of canonical/OG tags in `site/dist/` reference the new domain.
 
 ## 2. Migrate DNS from Wix to Cloudflare
 
