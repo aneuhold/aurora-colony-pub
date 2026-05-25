@@ -18,10 +18,13 @@
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/svelte": "^8.1.1",
     "@aurora/shared": "workspace:*",
+    "@jdevalk/astro-seo-graph": "^2.0.0",
+    "@jdevalk/seo-graph-core": "^0.6.2",
     "@sveltia/cms": "^0.161.1",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
     "leaflet": "^1.9.4",
+    "schema-dts": "^2.0.0",
     "sharp": "^0.34.0",
     "svelte": "^5.55.7",
     "tailwindcss": "^4.3.0"

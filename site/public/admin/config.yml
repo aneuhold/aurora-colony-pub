@@ -185,7 +185,7 @@ collections:
           name: alt,
           label: Description,
           widget: string,
-          hint: 'Short description of the photo, used by screen readers and search engines.'
+          hint: "Short, specific description of what's in the photo — used by screen readers and Google image search. Write what someone would see, e.g. 'Bartender pouring a beer at Aurora Colony Pub', not 'drink'."
         }
       - {
           name: order,
