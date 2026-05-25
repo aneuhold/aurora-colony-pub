@@ -34,12 +34,6 @@ Gaps to close:
 
 Everything below is safe to merge before the DNS flip. Anything that needs an absolute URL is built from `Astro.site` so it automatically retargets when `astro.config.mjs` is updated in Phase 3.
 
-### 0. Design the OG share image (user-driven, blocks Step 7)
-
-**User action**: invoke the `pub-design` skill (`/pub-design og share image — 1200×630, wordmark "Aurora Colony Pub — Aurora, OR", warm-Americana voice, must read well in Facebook/iMessage previews at small sizes`) to get a direction. Decide between, e.g., wordmark over a duotone exterior photo vs. logo on solid warm-cream. Export the chosen 1200×630 PNG as `og-image.png` for Step 7. Same direction also informs the apple-touch / manifest icon tiles.
-
-This step is sequenced first because the rest of Phase 1 references the OG image, but the actual code work (Steps 1–14) is unblocked the moment the PNG file exists at `site/public/og-image.png` — implementation can start with a placeholder if needed.
-
 ### 1. Extend `BaseLayout.astro` with full SEO head
 
 File: `site/src/layouts/BaseLayout.astro`
@@ -130,16 +124,15 @@ File: `site/astro.config.mjs`
 
 Pass a `filter` option to the `sitemap()` integration that excludes any URL containing `/admin`. Also drop a `<meta name="robots" content="noindex,nofollow">` for the admin shell — easiest path is to pass `noindex` into `BaseLayout` from wherever `/admin` is rendered (or, if `/admin` is purely a static HTML file served from `public/`, add the meta tag directly to it). Verify by rebuilding and checking `dist/sitemap-0.xml`.
 
-### 7. Sitewide OG share image + favicons
+### 7. Favicons + web manifest
 
 New assets in `site/public/`:
 
-- `og-image.png` — 1200×630, pub logo on warm background with "Aurora Colony Pub — Aurora, OR" wordmark. Default value for `BaseLayout`'s `ogImage` prop.
 - `apple-touch-icon.png` — 180×180, pub logo on background tile.
 - `icon-192.png`, `icon-512.png` — for the web manifest.
 - `site.webmanifest` — `name`, `short_name`, `theme_color`, `background_color`, `icons[]`, `display: 'standalone'`.
 
-Generating these from `site/src/assets/logo.svg` is a one-time task. Commit the PNGs directly.
+Generating these from `site/src/assets/logo.svg` is a one-time task. Commit the PNGs directly. (`og-image.png` already builds via `pnpm generate:assets`.)
 
 ### 8. Sitemap config polish
 
@@ -302,7 +295,7 @@ New files:
 - `site/public/robots.txt`
 - `site/public/_redirects`
 - `site/public/_headers`
-- `site/public/og-image.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`
+- `site/public/apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`
 
 No new dependencies. No abstractions beyond a single `SeoSchema.astro` component (justified — JSON-LD construction is 40+ lines that would otherwise pollute `BaseLayout`).
 
