@@ -7,12 +7,12 @@ import { ASSETS_DIR, PUBLIC_DIR, renderSquareIco } from './generate-logos-utils'
  */
 const getConfig = () => ({
   /** Canonical brand SVG. The favicon source is derived from this. */
-  brandSource: `${ASSETS_DIR}/logo-inverted.svg`,
+  brandSource: `${ASSETS_DIR}/logo.svg`,
   /**
    * Sibling variant with a white background injected behind the masked path.
    * Acts as the single source for both favicon outputs so they stay in sync.
    */
-  faviconSource: `${ASSETS_DIR}/logo-inverted-on-white.svg`,
+  faviconSource: `${ASSETS_DIR}/logo-on-white.svg`,
   /** Output served at `/favicon.svg` — referenced from BaseLayout.astro. */
   faviconSvg: `${PUBLIC_DIR}/favicon.svg`,
   /** Output served at `/favicon.ico` — fallback for browsers that ignore the SVG. */
