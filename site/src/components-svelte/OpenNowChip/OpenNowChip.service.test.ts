@@ -20,7 +20,7 @@ const at = (dayIdx: number, hour: number, minute: number): Date => {
 describe('openNowChipService.computeStatus', () => {
   it('reports open during normal weekday hours', () => {
     const status = openNowChipService.computeStatus(at(1, 14, 0), weekly); // Mon 2 PM
-    expect(status).toEqual({ isOpen: true, closesAt: '10:00 PM' });
+    expect(status).toEqual({ isOpen: true });
   });
 
   it('reports closed before the day starts', () => {
@@ -31,7 +31,7 @@ describe('openNowChipService.computeStatus', () => {
 
   it('handles cross-midnight Friday — 11 PM is still open', () => {
     const status = openNowChipService.computeStatus(at(5, 23, 0), weekly); // Fri 11 PM
-    expect(status).toEqual({ isOpen: true, closesAt: '12:00 AM' });
+    expect(status).toEqual({ isOpen: true });
   });
 
   it('reports closed at Saturday 12:30 AM (Friday already closed)', () => {

@@ -4,8 +4,6 @@ export type { HoursRow };
 
 export interface OpenStatus {
   isOpen: boolean;
-  /** Display string for the close time when isOpen, e.g. "10:00 PM". */
-  closesAt?: string;
   /** Display string for the next opening when closed, e.g. "9:00 AM Sat". */
   opensAt?: string;
 }
@@ -33,7 +31,7 @@ class OpenNowChipService {
         let closeMin = dateTimeService.minutesOf(close);
         if (closeMin <= openMin) closeMin += 24 * 60;
         if (nowMin >= openMin && nowMin < closeMin) {
-          return { isOpen: true, closesAt: todayRow.close };
+          return { isOpen: true };
         }
       }
     }
@@ -48,7 +46,7 @@ class OpenNowChipService {
         const closeMin = dateTimeService.minutesOf(close);
         const crossesMidnight = closeMin <= openMin;
         if (crossesMidnight && closeMin > 0 && nowMin < closeMin) {
-          return { isOpen: true, closesAt: yesterdayRow.close };
+          return { isOpen: true };
         }
       }
     }
