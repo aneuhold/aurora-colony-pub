@@ -22,7 +22,6 @@ Gaps to close:
 - No canonical URL, Open Graph, Twitter Card, or theme-color metadata.
 - No JSON-LD structured data (huge miss for a local restaurant — `BarOrPub` is the single biggest local-SEO lever we have before GBP).
 - No `robots.txt`. `/admin/` is currently included in the generated sitemap.
-- No OG share image; link previews on Facebook/iMessage show nothing.
 - About page uses `<h2>` as its top heading (should be `<h1>`).
 - Per-page titles/descriptions don't include the city/state — costs us local CTR.
 - No apple-touch-icon or web manifest.
@@ -34,52 +33,93 @@ Gaps to close:
 
 Everything below is safe to merge before the DNS flip. Anything that needs an absolute URL is built from `Astro.site` so it automatically retargets when `astro.config.mjs` is updated in Phase 3.
 
-### 1. Extend `BaseLayout.astro` with full SEO head
+### 1. Install `@jdevalk/astro-seo-graph` and wire `<Seo>` in `BaseLayout.astro`
 
-File: `site/src/layouts/BaseLayout.astro`
+Install the dep:
 
-Widen `Props` to: `title`, `description?`, `ogImage?` (defaults to a sitewide share image), `ogType?` (default `website`), `noindex?` (default `false`).
+```sh
+pnpm --filter site add @jdevalk/astro-seo-graph
+```
 
-In the `<head>`, add (built from `Astro.site` + `Astro.url`):
+Register the build-time validation hook in `site/astro.config.mjs`:
 
-- `<link rel="canonical" href={canonicalUrl}>`
-- `<meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow'}>`
-- `<meta name="theme-color" content="#…">` — use the existing `--color-primary` hex (read from `tokens.css`, hard-coded here to avoid a runtime CSS variable lookup).
-- `<meta property="og:type" content={ogType}>`
-- `<meta property="og:site_name" content="Aurora Colony Pub">`
-- `<meta property="og:title" content={title}>`
-- `<meta property="og:description" content={description}>`
-- `<meta property="og:url" content={canonicalUrl}>`
-- `<meta property="og:image" content={absOgImageUrl}>` + `og:image:width`/`height`/`alt`
-- `<meta property="og:locale" content="en_US">`
-- `<meta name="twitter:card" content="summary_large_image">`
-- `<meta name="twitter:title" content={title}>`
-- `<meta name="twitter:description" content={description}>`
-- `<meta name="twitter:image" content={absOgImageUrl}>`
-- `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`
-- `<link rel="manifest" href="/site.webmanifest">`
+```js
+import { seoGraph } from '@jdevalk/astro-seo-graph';
+// ...
+integrations: [/* existing */, seoGraph()],
+```
 
-Description becomes required in TS (every page already passes one).
+The hook runs entirely at build time (no client JS). It fails the build on: pages missing or duplicating `<h1>`, duplicate `<title>` / `<meta description>` across pages, images without `alt`, and internal links with inconsistent trailing slashes.
 
-### 2. Add sitewide structured data component
+Replace `site/src/layouts/BaseLayout.astro`'s head with the `<Seo>` component. Widen `Props` to: `title`, `description` (required), `ogImage?` (defaults to a sitewide share image), `ogType?` (default `website'`), `noindex?` (default `false`).
 
-New file: `site/src/components-astro/SeoSchema.astro`
+```astro
+---
+import Seo from '@jdevalk/astro-seo-graph/Seo.astro';
+import { buildSeoGraph } from '$util/seoGraph';
 
-Renders a single `<script type="application/ld+json">` block. Reads the existing `hours`, `locationContact`, `socialMediaLinks`, and `titleTagline` content entries and emits a `BarOrPub` (subtype of `Restaurant` + `LocalBusiness`) graph with:
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+}
 
-- `@type: 'BarOrPub'`, `name`, `description`, `url` (from `Astro.site`), `image` (OG image), `logo`.
-- `address` as `PostalAddress` (parse the existing `address` string into street/city/state/postal — Aurora, OR 97002 is stable enough to hard-code city/state/zip in the parser).
-- `telephone`, `email`.
-- `geo` as `GeoCoordinates` — pull lat/lon for `21568 Hwy 99E NE, Aurora, OR 97002` and store as constants in this component (one-time lookup; do not embed a map iframe).
-- `openingHoursSpecification[]` derived from `hours.json` — convert `"Mon–Thu"`/`"11:00 AM"`/`"10:00 PM"` into Schema.org day codes + 24-hour times. Add a separate spec entry per day range.
-- `servesCuisine: ['American']`.
-- `priceRange: '$$'`.
-- `paymentAccepted`, `currenciesAccepted: 'USD'`.
-- `sameAs`: array built from `social-media-links.json`.
-- `hasMenu` linking to `${site}/menu`.
-- `acceptsReservations`: omit until the owner confirms (see open question at the bottom).
+const { title, description, ogImage = '/og-image.png', ogType = 'website', noindex = false } = Astro.props;
+const absOgImage = new URL(ogImage, Astro.site).href;
+const graph = await buildSeoGraph({ site: Astro.site!, pageUrl: Astro.url, pageName: title, description });
+---
 
-Wire it into `BaseLayout.astro` so it renders on every page. (One component, one JSON-LD block — keeps the head tidy.)
+<Seo
+  title={title}
+  description={description}
+  ogType={ogType}
+  ogImage={absOgImage}
+  ogImageAlt="Aurora Colony Pub"
+  ogImageWidth={1200}
+  ogImageHeight={630}
+  siteName="Aurora Colony Pub"
+  locale="en_US"
+  twitter={{ card: 'summary_large_image' }}
+  noindex={noindex}
+  graph={graph}
+  extraLinks={[
+    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+    { rel: 'manifest', href: '/site.webmanifest' },
+  ]}
+  extraMeta={[
+    { name: 'theme-color', content: '#XXXXXX' }, // hex pulled from --color-primary in tokens.css
+  ]}
+/>
+```
+
+`<Seo>` emits: `<title>`, `<meta description>`, canonical (auto-derived from `Astro.url`), `<meta robots>`, OG (type/title/description/url/image/site_name/locale), Twitter Card, the JSON-LD `@graph`, plus the apple-touch-icon / manifest / theme-color tags wired through `extraLinks`/`extraMeta`.
+
+### 2. Build the JSON-LD `@graph`
+
+New file: `site/src/util/seoGraph.ts`
+
+Exports `buildSeoGraph({ site, pageUrl, pageName, description })` returning the assembled graph object that `<Seo graph={...}>` consumes. Reads the existing `hours`, `locationContact`, and `socialMediaLinks` content entries via `getEntry` from `astro:content`.
+
+Builds three linked entities via `@jdevalk/astro-seo-graph`'s re-exports of the core builders (`makeIds`, `buildWebSite`, `buildWebPage`, `buildPiece`, `assembleGraph`):
+
+1. `WebSite` (sitewide) — `buildWebSite({ url, name: 'Aurora Colony Pub', publisher: { '@id': ids.organization('pub') }, ... }, ids)`.
+2. `WebPage` (per-page) — `buildWebPage({ url: pageUrl.href, name: pageName, isPartOf: { '@id': ids.website }, ... }, ids)`.
+3. `BarOrPub` (sitewide, the local-SEO payload) — `buildPiece<Restaurant>({ '@type': 'BarOrPub', '@id': ids.organization('pub'), ... })` from `schema-dts`. Properties:
+   - `name`, `description`, `url`, `image` (OG image), `logo`.
+   - `address` as `PostalAddress` — parse the existing `address` string into street/city/state/postal (Aurora, OR 97002 is stable enough to hard-code city/state/zip in the parser).
+   - `telephone`, `email`.
+   - `geo` as `GeoCoordinates` — store lat/lon for `21568 Hwy 99E NE, Aurora, OR 97002` as constants in this file (one-time lookup; do not embed a map iframe).
+   - `openingHoursSpecification[]` derived from `hours.json` — convert `"Mon–Thu"` / `"11:00 AM"` / `"10:00 PM"` into Schema.org day codes + 24-hour times; one entry per day range.
+   - `servesCuisine: ['American']`.
+   - `priceRange: '$$'`.
+   - `paymentAccepted`, `currenciesAccepted: 'USD'`.
+   - `sameAs[]` built from `social-media-links.json`.
+   - `hasMenu` linking to `${site}/menu`.
+   - `acceptsReservations` — omit until the owner confirms (see open question at the bottom).
+
+Return value: `assembleGraph([website, webPage, barOrPub])`. The Astro package's component dedups and emits one `<script type="application/ld+json">` block per page.
 
 ### 3. Per-page titles & descriptions tuned for local search
 
@@ -102,21 +142,23 @@ Update the four pages so titles include "Aurora, OR" and descriptions sell the v
 
 File: `site/src/components-astro/About.astro`
 
-Change the page heading from `<Heading level={2}>` to `<Heading level={1}>`. Every page must have exactly one `<h1>`; right now `/about` has none. (`Heading` already supports `level={1}`.)
+Change the page heading from `<Heading level={2}>` to `<Heading level={1}>`. Every page must have exactly one `<h1>`; right now `/about` has none. (`Heading` already supports `level={1}`.) Future regressions on any page are caught by the `seoGraph()` build-time hook from Section 1.
 
-### 5. Add `robots.txt`
+### 5. Add `robots.txt` endpoint
 
-New file: `site/public/robots.txt`
+New file: `site/src/pages/robots.txt.ts`
 
+```ts
+import type { APIRoute } from 'astro';
+
+export const GET: APIRoute = ({ site }) => {
+  const sitemap = new URL('sitemap-index.xml', site).href;
+  const body = `User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: ${sitemap}\n`;
+  return new Response(body, { headers: { 'Content-Type': 'text/plain' } });
+};
 ```
-User-agent: *
-Allow: /
-Disallow: /admin/
 
-Sitemap: https://aurora-colony-pub-frontend.pages.dev/sitemap-index.xml
-```
-
-The `Sitemap:` line must be edited in Phase 3 along with `astro.config.mjs site`. Note the file in `docs/post-acceptance-steps.md` (Step 1 update) so it isn't forgotten.
+Astro prerenders this to `dist/robots.txt` at build time (static endpoints work with `output: 'static'`). The `Sitemap:` URL derives from `Astro.site`, so the DNS flip in Phase 2 needs no robots edit — updating `site` in `astro.config.mjs` cascades.
 
 ### 6. Keep `/admin` out of the sitemap
 
@@ -126,13 +168,19 @@ Pass a `filter` option to the `sitemap()` integration that excludes any URL cont
 
 ### 7. Favicons + web manifest
 
-New assets in `site/public/`:
+Extend `scripts/generate-logos.ts` to additionally emit the PWA icons from the existing `logo-on-white.svg` source:
 
-- `apple-touch-icon.png` — 180×180, pub logo on background tile.
-- `icon-192.png`, `icon-512.png` — for the web manifest.
-- `site.webmanifest` — `name`, `short_name`, `theme_color`, `background_color`, `icons[]`, `display: 'standalone'`.
+- `site/public/apple-touch-icon.png` — 180×180.
+- `site/public/icon-192.png` — 192×192.
+- `site/public/icon-512.png` — 512×512.
 
-Generating these from `site/src/assets/logo.svg` is a one-time task. Commit the PNGs directly. (`og-image.png` already builds via `pnpm generate:assets`.)
+`generate-logos-utils.ts` already has the `renderSquarePng` helper that backs `renderSquareIco`; export it (currently private) and call it three times from `generate-logos.ts` alongside the existing favicon outputs. Add the three paths and sizes to the script's `getConfig()` object so the rest of the file stays config-driven. Run `pnpm generate:assets` and commit the resulting PNGs.
+
+New hand-written file in `site/public/`:
+
+- `site.webmanifest` — `name`, `short_name`, `theme_color`, `background_color`, `icons[]` (referencing `icon-192.png` + `icon-512.png`), `display: 'standalone'`.
+
+The `<link rel="apple-touch-icon">` and `<link rel="manifest">` tags are emitted by `<Seo extraLinks={...}>` in Section 1 — no separate head wiring.
 
 ### 8. Sitemap config polish
 
@@ -142,7 +190,7 @@ In addition to the admin filter, add to `sitemap()`:
 
 - `changefreq: 'weekly'`
 - `priority: 0.7` (page-level)
-- `lastmod: new Date()` — fine because the build runs on every push.
+- Per-page `lastmod` via `serialize`, using `gitLastmod` from `@jdevalk/astro-seo-graph` against the page's source file. Map known routes to their `.astro` source paths (four entries today: `/`, `/menu/`, `/about/`, `/contact/`); fall back to build time when `gitLastmod` returns `null`. Per-page accuracy beats a single sitewide build timestamp for crawlers.
 
 (Don't over-engineer per-page priorities — Google ignores them in practice but they're cheap to include consistently.)
 
@@ -201,21 +249,16 @@ Before considering Phase 1 complete:
 - `pnpm lint --fix`
 - `pnpm check`
 - `pnpm test`
-- `pnpm build` then inspect `site/dist/sitemap-0.xml` — must not contain `/admin/`.
-- Manually view-source on `/`, `/menu`, `/about`, `/contact` from `pnpm preview` and confirm: canonical, OG tags, Twitter tags, JSON-LD parses (paste into [validator.schema.org](https://validator.schema.org/)), `<h1>` count = 1 per page.
+- `pnpm build` — the `seoGraph()` hook from Section 1 enforces `<h1>` count, title/description uniqueness, image `alt` presence, and trailing-slash consistency. Build fails on violation.
+- Inspect `site/dist/sitemap-0.xml` — must not contain `/admin/`.
+- Inspect `site/dist/robots.txt` — `Sitemap:` URL matches `Astro.site`.
+- Paste the JSON-LD from any built page into [validator.schema.org](https://validator.schema.org/) — confirm it parses and `BarOrPub` resolves cleanly.
 
 ---
 
 ## Phase 2 — Domain switch (the existing post-acceptance work)
 
-Owned by `docs/post-acceptance-steps.md`. This plan adds a tiny patch to that doc rather than duplicating its steps.
-
-Update `docs/post-acceptance-steps.md` Step 1 ("Update the GitHub action for lighthouse…") to also call out:
-
-- `site/public/robots.txt` — replace the `Sitemap:` URL with `https://auroracolonypub.com/sitemap-index.xml`.
-- Re-run `pnpm build` so the sitemap regenerates with the new origin.
-
-(The codebase change set here is one line of `astro.config.mjs` + the robots line + the two Lighthouse workflow URLs that doc already covers.)
+Owned by `docs/post-acceptance-steps.md`. The robots.txt endpoint and sitemap both derive their absolute URLs from `Astro.site`, so updating the `site` value in `astro.config.mjs` is the only codebase change in this phase (plus the two Lighthouse workflow URLs that doc already covers). No edits to this plan's outputs are required at the DNS flip.
 
 ---
 
@@ -276,7 +319,8 @@ With all third-party origins now known and stable (Turnstile, FB Worker, Resend'
 
 Edits:
 
-- `site/src/layouts/BaseLayout.astro` — full SEO head
+- `site/src/layouts/BaseLayout.astro` — replace head with `<Seo>`
+- `site/astro.config.mjs` — register `seoGraph()` integration; sitemap `filter` + `changefreq`/`priority` + `serialize` for `gitLastmod`
 - `site/src/components-astro/About.astro` — h2 → h1
 - `site/src/components-astro/MenuDisplay.astro` — alt prefix
 - `site/src/components-astro/SiteInfo.astro` — directions link
@@ -285,19 +329,24 @@ Edits:
 - `site/src/pages/menu.astro` — title + description
 - `site/src/pages/about.astro` — title + description
 - `site/src/pages/contact.astro` — title + description
-- `site/astro.config.mjs` — sitemap `filter` + `changefreq`/`priority`/`lastmod`
 - `site/public/admin/config.yml` — add CMS hint encouraging descriptive gallery alts
-- `docs/post-acceptance-steps.md` — add robots.txt + sitemap rebuild note to Step 1
+- `site/package.json` — add `@jdevalk/astro-seo-graph`
+- `scripts/generate-logos.ts` — emit apple-touch-icon + 192/512 PWA icons alongside existing favicons
+- `scripts/generate-logos-utils.ts` — export the `renderSquarePng` helper
 
 New files:
 
-- `site/src/components-astro/SeoSchema.astro` — JSON-LD `BarOrPub`
-- `site/public/robots.txt`
+- `site/src/util/seoGraph.ts` — `buildSeoGraph()` returning the JSON-LD `@graph` for `<Seo>`
+- `site/src/pages/robots.txt.ts` — dynamic robots.txt endpoint
 - `site/public/_redirects`
 - `site/public/_headers`
-- `site/public/apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`
+- `site/public/site.webmanifest`
 
-No new dependencies. No abstractions beyond a single `SeoSchema.astro` component (justified — JSON-LD construction is 40+ lines that would otherwise pollute `BaseLayout`).
+Generated outputs (via `pnpm generate:assets`, committed):
+
+- `site/public/apple-touch-icon.png`, `site/public/icon-192.png`, `site/public/icon-512.png`
+
+One new dependency: `@jdevalk/astro-seo-graph` — provides the `<Seo>` component, builders, `gitLastmod`, and the build-time `seoGraph()` validation hook. Build-time only; no client JS.
 
 ---
 
