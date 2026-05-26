@@ -1,6 +1,6 @@
 <!--
   @component
-  Small "Open until X" / "Closed · opens Y" pill used in the home hero overlay.
+  Small "Open now" / "Closed until Y" pill used in the home hero overlay.
   SSR renders a neutral fallback so the slot has stable dimensions; the live
   status replaces it on hydration. Recomputes every 60s.
 -->
@@ -35,9 +35,9 @@
   {#if status}
     <span class={`h-2 w-2 rounded-full ${status.isOpen ? 'bg-accent' : 'bg-background/50'}`}></span>
     {#if status.isOpen}
-      Open until {status.closesAt}
+      Open now
     {:else if status.opensAt}
-      Closed · opens {status.opensAt}
+      Closed until {status.opensAt}
     {:else}
       Closed
     {/if}

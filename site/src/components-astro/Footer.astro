@@ -3,7 +3,7 @@ import { getEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Hours from '$components-astro/Hours.astro';
 import SiteInfo from '$components-astro/SiteInfo.astro';
-import LogoInverted from '../assets/logo-inverted.svg';
+import Logo from '../assets/logo.svg';
 
 const socialEntry = await getEntry('socialMediaLinks', 'social-media-links');
 if (!socialEntry) {
@@ -16,7 +16,7 @@ const currentYear = new Date().getFullYear();
 <footer class="border-t border-foreground/10 bg-foreground/5 px-6 py-16 font-body md:py-20">
   <Container>
     <div class="flex items-center gap-5 text-foreground/70 md:gap-8">
-      <LogoInverted class="h-12 w-auto shrink-0 md:h-16" />
+      <Logo class="h-12 w-auto shrink-0 md:h-16" />
       <p class="font-display text-3xl tracking-tight md:text-5xl">Family friendly until 9 pm.</p>
     </div>
 

@@ -59,6 +59,11 @@ All commands run from the **repo root** — pnpm filters route them to the right
 - Order methods by visibility: public, protected, private.
 - Within same visibility, order doesn't matter.
 
+### Services
+
+- When a module exposes more than one related function, or any state/constants shared across functions, write it as a `*.service.ts` singleton instead of a file of floating exports. See `site/src/util/DateTime.service.ts` for the canonical shape: one class with helpers as methods, `private static readonly` for constants, `private` for internal helpers, `public` for the surface the rest of the app consumes, and `export default new XyzService()` at the bottom.
+- File name is PascalCase matching the class (e.g. `Branding.service.ts` → `class BrandingService`).
+
 ## File Organization
 
 ### Barrel Files (`index.ts`)

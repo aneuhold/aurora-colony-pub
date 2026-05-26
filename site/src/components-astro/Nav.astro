@@ -4,7 +4,7 @@ import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
 import MobileNav from '$components-svelte/MobileNav';
 import DoorDashIcon from '../assets/icons/doordash.svg';
-import LogoInverted from '../assets/logo-inverted.svg';
+import Logo from '../assets/logo.svg';
 
 type NavLink = {
   href: string;
@@ -41,7 +41,7 @@ const { orderUrl } = contactEntry.data;
       aria-label="Aurora Colony Pub home"
       class="block shrink-0 text-foreground transition-opacity duration-snap ease-soft hover:opacity-80"
     >
-      <LogoInverted class="h-10 w-auto md:h-12" />
+      <Logo class="h-10 w-auto md:h-12" />
     </a>
 
     <ul class="hidden list-none items-center gap-5 p-0 md:flex md:gap-7">

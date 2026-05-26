@@ -3,6 +3,7 @@ import { getEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Section from '$components-astro/ui/Section.astro';
 import dateTimeService from '$util/DateTime.service';
+import { globalConstants } from '$util/globalConstants';
 import pubMapService from '$util/PubMap/PubMap.service';
 
 const hoursEntry = await getEntry('hours', 'hours');
@@ -41,7 +42,7 @@ const happyHourLine = isHappyHourDay
       </div>
       <div>
         <p class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">Find us</p>
-        <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">{pubMapService.address}</p>
+        <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">{globalConstants.fullAddress}</p>
         <a
           href={pubMapService.mapsSearchUrl}
           target="_blank"

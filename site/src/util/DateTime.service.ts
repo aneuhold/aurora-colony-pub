@@ -9,39 +9,30 @@ export interface HoursRow {
   close: string;
 }
 
+/**
+ * Source of truth for day-of-week labels. Keyed by the lower-case full
+ * weekday name in `Date.getDay()` order (Sunday first). Hand-typed rather
+ * than derived from `Intl` because `shortLabel` is CMS author input — the
+ * exact spellings in `hours.json` rows have to keep matching here, even if
+ * CLDR shifts under us.
+ */
+const DAYS_CONFIG = {
+  sunday: { shortLabel: 'Sun', longLabel: 'Sunday' },
+  monday: { shortLabel: 'Mon', longLabel: 'Monday' },
+  tuesday: { shortLabel: 'Tue', longLabel: 'Tuesday' },
+  wednesday: { shortLabel: 'Wed', longLabel: 'Wednesday' },
+  thursday: { shortLabel: 'Thu', longLabel: 'Thursday' },
+  friday: { shortLabel: 'Fri', longLabel: 'Friday' },
+  saturday: { shortLabel: 'Sat', longLabel: 'Saturday' }
+} as const;
+
 class DateTimeService {
   /**
-   * Short day labels indexed by JS `Date.getDay()` (0=Sun..6=Sat).
-   *
-   * Kept as a hand-typed literal (not derived from `Intl`) because these
-   * exact strings are content-author input — `hours.yaml` rows use
-   * `"Mon–Thu"`, `"Fri"`, etc., and `expandDayLabel` matches against this
-   * map. Deriving from CLDR risks the labels shifting under us and silently
-   * breaking the CMS content match.
+   * Day rows in JS `Date.getDay()` order (0=Sun..6=Sat). Object key
+   * iteration order is preserved for non-integer string keys, so
+   * `Object.values(DAYS_CONFIG)` is a stable index-aligned list.
    */
-  private static readonly SHORT_DAY_LABELS: readonly string[] = [
-    'Sun',
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat'
-  ];
-
-  /**
-   * Reverse of {@link SHORT_DAY_LABELS}. Hand-typed for the same reason:
-   * the keys are the literal strings the CMS author writes in hours rows.
-   */
-  private static readonly DAY_LABEL_TO_INDEX: Record<string, number> = {
-    Sun: 0,
-    Mon: 1,
-    Tue: 2,
-    Wed: 3,
-    Thu: 4,
-    Fri: 5,
-    Sat: 6
-  };
+  private static readonly DAYS = Object.values(DAYS_CONFIG);
 
   /**
    * Two-week threshold past which the relative-time formatter switches
@@ -61,7 +52,7 @@ class DateTimeService {
   });
 
   /** Short day labels indexed by JS `Date.getDay()` (0=Sun..6=Sat). */
-  readonly shortDayLabels = DateTimeService.SHORT_DAY_LABELS;
+  readonly shortDayLabels = DateTimeService.DAYS.map((d) => d.shortLabel);
 
   /**
    * Parses a 12-hour clock string ("11:00 AM", "12:00 AM", "9:30 PM") into
@@ -84,6 +75,33 @@ class DateTimeService {
   }
 
   /**
+   * Converts a 12-hour clock string ("11:00 AM", "12:00 AM", "9:30 PM") to
+   * the 24-hour `HH:mm` form used by ISO 8601 and schema.org's
+   * `openingHoursSpecification`. Returns `null` for unparseable input.
+   *
+   * @param input Time string in "H:MM AM/PM" or "HH:MM AM/PM" form
+   */
+  to24HourTime(input: string): string | null {
+    const parsed = this.parseTimeOfDay(input);
+    if (!parsed) return null;
+    const hh = String(parsed.hour).padStart(2, '0');
+    const mm = String(parsed.minute).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  /**
+   * Expands a weekly-hours label ("Mon–Thu", "Fri", "Sat") into the full
+   * weekday names ("Monday", "Tuesday", …) it covers. Returns `[]` for
+   * unrecognized labels. Accepts en-dash, em-dash, or hyphen, and
+   * wrap-around ranges like "Sat–Mon".
+   *
+   * @param label Day-range label
+   */
+  longDayNameForLabel(label: string) {
+    return this.expandDayLabel(label).map((idx) => DateTimeService.DAYS[idx].longLabel);
+  }
+
+  /**
    * Total minutes since midnight for a TimeOfDay.
    *
    * @param t Time of day
@@ -101,13 +119,15 @@ class DateTimeService {
   private expandDayLabel(label: string): number[] {
     const normalized = label.replace(/[–—]/g, '-');
     const parts = normalized.split('-').map((s) => s.trim());
+    const indexOf = (shortLabel: string): number =>
+      DateTimeService.DAYS.findIndex((d) => d.shortLabel === shortLabel);
     if (parts.length === 1) {
-      const idx = DateTimeService.DAY_LABEL_TO_INDEX[parts[0]];
-      return idx === undefined ? [] : [idx];
+      const idx = indexOf(parts[0]);
+      return idx < 0 ? [] : [idx];
     }
-    const start = DateTimeService.DAY_LABEL_TO_INDEX[parts[0]];
-    const end = DateTimeService.DAY_LABEL_TO_INDEX[parts[1]];
-    if (start === undefined || end === undefined) return [];
+    const start = indexOf(parts[0]);
+    const end = indexOf(parts[1]);
+    if (start < 0 || end < 0) return [];
     const result: number[] = [];
     let i = start;
     const stop = (end + 1) % 7;
@@ -141,15 +161,6 @@ class DateTimeService {
    */
   labelCoversDay(label: string, dayIdx: number): boolean {
     return this.expandDayLabel(label).includes(dayIdx);
-  }
-
-  /**
-   * Short day label ('Sun'..'Sat') for the given date.
-   *
-   * @param date Date to read the weekday from
-   */
-  shortDayLabel(date: Date): string {
-    return DateTimeService.SHORT_DAY_LABELS[date.getDay()];
   }
 
   /**

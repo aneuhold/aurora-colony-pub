@@ -3,13 +3,13 @@
 Two-worker pipeline + a Svelte island, as described in `docs/worker-details.md`:
 `aurora-fb-feed-sync` writes Facebook posts to KV (cron + manual trigger);
 `aurora-fb-feed-read` reads KV and serves them to the browser; the island
-fetches the read worker and renders a minimal list.
+fetches the read worker and renders the posts.
 
-The skeletons already exist (Sentry wrapping, KV binding, rate limiter, manual
-bearer auth, cron). This plan fills in the bodies and the frontend.
-
-Styling is intentionally minimal — basic Tailwind utilities only, polished
-later.
+The read worker, the frontend island, and the shared types / transform /
+worker-helpers package are already in place. The read worker serves a
+hardcoded mock payload when KV is empty so the frontend has something to
+render while we wait on the prequel below. Remaining work: fill in the
+sync worker (Step 1), then retire the mock (Step 2).
 
 ## Prequel — one-time setup outside the codebase
 
@@ -81,114 +81,100 @@ If the token ever breaks, the sync worker will start returning 5xx —
 Sentry catches it and we re-mint from the Business Settings console. Not
 building auto-refresh now.
 
-## Step 1 — Shared types in `@aurora/shared`
+## Step 1 — `fb-feed-sync` worker body
 
-Single source of truth for the wire format the read worker emits and the
-island consumes.
-
-- **New file** `packages/shared/src/fbFeedTypes.ts`
-  - `WorkerFbFeedPost` — `{ id: string; message: string; permalink: string; createdAt: string; imageUrl?: string }`. Keep it small; we strip everything else in the sync worker so the KV blob stays compact.
-  - `WorkerFbFeedResponse` — `{ posts: WorkerFbFeedPost[]; syncedAt: string }`.
-- **Edit** `packages/shared/src/index.ts` — add `export * from './fbFeedTypes';`.
-
-## Step 2 — `fb-feed-sync` worker body
-
-Mirror the `contact` worker's service split (`index.ts` stays trivial,
-`services/*` does the work).
+Today `workers/fb-feed-sync/src/index.ts` declares an inline `Env`,
+rate-limits and bearer-checks `fetch`, and has an empty `scheduled`.
+Mirror the contact worker's service split — `index.ts` stays trivial,
+`services/*` does the work.
 
 - **New file** `workers/fb-feed-sync/src/Env.ts`
-  - Re-export the existing inline `Env`: `AURORA_COLONY_PUB_KV`,
+  - Move the `Env` interface out of `index.ts`: `AURORA_COLONY_PUB_KV`,
     `RATE_LIMITER`, `FB_MANUAL_SYNC_TOKEN`, `FB_PAGE_ID`,
     `FB_PAGE_ACCESS_TOKEN`.
 - **New file** `workers/fb-feed-sync/src/util/fbFeedSyncConstants.ts`
-  - `kvKey: 'fb:feed:latest'`.
+  - `kvKey: 'fb:feed:latest'` — must match `fbFeedReadConstants.kvKey`;
+    the small duplication is deliberate (see the note in the read
+    worker's constants file).
   - `graphApiVersion: 'v21.0'`.
   - `fields: 'id,message,permalink_url,created_time,full_picture'` (Graph API field list).
   - `postLimit: 10` — keep KV blob small; we only render a handful.
 - **New file** `workers/fb-feed-sync/src/services/FbGraphService.ts`
-  - Singleton, `async fetchLatestPosts(env: Env): Promise<WorkerFbFeedPost[]>`.
+  - Singleton, `async fetchLatestPosts(env: Env): Promise<FbGraphPostsResponse>`.
   - Calls `GET https://graph.facebook.com/{version}/{pageId}/posts?fields=…&limit=…&access_token=…`.
-  - Throws on non-2xx so the orchestrator can return a 502 / let Sentry capture it.
-  - Maps Graph response fields → `WorkerFbFeedPost` (drops anything the type doesn't declare; `imageUrl` from `full_picture` only when present; `message` defaults to empty string when missing).
+  - Throws on non-2xx so the orchestrator can return a 502 / let Sentry
+    capture it.
+  - Returns the raw Graph response unchanged — the orchestrator hands it
+    to `graphPostsToWorkerPosts` from `@aurora/shared`.
 - **New file** `workers/fb-feed-sync/src/services/FbFeedSyncService.ts`
   - Singleton with two public methods:
-    - `handleRequest(request: Request, env: Env): Promise<Response>` — IP rate-limit, require `Authorization: Bearer ${FB_MANUAL_SYNC_TOKEN}`, then call `syncFeed`. Return 200 on success, 502 on Graph failure.
-    - `syncFeed(env: Env): Promise<void>` — calls `FbGraphService.fetchLatestPosts`, wraps result as `WorkerFbFeedResponse` with `syncedAt = new Date().toISOString()`, writes to KV under `fbFeedSyncConstants.kvKey`.
+    - `handleRequest(request: Request, env: Env): Promise<Response>` —
+      `checkIpRateLimit` (from `@aurora/workers-shared`), require
+      `Authorization: Bearer ${FB_MANUAL_SYNC_TOKEN}`, then call
+      `syncFeed`. Return 200 on success, 502 on Graph failure.
+    - `syncFeed(env: Env): Promise<void>` — calls
+      `FbGraphService.fetchLatestPosts`, runs the result through
+      `graphPostsToWorkerPosts`, wraps as `WorkerFbFeedResponse` with
+      `syncedAt = new Date().toISOString()`, writes to KV under
+      `fbFeedSyncConstants.kvKey`.
 - **Edit** `workers/fb-feed-sync/src/index.ts`
-  - Replace the inline `Env` with the import from `./Env`.
-  - Delegate `fetch` and `scheduled` to `fbFeedSyncService` (so `scheduled` calls `syncFeed` and surfaces errors so Sentry + cron retries see them).
+  - Drop the inline `Env` and inline rate-limit/bearer logic; import `Env`
+    from `./Env` and delegate `fetch` and `scheduled` to
+    `fbFeedSyncService` (so `scheduled` calls `syncFeed` and surfaces
+    errors so Sentry + cron retries see them).
 - **Edit** `workers/fb-feed-sync/package.json`
-  - Add `"@aurora/shared": "workspace:*"` to `dependencies` (already used by the contact worker — same pattern).
+  - Add `"@aurora/shared": "workspace:*"` to `dependencies` (already
+    declared on the contact and fb-feed-read workers — same pattern).
 - **Edit** `workers/fb-feed-sync/wrangler.jsonc`
-  - Update the secrets comment block to list `FB_MANUAL_SYNC_TOKEN`, `FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`.
+  - Update the secrets comment block to list `FB_MANUAL_SYNC_TOKEN`,
+    `FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`.
+- **Edit** `workers/fb-feed-sync/src/index.integration.test.ts`
+  - Replace the lone 401 test with: 401 without bearer, 429 when
+    rate-limited (skip if awkward inside the pool), 502 when Graph fetch
+    fails (stub `globalThis.fetch`), 200 + KV write on a manual call
+    with a valid bearer (assert the KV value parses as
+    `WorkerFbFeedResponse`), and a `scheduled` case that drives the cron
+    handler and asserts the KV write happened
+    (`@cloudflare/vitest-pool-workers`'s `createScheduledController`
+    covers this).
 
-## Step 3 — `fb-feed-read` worker body
+## Step 2 — Retire the read worker's mock branch
 
-Same service-split pattern. Read-only, public, CORS-allowlisted.
+On the day the sync worker starts writing to KV, the read worker's
+`stored !== null` branch silently takes over and the mock assembly
+becomes dead code. Delete it:
 
-- **New file** `workers/fb-feed-read/src/Env.ts`
-  - `AURORA_COLONY_PUB_KV`, `RATE_LIMITER`.
-- **New file** `workers/fb-feed-read/src/util/fbFeedReadConstants.ts`
-  - `kvKey: 'fb:feed:latest'` (kept independent of the sync worker — small duplication is fine and avoids coupling the two workers through a shared module).
-  - `allowedOrigins` — same list as `contactWorkerConstants.allowedOrigins`.
-  - `cacheControl: 'public, max-age=120'` — matches the 2-minute browser cache called out in `worker-details.md`.
-- **New file** `workers/fb-feed-read/src/services/FbFeedReadService.ts`
-  - Singleton, `handleRequest(request, env)`:
-    - CORS preflight handling and origin echoing (lift the helpers from `ContactService` — `isAllowedOrigin`, `corsHeaders`, `jsonResponse`; resist the urge to extract a shared module right now, it's two small workers).
-    - Reject methods other than `GET`/`OPTIONS`.
-    - IP rate-limit.
-    - `await env.AURORA_COLONY_PUB_KV.get(kvKey, 'json')` → if null, return `{ posts: [], syncedAt: null }` with 200 (so the island degrades cleanly until the first sync runs).
-    - Otherwise return the stored JSON verbatim with `Content-Type: application/json` and `Cache-Control: public, max-age=120`.
-- **Edit** `workers/fb-feed-read/src/index.ts`
-  - Replace inline `Env` with the new import, delegate `fetch` to `fbFeedReadService.handleRequest`.
-
-## Step 4 — Frontend island
-
-Loose mirror of the existing `ContactForm` island layout (folder with
-`*.svelte`, `*.service.ts`, `*Constants.ts`, `index.ts` barrel).
-
-- **Edit** `site/src/util/globalConstants.ts`
-  - Add `fbFeedReadWorkerUrl: import.meta.env.DEV ? 'http://localhost:8788' : 'https://aurora-fb-feed-read.agneuhold.workers.dev'` (port 8788 matches the read worker's wrangler `dev.port`).
-- **New file** `site/src/components-svelte/FacebookFeed/facebookFeedConstants.ts`
-  - User-facing copy: loading / error / empty messages.
-- **New file** `site/src/components-svelte/FacebookFeed/FacebookFeed.service.ts`
-  - Singleton, `async fetchFeed(): Promise<FetchFeedResult>` returning a discriminated `{ ok: true; data: WorkerFbFeedResponse } | { ok: false; message: string }`. Mirrors the `submit` shape in the contact form service.
-- **New file** `site/src/components-svelte/FacebookFeed/FacebookFeed.svelte`
-  - State: `status: 'loading' | 'ready' | 'error'`, `posts`, `errorMessage`.
-  - `$effect` on mount calls the service once and updates state. No polling, no auto-refresh — `Cache-Control` and the cron handle freshness.
-  - Markup: `<section>` with a heading, then `{#if status === 'loading'}` / `{:else if status === 'error'}` / `{:else}` `<ul>` of posts. Each post: optional `<img>` (loading="lazy"), the `message` text, and a "View on Facebook" `<a>` to `permalink`. Bare Tailwind utilities matching the site's existing token palette (`text-[color:var(--foreground)]`, `border-[color:var(--border)]`).
-- **New file** `site/src/components-svelte/FacebookFeed/index.ts` — `export { default } from './FacebookFeed.svelte';` (same single-public-export pattern as `ContactForm`).
-- **Edit** `site/src/pages/index.astro`
-  - Import `FacebookFeed` and drop it into `<main>` between `<About />` and `<ContactForm />`. Use `client:visible` so it only hydrates and fetches when it scrolls into view — keeps initial paint untouched.
-
-## Step 5 — Tests
-
-Update the existing placeholder tests; keep coverage focused on behavior.
-
-- `workers/fb-feed-sync/src/index.integration.test.ts`
-  - Replace the lone 401 test with: 401 without bearer, 429 when rate-limited (skip if awkward inside the pool), 502 when Graph fetch fails (stub `globalThis.fetch`), 200 + KV write on a manual call with a valid bearer (assert the KV value parses as `WorkerFbFeedResponse`).
-  - Add a `scheduled` test that drives the cron handler and asserts the KV write happened (the `@cloudflare/vitest-pool-workers` `cloudflare:test` `createScheduledController` covers this).
-- `workers/fb-feed-sync/src/index.e2e.test.ts` — leave the unauthenticated 401 check; add nothing that hits the real Graph API.
-- `workers/fb-feed-read/src/index.integration.test.ts`
-  - Replace the 200-on-GET stub with: 405 on POST, 200 + empty payload when KV is empty, 200 + stored payload when KV is pre-seeded, `Cache-Control: public, max-age=120` header present.
-- `workers/fb-feed-read/src/index.e2e.test.ts` — keep the e2e check; assert the response is JSON parseable as `WorkerFbFeedResponse`.
-- `site/src/components-svelte/FacebookFeed/FacebookFeed.service.test.ts`
-  - Stub `globalThis.fetch` and verify the discriminated result for ok / non-2xx / network throw.
-- No `FacebookFeed.svelte` render test for now — the existing setup tests components elsewhere only when they have non-trivial logic, and this one is mostly markup.
+- **Delete** `workers/fb-feed-read/src/util/mockFbGraphResponse.ts`.
+- **Delete** `site/public/fb-mock/` (`costume-party.jpg`,
+  `fried-chicken.jpg`, `happy-hour.jpg`, `live-music.jpg`, `patio.jpg`).
+- **Edit** `workers/fb-feed-read/src/services/FbFeedReadService.ts`
+  - Drop the `buildMockFbGraphResponse` and `graphPostsToWorkerPosts`
+    imports.
+  - Replace the post-KV mock-assembly branch with a clean degraded
+    response: `jsonResponse({ posts: [], syncedAt: null }, 200, { ...cors,
+    'Cache-Control': fbFeedReadConstants.cacheControl })`.
+    `FacebookFeed.svelte` already renders the `empty` status for that
+    shape.
+- **Edit** `workers/fb-feed-read/src/util/fbFeedReadConstants.ts`
+  - Drop `defaultPhotoOrigin` (no more photo hosts to resolve).
+- **Edit** `packages/shared/src/fbFeedTypes.ts`
+  - Loosen `WorkerFbFeedResponse.syncedAt` from `string` to
+    `string | null` so the empty-state response type-checks.
+- **Edit** `workers/fb-feed-read/src/index.integration.test.ts`
+  - Drop the three mock-branch cases ("returns 200 with the transformed
+    mock payload", "anchors photo URLs at the allowlisted caller
+    origin", "falls back to the default photo origin").
+  - Add a "returns 200 with `{ posts: [], syncedAt: null }` when KV is
+    empty" case in their place.
 
 ## Validation (must pass before "done")
 
-From the repo root:
+From the repo root: `pnpm lint --fix`, `pnpm check`, `pnpm test`.
 
-- `pnpm lint --fix`
-- `pnpm check`
-- `pnpm test`
-
-Optional smoke checks the repo doesn't require, but worth doing once:
-
-- `pnpm dev` — confirm the island renders an empty state with the read
-  worker running but no KV data yet.
-- `curl -X POST -H "Authorization: Bearer $FB_MANUAL_SYNC_TOKEN" http://localhost:8789` — trigger a manual sync and re-load the page to see real posts.
+Smoke check after Step 1: `curl -X POST -H "Authorization: Bearer
+$FB_MANUAL_SYNC_TOKEN" http://localhost:8789` to trigger a manual sync,
+then reload the page — the read worker should now serve real KV-stored
+posts instead of the mock.
 
 ## Trade-offs / open questions
 
@@ -200,10 +186,6 @@ Optional smoke checks the repo doesn't require, but worth doing once:
   signed query strings — they expire and re-image when the sync refreshes.
   Good enough for v1; if Facebook ever stops returning them reliably we
   can copy images into R2, but that's well outside this task.
-- **`@aurora/shared` reuse in the sync worker.** Adding the shared dep
-  pulls the contact form types in too. That's fine — the package is
-  tree-shakeable types-only — but worth noting in case we ever split
-  `@aurora/shared` per-feature.
 - **Cron retry behavior.** `scheduled` handlers in Workers don't retry on
   throw the way queue consumers do. Letting the error bubble still gives
   Sentry the event; the next 30-minute tick is the retry. Acceptable for

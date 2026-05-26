@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Aurora Colony Pub — Open Graph share image</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Zilla+Slab:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!--
+      Design tokens (--color-*, --font-*, .bg-paper) are injected at render
+      time from site/src/styles/tokens.css by scripts/generate-og-image.ts.
+      tokens.css is the single source of truth.
+
+      The generic font-family vars (--font-zilla-slab, --font-inter) live here
+      next to the <link> that loads them — same split the site uses, where
+      BaseLayout.astro defines these vars via Astro's Font component and
+      tokens.css consumes them through --font-display / --font-body.
+    -->
+    <style>
+      :root {
+        --font-zilla-slab: 'Zilla Slab', ui-serif, Georgia, serif;
+        --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+
+      body {
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        font-family: var(--font-body);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 72px 96px;
+      }
+
+      .card {
+        display: flex;
+        align-items: center;
+        gap: 64px;
+        width: 100%;
+      }
+
+      .crest {
+        flex: 0 0 auto;
+        width: 320px;
+        height: 380px;
+        background-color: var(--color-foreground);
+        -webkit-mask: url('../../site/src/assets/logo.svg') center / contain no-repeat;
+        mask: url('../../site/src/assets/logo.svg') center / contain no-repeat;
+      }
+
+      .divider {
+        flex: 0 0 auto;
+        width: 2px;
+        height: 320px;
+        background-color: var(--color-primary);
+        opacity: 0.65;
+      }
+
+      .text {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+      }
+
+      .wordmark {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 108px;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: var(--color-foreground);
+      }
+
+      .location {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: 44px;
+        line-height: 1.1;
+        margin: 0;
+        color: color-mix(in oklab, var(--color-foreground) 60%, transparent);
+      }
+    </style>
+  </head>
+  <body class="bg-paper">
+    <div class="card">
+      <div class="crest" role="img" aria-label="Aurora Colony Pub crest"></div>
+      <div class="divider"></div>
+      <div class="text">
+        <h1 class="wordmark">Aurora Colony<br />Pub</h1>
+        <p class="location">Aurora, Oregon</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -31,6 +31,51 @@ describe('dateTimeService.parseTimeOfDay', () => {
   });
 });
 
+describe('dateTimeService.to24HourTime', () => {
+  it('zero-pads single-digit morning hours', () => {
+    expect(dateTimeService.to24HourTime('9:00 AM')).toBe('09:00');
+  });
+
+  it('converts afternoon times to 24-hour form', () => {
+    expect(dateTimeService.to24HourTime('3:30 PM')).toBe('15:30');
+  });
+
+  it('returns "00:00" for midnight', () => {
+    expect(dateTimeService.to24HourTime('12:00 AM')).toBe('00:00');
+  });
+
+  it('returns null for malformed input', () => {
+    expect(dateTimeService.to24HourTime('not a time')).toBeNull();
+  });
+});
+
+describe('dateTimeService.longDayNameForLabel', () => {
+  it('returns one entry for a single-day label', () => {
+    expect(dateTimeService.longDayNameForLabel('Fri')).toEqual(['Friday']);
+  });
+
+  it('expands an en-dash range', () => {
+    expect(dateTimeService.longDayNameForLabel('Mon–Thu')).toEqual([
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday'
+    ]);
+  });
+
+  it('handles a wrap-around range', () => {
+    expect(dateTimeService.longDayNameForLabel('Sat–Mon')).toEqual([
+      'Saturday',
+      'Sunday',
+      'Monday'
+    ]);
+  });
+
+  it('returns [] for an unrecognized label', () => {
+    expect(dateTimeService.longDayNameForLabel('Funday')).toEqual([]);
+  });
+});
+
 describe('dateTimeService.minutesOf', () => {
   it('converts hour/minute to total minutes since midnight', () => {
     expect(dateTimeService.minutesOf({ hour: 0, minute: 0 })).toBe(0);
@@ -92,16 +137,6 @@ describe('dateTimeService.labelCoversDay', () => {
 
   it('returns false for an unrecognized label', () => {
     expect(dateTimeService.labelCoversDay('Funday', 1)).toBe(false);
-  });
-});
-
-describe('dateTimeService.shortDayLabel', () => {
-  it('returns Sun for a Sunday', () => {
-    expect(dateTimeService.shortDayLabel(new Date(2026, 0, 4))).toBe('Sun'); // 2026-01-04
-  });
-
-  it('returns Wed for a Wednesday', () => {
-    expect(dateTimeService.shortDayLabel(new Date(2026, 0, 7))).toBe('Wed');
   });
 });
 

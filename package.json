@@ -16,7 +16,7 @@
     "test:e2e": "pnpm -r --parallel --filter \"./workers/*\" run test:e2e",
     "deploy:workers": "pnpm -r --parallel --filter \"./workers/*\" run deploy",
     "upgrade:deps": "pnpm up -r --latest",
-    "generate:logos": "tsx scripts/generate-logos.ts"
+    "generate:assets": "tsx scripts/generate-logos.ts && tsx scripts/generate-og-image.ts"
   },
   "devDependencies": {
     "@aneuhold/eslint-config": "^2.0.5",
@@ -28,6 +28,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^10.4.0",
     "eslint-plugin-astro": "^1.7.0",
+    "playwright": "^1.60.0",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^3.5.2",

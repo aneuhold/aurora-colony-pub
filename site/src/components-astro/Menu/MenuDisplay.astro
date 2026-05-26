@@ -59,7 +59,7 @@ let globalIndex = 0;
                   <figure class="m-0">
                     <Image
                       src={entry.data.image}
-                      alt={entry.data.title}
+                      alt={`Aurora Colony Pub ${entry.data.title.toLowerCase()}`}
                       widths={[640, 960, 1280]}
                       sizes="(min-width: 768px) 768px, 100vw"
                       loading={isFirst ? 'eager' : 'lazy'}
