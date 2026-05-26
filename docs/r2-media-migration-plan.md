@@ -96,42 +96,17 @@ consume — Sveltia's R2 config has no `session_token` field).
 
 ---
 
-## Step 1 — R2 bucket, public host, CORS, scoped API token
+## Step 1 — Document the bucket
 
-Ops-side work (not files in the repo, but document in
-`docs/cloudflare-token-setup.md`):
+Ops work (bucket, custom domain, CORS, scoped R2 token, `R2_MEDIA_ACCESS_KEY_ID`
++ `R2_MEDIA_SECRET_ACCESS_KEY` secrets on `cms-auth`) is already done.
 
-- Create bucket: `pnpm wrangler r2 bucket create aurora-colony-pub-media`.
-- Configure the public custom domain `media.auroracolonypub.aneuhold.dev`
-  via Cloudflare's R2 custom-domain feature.
-- Configure CORS on the bucket (per Sveltia's R2 doc verbatim, plus the
-  `dev` origin):
-  ```json
-  [
-    {
-      "AllowedHeaders": ["*"],
-      "AllowedMethods": ["GET", "PUT", "HEAD"],
-      "AllowedOrigins": [
-        "https://aurora-colony-pub-frontend.pages.dev",
-        "https://auroracolonypub.com",
-        "http://localhost:4321"
-      ],
-      "ExposeHeaders": ["ETag"],
-      "MaxAgeSeconds": 3000
-    }
-  ]
-  ```
-  (Pin the actual production origin once DNS flips.)
-- Create an [R2 API token](https://developers.cloudflare.com/r2/api/tokens/)
-  with **Object Read & Write** scoped to **only** `aurora-colony-pub-media`.
-  Record the Access Key ID + Secret Access Key.
-- Store both on the `cms-auth` Worker as secrets:
-  `wrangler secret put R2_MEDIA_ACCESS_KEY_ID` (in `workers/cms-auth`),
-  `wrangler secret put R2_MEDIA_SECRET_ACCESS_KEY`.
+Bucket dashboard:
+<https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/r2/default/buckets/aurora-colony-pub-media>
+
+Remaining:
+
 - Document the bucket name + public host in `README.md`'s infra section.
-
-Trade-off: a custom domain takes a few minutes but avoids hard-coding the
-`pub-…r2.dev` URL into every content JSON file. Worth it.
 
 ## Step 2 — `cms-auth` gains a `GET /r2-credentials` endpoint
 
