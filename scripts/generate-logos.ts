@@ -1,5 +1,5 @@
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
-import brandingService from '../site/src/util/Branding.service';
+import { globalConstants } from '../site/src/util/globalConstants';
 import { ASSETS_DIR, PUBLIC_DIR, renderSquareIco, renderSquarePng } from './generate-logos-utils';
 
 /**
@@ -73,10 +73,10 @@ const generateFaviconIco = (): void => {
 /**
  * Renders the favicon source SVG into the PWA / Apple touch-icon PNGs used
  * by iOS home-screen and the web manifest. Icon definitions come from
- * `BrandingService` so the manifest endpoint and this script stay aligned.
+ * `globalConstants` so the manifest endpoint and this script stay aligned.
  */
 const generatePwaIcons = (): void => {
-  for (const icon of brandingService.icons) {
+  for (const icon of globalConstants.pwaIcons) {
     const output = `${PUBLIC_DIR}/${icon.fileName}`;
     renderSquarePng(config.faviconSource, icon.size, output, config.backgroundColor);
     console.log(`  wrote ${output}`);

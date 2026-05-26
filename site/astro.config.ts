@@ -23,9 +23,10 @@ export default defineConfig({
       lastmod: new Date(),
       serialize: (item) => {
         const pathname = new URL(item.url).pathname;
-        // Only the home page gets the bump — flat priorities across the rest
-        // tell crawlers nothing.
+        // Home is the primary entry; menu is the second most important page.
+        // The rest stay at the default so the spread carries signal.
         if (pathname === '/') return { ...item, priority: 1.0 };
+        if (pathname === '/menu') return { ...item, priority: 0.75 };
         return item;
       }
     }),

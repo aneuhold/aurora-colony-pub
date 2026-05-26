@@ -8,9 +8,8 @@ import {
 } from '@jdevalk/seo-graph-core';
 import { getEntry } from 'astro:content';
 import type { BarOrPub } from 'schema-dts';
-import brandingService from './Branding.service';
 import dateTimeService from './DateTime.service';
-import pubMapService from './PubMap/PubMap.service';
+import { globalConstants } from './globalConstants';
 
 class SeoGraphService {
   /** Stable slug for the BarOrPub `@id` URI. */
@@ -36,7 +35,7 @@ class SeoGraphService {
     ogImage: string;
   }): Promise<Record<string, unknown>> {
     const { site, pageUrl, pageName, description, ogImage } = args;
-    const siteUrl = site.href.endsWith('/') ? site.href : `${site.href}/`;
+    const siteUrl = site.href;
     const ids = makeIds({ siteUrl });
     const pubId = ids.organization(SeoGraphService.PUB_SLUG);
 
@@ -49,8 +48,7 @@ class SeoGraphService {
     if (!contactEntry) throw new Error('Missing contact content entry');
     if (!socialEntry) throw new Error('Missing socialMediaLinks content entry');
 
-    const address = this.parseAddress(pubMapService.address);
-    const { lat, lng } = pubMapService.geo;
+    const { lat, lng } = globalConstants.geo;
     const logoUrl = new URL('/favicon.svg', site).href;
     const menuUrl = new URL('/menu', site).href;
 
@@ -72,7 +70,7 @@ class SeoGraphService {
     const website = buildWebSite(
       {
         url: siteUrl,
-        name: brandingService.siteName,
+        name: globalConstants.siteName,
         description,
         publisher: { '@id': pubId }
       },
@@ -92,7 +90,7 @@ class SeoGraphService {
     const barOrPub = buildPiece<BarOrPub>({
       '@type': 'BarOrPub',
       '@id': pubId,
-      name: brandingService.siteName,
+      name: globalConstants.siteName,
       description,
       url: siteUrl,
       image: ogImage,
@@ -101,7 +99,7 @@ class SeoGraphService {
       email: contactEntry.data.email,
       address: {
         '@type': 'PostalAddress',
-        ...address
+        ...globalConstants.address
       },
       geo: {
         '@type': 'GeoCoordinates',
@@ -109,10 +107,10 @@ class SeoGraphService {
         longitude: lng
       },
       openingHoursSpecification: openingHours,
-      servesCuisine: ['American'],
-      priceRange: '$$',
-      paymentAccepted: ['Cash', 'Credit Card'],
-      currenciesAccepted: 'USD',
+      servesCuisine: [...globalConstants.servesCuisine],
+      priceRange: globalConstants.priceRange,
+      paymentAccepted: [...globalConstants.paymentAccepted],
+      currenciesAccepted: globalConstants.currenciesAccepted,
       sameAs: socialEntry.data.links.map((link) => link.url),
       hasMenu: menuUrl
     });
@@ -136,34 +134,6 @@ class SeoGraphService {
       throw new Error("Builder output is missing a string '@type' value.");
     }
     return { ...piece, '@type': type };
-  }
-
-  /**
-   * Parses the canonical pub address (`21568 Hwy 99E NE, Aurora, OR 97002`)
-   * into a `PostalAddress` shape. Falls back to dropping the whole address
-   * into `streetAddress` if the format ever drifts.
-   *
-   * @param raw - Full address line
-   */
-  private parseAddress(raw: string) {
-    const match = /^(.+),\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})$/.exec(raw.trim());
-    if (!match) {
-      return {
-        streetAddress: raw,
-        addressLocality: 'Aurora',
-        addressRegion: 'OR',
-        postalCode: '97002',
-        addressCountry: 'US'
-      };
-    }
-    const [, streetAddress, addressLocality, addressRegion, postalCode] = match;
-    return {
-      streetAddress,
-      addressLocality,
-      addressRegion,
-      postalCode,
-      addressCountry: 'US'
-    };
   }
 }
 
