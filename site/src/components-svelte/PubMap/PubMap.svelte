@@ -8,7 +8,8 @@
   inside the effect (browser-only). The CSS import is fine — Vite extracts it
   and it never runs as JS.
 
-  Pub address/geo come from `pubMapService` so there's a single source of truth.
+  Pub geo comes from `globalConstants`; derived map URLs/HTML come from
+  `pubMapService` so there's a single source of truth.
 -->
 <script lang="ts">
   import 'leaflet/dist/leaflet.css';
@@ -16,13 +17,15 @@
   import markerIcon from 'leaflet/dist/images/marker-icon.png';
   import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
   import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+  import { globalConstants } from '$util/globalConstants';
   import pubMapService from '$util/PubMap/PubMap.service';
 
   let el = $state<HTMLDivElement | null>(null);
 
   $effect(() => {
     if (!el) return;
-    const { geo, popupHtml } = pubMapService;
+    const { geo } = globalConstants;
+    const { popupHtml } = pubMapService;
     let map: LMap | undefined;
     let cancelled = false;
 

@@ -5,7 +5,7 @@ import Seo from '@jdevalk/astro-seo-graph/Seo.astro';
 import '../styles/global.css';
 import Footer from '$components-astro/Footer.astro';
 import Nav from '$components-astro/Nav.astro';
-import brandingService from '$util/Branding.service';
+import { globalConstants } from '$util/globalConstants';
 import seoGraphService from '$util/SeoGraph.service';
 
 interface Props {
@@ -50,10 +50,10 @@ const graph = await seoGraphService.buildGraph({
       canonical={canonicalUrl}
       ogType="website"
       ogImage={ogImage}
-      ogImageAlt={brandingService.siteName}
+      ogImageAlt={globalConstants.siteName}
       ogImageWidth={1200}
       ogImageHeight={630}
-      siteName={brandingService.siteName}
+      siteName={globalConstants.siteName}
       locale="en_US"
       twitter={{ card: 'summary_large_image' }}
       graph={graph}
@@ -62,7 +62,7 @@ const graph = await seoGraphService.buildGraph({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' }
       ]}
-      extraMeta={[{ name: 'theme-color', content: brandingService.themeColor }]}
+      extraMeta={[{ name: 'theme-color', content: globalConstants.webManifestThemeColor }]}
     />
     <Font cssVariable="--font-zilla-slab" preload />
     <Font cssVariable="--font-inter" preload />
