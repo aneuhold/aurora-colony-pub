@@ -11,10 +11,9 @@ import seoGraphService from '$util/SeoGraph.service';
 interface Props {
   title: string;
   description: string;
-  noindex?: boolean;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description } = Astro.props;
 
 if (!Astro.site) {
   throw new Error('Astro.site must be configured for canonical/OG/JSON-LD URLs.');
@@ -31,15 +30,13 @@ const canonicalUrl = new URL(Astro.url);
 canonicalUrl.pathname = canonicalUrl.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
 
 const ogImage = new URL('/og-image.png', Astro.site).href;
-const graph = noindex
-  ? null
-  : await seoGraphService.buildGraph({
-      site: Astro.site,
-      pageUrl: canonicalUrl,
-      pageName: title,
-      description,
-      ogImage
-    });
+const graph = await seoGraphService.buildGraph({
+  site: Astro.site,
+  pageUrl: canonicalUrl,
+  pageName: title,
+  description,
+  ogImage
+});
 ---
 
 <html lang="en">
@@ -59,7 +56,6 @@ const graph = noindex
       siteName={brandingService.siteName}
       locale="en_US"
       twitter={{ card: 'summary_large_image' }}
-      noindex={noindex}
       graph={graph}
       extraLinks={[
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

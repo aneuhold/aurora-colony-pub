@@ -36,7 +36,7 @@ class SeoGraphService {
     ogImage: string;
   }): Promise<Record<string, unknown>> {
     const { site, pageUrl, pageName, description, ogImage } = args;
-    const siteUrl = site.href.endsWith('/') ? site.href : `${site.href}/`;
+    const siteUrl = site.href;
     const ids = makeIds({ siteUrl });
     const pubId = ids.organization(SeoGraphService.PUB_SLUG);
 

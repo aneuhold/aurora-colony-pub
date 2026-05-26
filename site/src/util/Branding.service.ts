@@ -56,7 +56,7 @@ class BrandingService {
    * browser theme bar and the web manifest's `theme_color`.
    *
    * Keep in sync when `--color-primary` changes: paste the OKLCH literal into
-   * hhttps://oklch.com/#0.5,0.13,55,100 and copy the displayed sRGB hex.
+   * https://oklch.com/#0.5,0.13,55,100 and copy the displayed sRGB hex.
    */
   readonly themeColor = '#994a00';
 
@@ -98,7 +98,7 @@ class BrandingService {
       icons: this.icons
         .filter((icon) => icon.inManifest)
         .map((icon) => ({
-          src: icon.fileName,
+          src: `/${icon.fileName}`,
           sizes: `${icon.size}x${icon.size}`,
           type: 'image/png'
         }))
