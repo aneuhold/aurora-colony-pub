@@ -5,7 +5,7 @@ import {
   sentryIngestAwareFetch
 } from '@aurora/workers-shared/test-utils';
 import { env as workerEnv, exports } from 'cloudflare:workers';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import authService from './services/AuthService';
 
 const ORIGIN = 'https://example.com';
@@ -142,8 +142,4 @@ describe('cms-auth', () => {
       }
     });
   });
-});
-
-beforeEach(() => {
-  vi.restoreAllMocks();
 });
