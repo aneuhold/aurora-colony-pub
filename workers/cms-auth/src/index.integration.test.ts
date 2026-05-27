@@ -4,7 +4,7 @@ import {
   fetchInputUrl,
   sentryIngestAwareFetch
 } from '@aurora/workers-shared/test-utils';
-import { exports } from 'cloudflare:workers';
+import { env as workerEnv, exports } from 'cloudflare:workers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import authService from './services/AuthService';
 
@@ -127,6 +127,19 @@ describe('cms-auth', () => {
       expect(response.headers.get('Cache-Control')).toBe('no-store');
       const body = await response.json<{ secretAccessKey: string }>();
       expect(body).toEqual({ secretAccessKey: 'test-r2-secret-access-key' });
+    });
+
+    it('returns the secret without a token when ALLOW_NO_AUTH_FOR_R2_KEY is set', async () => {
+      const original = workerEnv.ALLOW_NO_AUTH_FOR_R2_KEY;
+      workerEnv.ALLOW_NO_AUTH_FOR_R2_KEY = 'true';
+      try {
+        const response = await fetchR2Credentials({ token: null });
+        expect(response.status).toBe(200);
+        const body = await response.json<{ secretAccessKey: string }>();
+        expect(body).toEqual({ secretAccessKey: 'test-r2-secret-access-key' });
+      } finally {
+        workerEnv.ALLOW_NO_AUTH_FOR_R2_KEY = original;
+      }
     });
   });
 });

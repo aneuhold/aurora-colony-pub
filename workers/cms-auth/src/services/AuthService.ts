@@ -147,18 +147,23 @@ class AuthService {
       });
     }
 
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
-    if (!token) {
-      return jsonResponse({ error: 'Missing bearer token' }, 401, cors);
-    }
+    // Local-dev escape hatch: when `ALLOW_NO_AUTH_FOR_R2_KEY` is set the
+    // admin shell can fetch credentials without Sveltia's GitHub login. Only
+    // set in the root `.env` for `wrangler dev`; never in production.
+    if (env.ALLOW_NO_AUTH_FOR_R2_KEY !== 'true') {
+      const authHeader = request.headers.get('Authorization');
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+      if (!token) {
+        return jsonResponse({ error: 'Missing bearer token' }, 401, cors);
+      }
 
-    const login = await gitHubOAuthService.fetchUserLogin(token);
-    if (!login) {
-      return jsonResponse({ error: 'Invalid GitHub token' }, 401, cors);
-    }
-    if (!this.isUserAllowed(login)) {
-      return jsonResponse({ error: 'Forbidden' }, 403, cors);
+      const login = await gitHubOAuthService.fetchUserLogin(token);
+      if (!login) {
+        return jsonResponse({ error: 'Invalid GitHub token' }, 401, cors);
+      }
+      if (!this.isUserAllowed(login)) {
+        return jsonResponse({ error: 'Forbidden' }, 403, cors);
+      }
     }
 
     return jsonResponse({ secretAccessKey: env.R2_MEDIA_SECRET_ACCESS_KEY }, 200, cors);

@@ -79,12 +79,16 @@
         writeJson(SVELTIA_PREFS_KEY, prefs);
       };
 
-      const fetchAndStoreR2Secret = async (ghToken: string): Promise<void> => {
+      const fetchAndStoreR2Secret = async (ghToken: string | null): Promise<void> => {
+        // In dev the cms-auth Worker runs with `ALLOW_NO_AUTH_FOR_R2_KEY` set
+        // and returns the secret without a Bearer token. In prod the same
+        // call requires a GitHub OAuth token from Sveltia's login.
+        const headers: Record<string, string> = ghToken
+          ? { Authorization: `Bearer ${ghToken}` }
+          : {};
         let response: Response;
         try {
-          response = await fetch(`${CMS_AUTH_BASE_URL}/r2-credentials`, {
-            headers: { Authorization: `Bearer ${ghToken}` }
-          });
+          response = await fetch(`${CMS_AUTH_BASE_URL}/r2-credentials`, { headers });
         } catch {
           // Network failure — leave any cached secret in place so a
           // previously-working session keeps working offline.
@@ -150,7 +154,10 @@
 
         const user = readJson(SVELTIA_USER_KEY);
         const token = user && typeof user.token === 'string' ? user.token : null;
-        if (token) {
+        // In dev the Worker accepts unauthenticated calls, so fetch even
+        // without a cached GitHub token. In prod skip when there's no token —
+        // the postMessage listener will pick it up after Sveltia's login.
+        if (token || import.meta.env.DEV) {
           await fetchAndStoreR2Secret(token);
         }
         init();
