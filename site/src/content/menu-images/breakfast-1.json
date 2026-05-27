@@ -1,6 +1,6 @@
 {
   "title": "Breakfast Menu",
   "category": "breakfast",
-  "image": "../../assets/menus/menu-breakfast.png",
+  "image": "https://media.auroracolonypub.aneuhold.dev/menu-breakfast.png",
   "order": 1
 }

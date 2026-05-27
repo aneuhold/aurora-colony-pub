@@ -1,6 +1,6 @@
 {
   "title": "Happy Hour Menu",
   "category": "happy-hour",
-  "image": "../../assets/menus/menu-happy-hour.png",
+  "image": "https://media.auroracolonypub.aneuhold.dev/menu-happy-hour.png",
   "order": 1
 }
