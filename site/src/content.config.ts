@@ -61,23 +61,21 @@ const socialMediaLinks = defineCollection({
 
 const menuImages = defineCollection({
   loader: glob({ pattern: '*.json', base: 'src/content/menu-images' }),
-  schema: ({ image }) =>
-    z.object({
-      title: z.string(),
-      category: z.enum(['main', 'breakfast', 'kids', 'happy-hour']),
-      image: image(),
-      order: z.number().default(0)
-    })
+  schema: z.object({
+    title: z.string(),
+    category: z.enum(['main', 'breakfast', 'kids', 'happy-hour']),
+    image: z.url(),
+    order: z.number().default(0)
+  })
 });
 
 const gallery = defineCollection({
   loader: glob({ pattern: '*.json', base: 'src/content/gallery' }),
-  schema: ({ image }) =>
-    z.object({
-      photo: image(),
-      alt: z.string(),
-      order: z.number().default(0)
-    })
+  schema: z.object({
+    photo: z.url(),
+    alt: z.string(),
+    order: z.number().default(0)
+  })
 });
 
 export const collections = {

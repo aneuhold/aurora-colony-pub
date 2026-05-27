@@ -5,10 +5,22 @@ backend:
   base_url: https://aurora-cms-auth.agneuhold.workers.dev
   auth_endpoint: auth
 
-# Per-collection media folders are used (see below), so these top-level
-# values exist only as a default and aren't relied on.
-media_folder: site/src/assets
-public_folder: /
+# Media uploads go directly to the `aurora-colony-pub-media` R2 bucket via
+# Sveltia's built-in R2 mode (https://sveltiacms.app/en/docs/media/cloudflare-r2).
+# The secret access key is delivered to localStorage by the admin shell's
+# bridge after GitHub OAuth (see site/src/pages/admin/index.astro); only the
+# non-secret access key ID is committed here.
+media_libraries:
+  default:
+    name: cloudflare_r2
+  all:
+    max_file_size: 10485760
+    slugify_filename: true
+  cloudflare_r2:
+    account_id: f5fee77ff79a01ea91f541b825d003a3
+    bucket: aurora-colony-pub-media
+    public_url: https://media.auroracolonypub.aneuhold.dev
+    access_key_id: bf815175d41ac6a0e8a08b3659aa1615
 
 collections:
   - name: pubInfo
@@ -40,8 +52,6 @@ collections:
         label: About
         file: site/src/content/about.md
         format: frontmatter
-        media_folder: ../assets/about
-        public_folder: ../assets/about
         fields:
           - {
               name: heading,
@@ -143,8 +153,6 @@ collections:
     delete: true
     slug: '{{fields.category}}-{{fields.order}}'
     format: json
-    media_folder: ../../assets/menus
-    public_folder: ../../assets/menus
     fields:
       - { name: title, label: Title, widget: string, hint: 'e.g. Main Menu — Page 1' }
       - {
@@ -172,8 +180,6 @@ collections:
     delete: true
     slug: '{{fields.alt | slugify}}-{{year}}{{month}}{{day}}'
     format: json
-    media_folder: ../../assets/gallery
-    public_folder: ../../assets/gallery
     fields:
       - {
           name: photo,

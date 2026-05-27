@@ -26,7 +26,7 @@ const entries = typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
           {entries.map((entry) => (
             <li class="reveal">
               <a
-                href={entry.data.photo.src}
+                href={entry.data.photo}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Open full size: ${entry.data.alt}`}
@@ -36,6 +36,7 @@ const entries = typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
                   <Image
                     src={entry.data.photo}
                     alt={entry.data.alt}
+                    inferSize
                     widths={[320, 640, 960, 1280]}
                     sizes="(min-width: 768px) 33vw, 100vw"
                     loading="lazy"

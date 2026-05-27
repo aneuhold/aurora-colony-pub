@@ -1,19 +1,28 @@
+import {
+  corsHeaders,
+  type CorsMethod,
+  isAllowedOrigin,
+  jsonResponse
+} from '@aurora/workers-shared';
 import type { Env } from '../Env';
 import gitHubOAuthService from './GitHubOAuthService';
 import stateCookieService from './StateCookieService';
 
 /**
  * CMS auth orchestration singleton. Routes requests to the OAuth start/
- * callback handlers and enforces the GitHub username allowlist. Keeps the
- * worker entry point trivial — it just delegates to `handleRequest`.
+ * callback handlers, the R2-credentials handoff, and enforces the GitHub
+ * username allowlist. Keeps the worker entry point trivial — it just
+ * delegates to `handleRequest`.
  */
 class AuthService {
+  private static readonly R2_CREDENTIALS_CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
+
   /**
-   * Routes incoming requests to the OAuth start/callback handlers, returning
-   * 404 for anything else.
+   * Routes incoming requests to the OAuth start/callback handlers and the
+   * R2-credentials handoff, returning 404 for anything else.
    *
    * @param request Incoming request
-   * @param env Worker env (OAuth credentials + allowlist)
+   * @param env Worker env (OAuth credentials + allowlist + R2 secrets)
    */
   async handleRequest(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -22,6 +31,9 @@ class AuthService {
     }
     if (request.method === 'GET' && url.pathname === '/callback') {
       return this.completeOAuth(request, env);
+    }
+    if (url.pathname === '/r2-credentials') {
+      return this.handleR2Credentials(request, env);
     }
     return new Response('Not Found', { status: 404 });
   }
@@ -104,6 +116,57 @@ class AuthService {
         'Set-Cookie': stateCookieService.buildClearCookieHeader()
       }
     });
+  }
+
+  /**
+   * Handoff endpoint that hands the bucket-scoped R2 API token to the admin
+   * shell after re-verifying the caller's GitHub OAuth token against the
+   * allowlist. The secret lives in `localStorage` after this — gated by the
+   * same GitHub login Sveltia already requires.
+   *
+   * @param request Incoming request — `Authorization: Bearer <gh_token>` for
+   *   `GET`, or a preflight `OPTIONS`
+   * @param env Worker env (carries the R2 secrets + OAuth allowlist)
+   */
+  private async handleR2Credentials(request: Request, env: Env): Promise<Response> {
+    const origin = request.headers.get('Origin');
+    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
+    const cors: Record<string, string> = echoedOrigin
+      ? corsHeaders(echoedOrigin, AuthService.R2_CREDENTIALS_CORS_METHODS)
+      : { Vary: 'Origin' };
+    cors['Cache-Control'] = 'no-store';
+    cors['Access-Control-Allow-Headers'] = 'Authorization, Content-Type';
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: cors });
+    }
+    if (request.method !== 'GET') {
+      return new Response('Method Not Allowed', {
+        status: 405,
+        headers: { Allow: 'GET, OPTIONS', ...cors }
+      });
+    }
+
+    // Local-dev escape hatch: when `ALLOW_NO_AUTH_FOR_R2_KEY` is set the
+    // admin shell can fetch credentials without Sveltia's GitHub login. Only
+    // set in the root `.env` for `wrangler dev`; never in production.
+    if (env.ALLOW_NO_AUTH_FOR_R2_KEY !== 'true') {
+      const authHeader = request.headers.get('Authorization');
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+      if (!token) {
+        return jsonResponse({ error: 'Missing bearer token' }, 401, cors);
+      }
+
+      const login = await gitHubOAuthService.fetchUserLogin(token);
+      if (!login) {
+        return jsonResponse({ error: 'Invalid GitHub token' }, 401, cors);
+      }
+      if (!this.isUserAllowed(login)) {
+        return jsonResponse({ error: 'Forbidden' }, 403, cors);
+      }
+    }
+
+    return jsonResponse({ secretAccessKey: env.R2_MEDIA_SECRET_ACCESS_KEY }, 200, cors);
   }
 
   /**

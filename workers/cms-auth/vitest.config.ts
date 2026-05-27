@@ -5,6 +5,7 @@ import { createWorkerVitestConfig } from '../vitest.shared';
 export default createWorkerVitestConfig({
   bindings: {
     GITHUB_CMS_CLIENT_SECRET: 'test-client-secret',
-    GITHUB_CMS_CLIENT_ID: 'test-client-id'
+    GITHUB_CMS_CLIENT_ID: 'test-client-id',
+    R2_MEDIA_SECRET_ACCESS_KEY: 'test-r2-secret-access-key'
   }
 });

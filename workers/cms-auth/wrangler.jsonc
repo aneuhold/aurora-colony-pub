@@ -8,7 +8,13 @@
   "upload_source_maps": true,
   "dev": { "port": 8790, "inspector_port": 9232 },
   // Secrets set via `wrangler secret put`:
-  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET
+  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET, R2_MEDIA_SECRET_ACCESS_KEY
+  "vars": {
+    // Deployed default. Overridden to `"true"` locally via repo-root `.env`
+    // so the admin shell can fetch the R2 secret
+    // in dev without signing into GitHub. Must stay `"false"` in production.
+    "ALLOW_NO_AUTH_FOR_R2_KEY": "false"
+  },
   "ratelimits": [
     {
       "name": "RATE_LIMITER",

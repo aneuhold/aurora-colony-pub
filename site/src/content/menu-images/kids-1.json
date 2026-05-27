@@ -1,6 +1,6 @@
 {
   "title": "Kids Menu",
   "category": "kids",
-  "image": "../../assets/menus/menu-kids.jpg",
+  "image": "https://media.auroracolonypub.aneuhold.dev/menu-kids.jpg",
   "order": 1
 }

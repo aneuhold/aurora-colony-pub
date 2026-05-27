@@ -16,7 +16,14 @@
   <body>
     <script>
       import { init } from '@sveltia/cms';
-      init();
+      import sveltiaR2Service from '$util/SveltiaR2.service';
+
+      const start = async (): Promise<void> => {
+        await sveltiaR2Service.start();
+        init();
+      };
+
+      void start();
     </script>
   </body>
 </html>
