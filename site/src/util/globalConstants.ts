@@ -101,6 +101,25 @@ class GlobalConstants {
 
   /** Cloudflare Turnstile sitekey for the contact form widget. */
   readonly turnstileSitekey = '0x4AAAAAADVCwonowFDxQAhi';
+
+  /**
+   * Public host of the `aurora-colony-pub-media` R2 bucket. Sveltia uploads
+   * directly here; Astro's `image.remotePatterns` pins this exact host so
+   * build-time optimization runs against it. The bucket is flat — every key
+   * is just the (slugified) original filename. Pair with {@link mediaUrl}.
+   */
+  readonly mediaHost = 'https://media.auroracolonypub.aneuhold.dev';
+
+  /**
+   * Builds the public URL for a CMS-managed media object. Use for hard-coded
+   * editorial picks in components (hero photos, etc.); Sveltia-written entry
+   * fields already contain a full URL.
+   *
+   * @param filename Bucket-root key — e.g. `interior-wood-bar.jpg`
+   */
+  mediaUrl(filename: string): string {
+    return `${this.mediaHost}/${filename}`;
+  }
 }
 
 export const globalConstants = new GlobalConstants();

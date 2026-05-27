@@ -8,9 +8,10 @@ import Section from '$components-astro/ui/Section.astro';
 import OpenNowChip from '$components-svelte/OpenNowChip';
 import dateTimeService from '$util/DateTime.service';
 import { globalConstants } from '$util/globalConstants';
-import heroPhoto from '../assets/gallery/interior-wood-bar.jpg';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import Logo from '../assets/logo.svg';
+
+const heroPhoto = globalConstants.mediaUrl('interior-wood-bar.jpg');
 
 interface Props {
   title: string;
@@ -40,6 +41,7 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
   <Image
     src={heroPhoto}
     alt="Inside the pub — wood paneling, neon signs and the long bar."
+    inferSize
     widths={[768, 1280, 1920, 2560]}
     sizes="100vw"
     loading="eager"

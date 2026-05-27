@@ -13,6 +13,14 @@ export default defineConfig({
   // redirects on every page visit to /menu/ when the url is /menu.
   trailingSlash: 'never',
   build: { format: 'file' },
+  // CMS-managed images live in the `aurora-colony-pub-media` R2 bucket. The
+  // allowlist below opts every URL on that host into Astro's build-time
+  // fetch + Sharp optimization pipeline; URLs from any other host pass
+  // through unprocessed.
+  // https://docs.astro.build/en/guides/images/#authorizing-remote-images
+  image: {
+    remotePatterns: [{ protocol: 'https', hostname: 'media.auroracolonypub.aneuhold.dev' }]
+  },
   integrations: [
     svelte(),
     sitemap({

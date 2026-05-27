@@ -1,8 +1,58 @@
+import { allowedOrigins } from '@aurora/workers-shared';
+import {
+  createTestIpGenerator,
+  fetchInputUrl,
+  sentryIngestAwareFetch
+} from '@aurora/workers-shared/test-utils';
 import { exports } from 'cloudflare:workers';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import authService from './services/AuthService';
 
 const ORIGIN = 'https://example.com';
+const ALLOWED_ORIGIN = allowedOrigins[0];
+
+interface GitHubUserMockOptions {
+  status?: number;
+  login?: string;
+}
+
+const setupGitHubUserMock = (options: GitHubUserMockOptions = {}): void => {
+  const { status = 200, login = 'aneuhold' } = options;
+  vi.spyOn(globalThis, 'fetch').mockImplementation(
+    sentryIngestAwareFetch((input) => {
+      const url = fetchInputUrl(input);
+      if (url === 'https://api.github.com/user') {
+        return Promise.resolve(
+          new Response(JSON.stringify({ login }), {
+            status,
+            headers: { 'Content-Type': 'application/json' }
+          })
+        );
+      }
+      return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
+    })
+  );
+};
+
+const nextIp = createTestIpGenerator();
+
+const fetchR2Credentials = (
+  init: { token?: string | null; origin?: string | null; method?: string } = {}
+): Promise<Response> => {
+  const headers: Record<string, string> = {
+    'CF-Connecting-IP': nextIp()
+  };
+  if (init.origin !== null) {
+    headers.Origin = init.origin ?? ALLOWED_ORIGIN;
+  }
+  if (init.token !== null && init.token !== undefined) {
+    headers.Authorization = `Bearer ${init.token}`;
+  }
+  return exports.default.fetch(`${ORIGIN}/r2-credentials`, {
+    method: init.method ?? 'GET',
+    headers
+  });
+};
 
 describe('cms-auth', () => {
   it('GET /auth redirects to GitHub authorize with client_id and sets a state cookie', async () => {
@@ -39,4 +89,48 @@ describe('cms-auth', () => {
     expect(authService.isUserAllowed('aneuhold')).toBe(true);
     expect(authService.isUserAllowed('someone-else')).toBe(false);
   });
+
+  describe('GET /r2-credentials', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('returns 204 with CORS headers on OPTIONS preflight from an allowed origin', async () => {
+      const response = await fetchR2Credentials({ method: 'OPTIONS', token: null });
+      expect(response.status).toBe(204);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBe(ALLOWED_ORIGIN);
+      expect(response.headers.get('Access-Control-Allow-Methods')).toContain('GET');
+      expect(response.headers.get('Access-Control-Allow-Headers')).toContain('Authorization');
+    });
+
+    it('returns 401 when the Authorization header is missing', async () => {
+      const response = await fetchR2Credentials({ token: null });
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 401 when GitHub rejects the supplied token', async () => {
+      setupGitHubUserMock({ status: 401 });
+      const response = await fetchR2Credentials({ token: 'bad-gh-token' });
+      expect(response.status).toBe(401);
+    });
+
+    it('returns 403 when GitHub returns a login not on the allowlist', async () => {
+      setupGitHubUserMock({ login: 'someone-else' });
+      const response = await fetchR2Credentials({ token: 'gh-token' });
+      expect(response.status).toBe(403);
+    });
+
+    it('returns 200 with the R2 access key id + secret for an allowlisted login', async () => {
+      setupGitHubUserMock();
+      const response = await fetchR2Credentials({ token: 'gh-token' });
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Cache-Control')).toBe('no-store');
+      const body = await response.json<{ secretAccessKey: string }>();
+      expect(body).toEqual({ secretAccessKey: 'test-r2-secret-access-key' });
+    });
+  });
+});
+
+beforeEach(() => {
+  vi.restoreAllMocks();
 });

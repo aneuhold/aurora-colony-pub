@@ -8,7 +8,7 @@
   "upload_source_maps": true,
   "dev": { "port": 8790, "inspector_port": 9232 },
   // Secrets set via `wrangler secret put`:
-  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET
+  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET, R2_MEDIA_SECRET_ACCESS_KEY
   "ratelimits": [
     {
       "name": "RATE_LIMITER",

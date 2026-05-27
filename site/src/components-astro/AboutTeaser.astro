@@ -4,7 +4,9 @@ import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
-import buildingPhoto from '../assets/gallery/exterior-full-building.jpg';
+import { globalConstants } from '$util/globalConstants';
+
+const buildingPhoto = globalConstants.mediaUrl('exterior-full-building.jpg');
 ---
 
 <Section>
@@ -25,6 +27,7 @@ import buildingPhoto from '../assets/gallery/exterior-full-building.jpg';
         <Image
           src={buildingPhoto}
           alt="The pub in daylight — white wood-frame walls, black tin roof and the big roadside sign."
+          inferSize
           widths={[480, 768, 1080]}
           sizes="(min-width: 768px) 50vw, 100vw"
           loading="lazy"

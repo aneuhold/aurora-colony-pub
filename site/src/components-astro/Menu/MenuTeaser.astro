@@ -49,6 +49,7 @@ const hasKids = all.some((entry) => entry.data.category === 'kids');
               <Image
                 src={card.entry.data.image}
                 alt={card.entry.data.title}
+                inferSize
                 widths={[320, 640, 960]}
                 sizes="(min-width: 768px) 33vw, 100vw"
                 loading="lazy"
