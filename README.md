@@ -59,3 +59,7 @@ The main website for the Aurora Colony Pub.
 3. Make updates to see them make changes locally to the code. It works best with text updates. But you can add images. Just need to stop then start the dev server for that to work right because Astro needs to optimize them.
 
 When changing the content model itself — adding, updating, renaming, moving, or removing a collection or its fields — use the [`cms-content`](.claude/skills/cms-content/SKILL.md) skill (`/cms-content <what to change>` in Claude Code). It walks through the paired Sveltia + Astro edits so neither side falls out of sync.
+
+### Worker KV Development
+
+This is hooked up together between fb-feed-read and fb-feed-sync using a shared location for their persistence (`--persist-to ../.wrangler/state`). That is what makes them able to talk to each other. Pretty simple, but [see here for docs](https://developers.cloudflare.com/workers/development-testing/local-data/).
