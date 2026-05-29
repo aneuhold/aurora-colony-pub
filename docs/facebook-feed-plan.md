@@ -8,78 +8,11 @@ fetches the read worker and renders the posts.
 The read worker, the frontend island, and the shared types / transform /
 worker-helpers package are already in place. The read worker serves a
 hardcoded mock payload when KV is empty so the frontend has something to
-render while we wait on the prequel below. Remaining work: fill in the
-sync worker (Step 1), then retire the mock (Step 2).
-
-## Prequel — one-time setup outside the codebase
-
-Required before the sync worker can do anything useful. Nothing in this list
-goes through code review; it's account/console work. We use the
-**Business Portfolio → System User** path because it produces a Page Access
-Token that does not expire by time (vs. the user-token-exchange path, which
-breaks if the user changes their FB password, loses Page admin, etc.).
-
-1. **Pub's Page access — pending approval**
-   - Shared-access request is sent; waiting on the pub's portfolio admin
-     to approve.
-   - Watch the request status here:
-     <https://business.facebook.com/latest/settings/pages/?business_id=1592741911818216&selected_asset_id=465497836965753&selected_asset_type=page>
-   - Once it flips to approved, the Page shows up under Business Settings
-     → Accounts → Pages with the access level granted. Don't proceed past
-     this step until that happens.
-2. **Meta developer app**
-   ([docs](https://developers.facebook.com/docs/development/create-an-app/))
-   - https://developers.facebook.com/apps → Create App.
-   - **Use case**: pick **"Manage everything on your Page"**. That bundle
-     ships `pages_show_list`, `pages_manage_engagement`,
-     `pages_read_engagement`, and `business_management` — covers what we
-     need to call `GET /{page-id}/posts`
-     ([use-case mapping](https://developers.facebook.com/docs/development/create-an-app/use-cases-permission-mapping/),
-     [permission reference](https://developers.facebook.com/docs/permissions/)).
-   - **Business Portfolio**: connect to the freelance portfolio.
-3. **System User + non-expiring Page Access Token**
-   ([docs](https://developers.facebook.com/docs/business-management-apis/system-users/),
-   [token generation](https://developers.facebook.com/docs/business-management-apis/system-users/install-apps-and-generate-tokens/))
-   - In Business Settings → Users → **System Users** → Add. Type: Admin.
-   - Add Assets → Pages → select the pub's Page → grant content/management
-     access.
-   - **Generate New Token** → pick the app from step 2 → select scopes
-     `pages_show_list` + `pages_read_engagement` → **leave
-     "Set token expiration" off** so it's non-expiring (the alternative is
-     a 60-day expiring token; we don't want that). Copy the token now —
-     it's only shown once.
-   - From the Page's About section, copy the **Page ID**.
-4. **Smoke-test the token before wiring secrets**
-   ([Standard vs Advanced Access](https://developers.facebook.com/docs/graph-api/overview/access-levels/))
-   - `curl "https://graph.facebook.com/v21.0/{PAGE_ID}/posts?fields=id,message,permalink_url&limit=1&access_token={TOKEN}"`
-   - **Posts come back** → Standard Access is enough; the app can stay in
-     development mode forever (server-to-server calls from the Worker
-     don't need it Live). Skip the dashboard's "Business verification"
-     and "Publish your app" checklist items entirely.
-   - **`(#10)` / `(#200)` / "requires Advanced Access"** → loop back and
-     run Business Verification
-     ([docs](https://developers.facebook.com/docs/development/release/business-verification/));
-     the Meta Business Portfolio needs to be backed by a real
-     business/EIN. Aurora Colony Pub's existing portfolio almost
-     certainly already satisfies this on their side; ours may not, but
-     since the Page is shared into our portfolio rather than owned by
-     it, Standard Access is the expected path.
-5. **Wrangler secrets** (sync worker only — the read worker doesn't talk to
-   Facebook)
-   - `pnpm --filter ./workers/fb-feed-sync exec wrangler secret put FB_PAGE_ID`
-   - `pnpm --filter ./workers/fb-feed-sync exec wrangler secret put FB_PAGE_ACCESS_TOKEN`
-6. **Local `.env`** — add `FB_PAGE_ID` and `FB_PAGE_ACCESS_TOKEN` so
-   `wrangler dev --env-file ../../.env` picks them up locally (matches the
-   pattern already used for `FB_MANUAL_SYNC_TOKEN`).
-
-Open question worth flagging: System User tokens don't expire by time, but
-they can still be invalidated — Page admin role removed, password reset on
-an account tied to the System User, scope revocation, Meta security
-intervention
-([reference](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/debugging-and-error-handling)).
-If the token ever breaks, the sync worker will start returning 5xx —
-Sentry catches it and we re-mint from the Business Settings console. Not
-building auto-refresh now.
+render. The Facebook account/console setup is done — the non-expiring Page
+Access Token is minted and wired into the sync worker's secrets
+(`FB_PAGE_ACCESS_TOKEN`, `FB_MANUAL_SYNC_TOKEN`) and local `.env`; the Page
+ID lives as the `fbFeedSyncConstants.pageId` constant. Remaining work: fill
+in the sync worker (Step 1), then retire the mock (Step 2).
 
 ## Step 1 — `fb-feed-sync` worker body
 
@@ -90,18 +23,22 @@ Mirror the contact worker's service split — `index.ts` stays trivial,
 
 - **New file** `workers/fb-feed-sync/src/Env.ts`
   - Move the `Env` interface out of `index.ts`: `AURORA_COLONY_PUB_KV`,
-    `RATE_LIMITER`, `FB_MANUAL_SYNC_TOKEN`, `FB_PAGE_ID`,
-    `FB_PAGE_ACCESS_TOKEN`.
+    `RATE_LIMITER`, `FB_MANUAL_SYNC_TOKEN`, `FB_PAGE_ACCESS_TOKEN`. (No
+    `FB_PAGE_ID` — the Page ID is a constant, see below.)
 - **New file** `workers/fb-feed-sync/src/util/fbFeedSyncConstants.ts`
   - `kvKey: 'fb:feed:latest'` — must match `fbFeedReadConstants.kvKey`;
     the small duplication is deliberate (see the note in the read
     worker's constants file).
+  - `pageId: '465497836965753'` — the pub's public Page ID. Public,
+    stable, environment-invariant, so it lives here rather than as a secret.
   - `graphApiVersion: 'v21.0'`.
   - `fields: 'id,message,permalink_url,created_time,full_picture'` (Graph API field list).
   - `postLimit: 10` — keep KV blob small; we only render a handful.
 - **New file** `workers/fb-feed-sync/src/services/FbGraphService.ts`
   - Singleton, `async fetchLatestPosts(env: Env): Promise<FbGraphPostsResponse>`.
-  - Calls `GET https://graph.facebook.com/{version}/{pageId}/posts?fields=…&limit=…&access_token=…`.
+  - Calls `GET https://graph.facebook.com/{version}/{pageId}/posts?fields=…&limit=…&access_token=…`,
+    where `version`/`pageId` come from `fbFeedSyncConstants` and
+    `access_token` is `env.FB_PAGE_ACCESS_TOKEN`.
   - Throws on non-2xx so the orchestrator can return a 502 / let Sentry
     capture it.
   - Returns the raw Graph response unchanged — the orchestrator hands it
@@ -126,8 +63,8 @@ Mirror the contact worker's service split — `index.ts` stays trivial,
   - Add `"@aurora/shared": "workspace:*"` to `dependencies` (already
     declared on the contact and fb-feed-read workers — same pattern).
 - **Edit** `workers/fb-feed-sync/wrangler.jsonc`
-  - Update the secrets comment block to list `FB_MANUAL_SYNC_TOKEN`,
-    `FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`.
+  - Update the secrets comment block to list `FB_MANUAL_SYNC_TOKEN` and
+    `FB_PAGE_ACCESS_TOKEN` (Page ID is a code constant, not a secret).
 - **Edit** `workers/fb-feed-sync/src/index.integration.test.ts`
   - Replace the lone 401 test with: 401 without bearer, 429 when
     rate-limited (skip if awkward inside the pool), 502 when Graph fetch
