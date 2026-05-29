@@ -46,6 +46,9 @@ sequenceDiagram
 - **Read path** never calls Facebook — it only reads from KV.
 - **Sync path** is the only thing that talks to Facebook. Cron fires every 30 minutes; a protected manual endpoint lets us force a refresh ahead of demos or right after a new post.
 - Browser cache + KV together mean Facebook is called at most ~48 times/day from cron, plus the occasional manual sync.
+- [Here is the link to the Facebook Business Portfolio for "Anton Neuhold Freelance"](https://business.facebook.com/latest/settings/pages/?business_id=1592741911818216&selected_asset_id=465497836965753&selected_asset_type=page) which was needed for the API setup
+- [Here is the link to the Facebook System User for the sync mechanism](https://business.facebook.com/latest/settings/system_users?business_id=1592741911818216&selected_user_id=61590579565690)
+- [See the docs here for how the token setup works](./facebook-token-setup.md)
 
 ## Form Worker (1 Worker)
 
