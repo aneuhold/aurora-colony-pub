@@ -7,8 +7,12 @@
   "observability": { "enabled": true },
   "upload_source_maps": true,
   "dev": { "port": 8790, "inspector_port": 9232 },
-  // Secrets set via `wrangler secret put`:
-  //   GITHUB_CMS_CLIENT_ID, GITHUB_CMS_CLIENT_SECRET, R2_MEDIA_SECRET_ACCESS_KEY
+  "secrets": {
+    //   GITHUB_CMS_CLIENT_ID       — GitHub OAuth app client ID for CMS login
+    //   GITHUB_CMS_CLIENT_SECRET   — GitHub OAuth app client secret; HMAC-signs the state cookie
+    //   R2_MEDIA_SECRET_ACCESS_KEY — R2 secret access key the admin shell fetches for media uploads
+    "required": ["GITHUB_CMS_CLIENT_ID", "GITHUB_CMS_CLIENT_SECRET", "R2_MEDIA_SECRET_ACCESS_KEY"]
+  },
   "vars": {
     // Deployed default. Overridden to `"true"` locally via repo-root `.env`
     // so the admin shell can fetch the R2 secret

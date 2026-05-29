@@ -89,7 +89,7 @@ becomes dead code. Delete it:
     imports.
   - Replace the post-KV mock-assembly branch with a clean degraded
     response: `jsonResponse({ posts: [], syncedAt: null }, 200, { ...cors,
-    'Cache-Control': fbFeedReadConstants.cacheControl })`.
+'Cache-Control': fbFeedReadConstants.cacheControl })`.
     `FacebookFeed.svelte` already renders the `empty` status for that
     shape.
 - **Edit** `workers/fb-feed-read/src/util/fbFeedReadConstants.ts`
@@ -113,7 +113,7 @@ $FB_MANUAL_SYNC_TOKEN" http://localhost:8789` to trigger a manual sync,
 then reload the page — the read worker should now serve real KV-stored
 posts instead of the mock.
 
-## Trade-offs / open questions
+## Trade-offs
 
 - **Single KV key vs. per-post keys.** Picked a single `fb:feed:latest`
   blob because the read worker always serves the whole feed and the post

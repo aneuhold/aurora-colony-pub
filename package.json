@@ -12,6 +12,7 @@
     "preview": "pnpm --filter ./site preview",
     "lint": "eslint --cache",
     "check": "pnpm -r --parallel check",
+    "typegen": "pnpm -r --parallel typegen",
     "test": "pnpm -r --parallel test",
     "test:e2e": "pnpm -r --parallel --filter \"./workers/*\" run test:e2e",
     "workers:kvlocal:list": "cd workers/fb-feed-sync && wrangler kv key list --binding AURORA_COLONY_PUB_KV --local --persist-to ../.wrangler/state",

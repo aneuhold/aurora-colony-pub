@@ -7,6 +7,11 @@
   "observability": { "enabled": true },
   "upload_source_maps": true,
   "dev": { "port": 8789, "inspector_port": 9231 },
+  "secrets": {
+    //   FB_MANUAL_SYNC_TOKEN   — shared bearer token required on the manual /fetch endpoint
+    //   FB_PAGE_ACCESS_TOKEN   — non-expiring Page access token for the Graph API
+    "required": ["FB_MANUAL_SYNC_TOKEN", "FB_PAGE_ACCESS_TOKEN"]
+  },
   "triggers": {
     "crons": ["*/30 * * * *"]
   },
@@ -24,8 +29,4 @@
       "simple": { "limit": 5, "period": 60 }
     }
   ]
-  // Secrets set via `wrangler secret put`:
-  //   FB_MANUAL_SYNC_TOKEN   — shared bearer token required on the manual /fetch endpoint
-  //   FB_PAGE_ACCESS_TOKEN   — non-expiring Page access token for the Graph API
-  // (The Page ID is a public code constant in fbFeedSyncConstants, not a secret.)
 }
