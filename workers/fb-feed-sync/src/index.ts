@@ -1,11 +1,7 @@
-import { checkIpRateLimit, sentryWorkerOptions } from '@aurora/workers-shared';
+import { sentryWorkerOptions } from '@aurora/workers-shared';
 import * as Sentry from '@sentry/cloudflare';
-
-interface Env {
-  AURORA_COLONY_PUB_KV: KVNamespace;
-  RATE_LIMITER: RateLimit;
-  FB_MANUAL_SYNC_TOKEN: string;
-}
+import type { Env } from './Env';
+import fbFeedSyncService from './services/FbFeedSyncService';
 
 export default Sentry.withSentry(
   (_: Env) =>
@@ -14,16 +10,11 @@ export default Sentry.withSentry(
     ),
   {
     async fetch(request, env, _ctx): Promise<Response> {
-      if (!(await checkIpRateLimit(request, env))) {
-        return new Response('Too Many Requests', { status: 429 });
-      }
-      if (request.headers.get('Authorization') !== `Bearer ${env.FB_MANUAL_SYNC_TOKEN}`) {
-        return new Response('Unauthorized', { status: 401 });
-      }
-      return new Response('OK', { status: 200 });
+      return fbFeedSyncService.handleRequest(request, env);
     },
-    scheduled(_event, _env, _ctx): void {
-      // TODO: fetch Facebook feed and write to AURORA_COLONY_PUB_KV.
+    async scheduled(_event, env, _ctx): Promise<void> {
+      // Let errors bubble so Sentry captures them and the next cron tick retries.
+      await fbFeedSyncService.syncFeed(env);
     }
   } satisfies ExportedHandler<Env>
 );

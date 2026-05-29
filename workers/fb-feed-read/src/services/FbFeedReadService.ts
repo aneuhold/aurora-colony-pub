@@ -1,4 +1,4 @@
-import { graphPostsToWorkerPosts, type WorkerFbFeedResponse } from '@aurora/shared';
+import type { WorkerFbFeedResponse } from '@aurora/shared';
 import {
   checkIpRateLimit,
   corsHeaders,
@@ -7,20 +7,18 @@ import {
 } from '@aurora/workers-shared';
 import type { Env } from '../Env';
 import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
-import { buildMockFbGraphResponse } from '../util/mockFbGraphResponse';
 
 const CORS_METHODS = ['GET', 'OPTIONS'] as const;
 
 /**
  * Read-only Facebook feed singleton. Returns the latest snapshot the sync
- * Worker wrote to KV when present; otherwise transforms the in-repo mock
- * Graph response so the frontend has something to render today.
+ * Worker wrote to KV when present; otherwise serves a degraded empty feed
+ * the frontend renders as its `empty` state.
  */
 class FbFeedReadService {
   /**
    * Top-level dispatcher. CORS allowlist, method gate, IP rate limit, then
-   * read order: KV first (the day the sync Worker starts producing data,
-   * this branch silently takes over), mock literal second.
+   * the KV snapshot when present, falling back to an empty feed.
    *
    * @param request Incoming request
    * @param env Worker env (KV + rate limiter bindings)
@@ -60,12 +58,8 @@ class FbFeedReadService {
       });
     }
 
-    const photoBaseOrigin = echoedOrigin || fbFeedReadConstants.defaultPhotoOrigin;
-    const payload: WorkerFbFeedResponse = {
-      posts: graphPostsToWorkerPosts(buildMockFbGraphResponse(photoBaseOrigin)),
-      syncedAt: new Date().toISOString()
-    };
-    return jsonResponse(payload, 200, {
+    const empty: WorkerFbFeedResponse = { posts: [], syncedAt: null };
+    return jsonResponse(empty, 200, {
       ...cors,
       'Cache-Control': fbFeedReadConstants.cacheControl
     });

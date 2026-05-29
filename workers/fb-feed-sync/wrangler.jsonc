@@ -25,5 +25,7 @@
     }
   ]
   // Secrets set via `wrangler secret put`:
-  //   FB_MANUAL_SYNC_TOKEN  — shared bearer token required on the manual /fetch endpoint
+  //   FB_MANUAL_SYNC_TOKEN   — shared bearer token required on the manual /fetch endpoint
+  //   FB_PAGE_ACCESS_TOKEN   — non-expiring Page access token for the Graph API
+  // (The Page ID is a public code constant in fbFeedSyncConstants, not a secret.)
 }

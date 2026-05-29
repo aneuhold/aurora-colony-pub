@@ -37,11 +37,11 @@ export interface WorkerFbFeedPost {
 }
 
 /**
- * Payload returned by the `aurora-fb-feed-read` Worker. `syncedAt` is set
- * when the read worker last produced the response (or when the sync worker
- * last wrote to KV, once that lands).
+ * Payload returned by the `aurora-fb-feed-read` Worker. `syncedAt` is the
+ * timestamp the sync worker last wrote to KV, or `null` for the degraded
+ * empty-feed response the read worker serves before any sync has landed.
  */
 export interface WorkerFbFeedResponse {
   posts: WorkerFbFeedPost[];
-  syncedAt: string;
+  syncedAt: string | null;
 }

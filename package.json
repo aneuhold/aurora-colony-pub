@@ -14,6 +14,7 @@
     "check": "pnpm -r --parallel check",
     "test": "pnpm -r --parallel test",
     "test:e2e": "pnpm -r --parallel --filter \"./workers/*\" run test:e2e",
+    "workers:kvlocal:list": "cd workers/fb-feed-sync && wrangler kv key list --binding AURORA_COLONY_PUB_KV --local --persist-to ../.wrangler/state",
     "deploy:workers": "pnpm -r --parallel --filter \"./workers/*\" run deploy",
     "upgrade:deps": "pnpm up -r --latest",
     "generate:assets": "tsx scripts/generate-logos.ts && tsx scripts/generate-og-image.ts"
