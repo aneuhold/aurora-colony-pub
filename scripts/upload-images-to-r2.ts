@@ -1,6 +1,6 @@
-import { spawn } from 'node:child_process';
-import { readdir, stat } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import imageMediaType from './services/ImageMediaType.service';
 import mediaBucket from './services/MediaBucket.service';
 
@@ -47,36 +47,19 @@ const collectImages = async (inputPath: string): Promise<string[]> => {
 };
 
 /**
- * Uploads one image to R2 by shelling out to `wrangler r2 object put`. Uses
- * `--remote` so it writes to the live bucket (not the local simulation) and
- * inherits the caller's `wrangler` login for auth.
+ * Reads one image off disk and uploads it to the R2 bucket. Logs the failure
+ * detail (HTTP status + response body) when the upload doesn't succeed.
  *
  * @param target Image queued for upload
  */
 const uploadOne = async (target: UploadTarget): Promise<boolean> => {
-  const args = [
-    'r2',
-    'object',
-    'put',
-    `${mediaBucket.bucket}/${target.key}`,
-    '--file',
-    target.filePath,
-    '--content-type',
-    target.contentType,
-    '--remote'
-  ];
-
-  return new Promise<boolean>((resolvePromise) => {
-    const child = spawn('wrangler', args, {
-      stdio: ['ignore', 'ignore', 'inherit'],
-      env: { ...process.env, CLOUDFLARE_ACCOUNT_ID: mediaBucket.accountId }
-    });
-    child.on('error', (error) => {
-      console.error(`Failed to spawn wrangler for ${target.key}: ${error.message}`);
-      resolvePromise(false);
-    });
-    child.on('close', (code) => resolvePromise(code === 0));
-  });
+  const body = await readFile(target.filePath);
+  const outcome = await mediaBucket.uploadObject(target.key, body, target.contentType);
+  if (!outcome.ok) {
+    const status = outcome.status === 0 ? 'request failed' : `HTTP ${outcome.status}`;
+    console.error(`  ${target.key}: ${status}${outcome.detail ? ` — ${outcome.detail}` : ''}`);
+  }
+  return outcome.ok;
 };
 
 /**
@@ -114,6 +97,9 @@ const toTargets = (filePaths: string[]): UploadTarget[] => {
  * default path, so at least one argument is required.
  */
 const uploadImages = async (): Promise<void> => {
+  // Load the repo-root .env so the R2 upload picks up the R2_MEDIA_* credentials.
+  process.loadEnvFile(resolve(fileURLToPath(import.meta.url), '../../.env'));
+
   const inputs = process.argv.slice(2);
   if (inputs.length === 0) {
     console.error('Usage: tsx scripts/upload-images-to-r2.ts <file-or-folder> [...more]');
@@ -153,7 +139,7 @@ const uploadImages = async (): Promise<void> => {
   }
 
   if (failed.length > 0) {
-    console.error(`\n${failed.length} upload(s) failed — see wrangler output above.`);
+    console.error(`\n${failed.length} upload(s) failed — see the errors above.`);
     process.exitCode = 1;
   }
 };

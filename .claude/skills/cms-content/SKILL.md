@@ -1,6 +1,6 @@
 ---
 name: cms-content
-description: Add, update, rename, move, or remove a Sveltia CMS collection or its fields. Use whenever the editable content model changes — e.g. "add an events collection", "rename the gallery 'alt' field to 'caption'", "drop the tagline field", "move about into its own page". Keeps Sveltia config, Astro content collections, and seed files in lockstep.
+description: Add, update, rename, move, or remove a Sveltia CMS collection or its fields, or upload an image to R2 and point an entry at it. Use whenever the editable content model changes or media is added — e.g. "add an events collection", "rename the gallery 'alt' field to 'caption'", "drop the tagline field", "move about into its own page", "upload these photos to the gallery". Keeps Sveltia config, Astro content collections, and seed files in lockstep.
 argument-hint: "<what to change>"
 ---
 
