@@ -14,4 +14,4 @@ Opal Gusman, Jimmy Berolt, the Crane Family, and Russ and Laurie Newcomer were p
 
 Almost everyone who works at the pub has had long connections with the pub and the surrounding community and its loyal patrons. We strive to provide great service, delicious food, and warm hospitality.
 
-Enjoy your visit, thank you for coming in and we hope to see you often. This is our neighborhood meeting place for friends, old and new. Test message
+Enjoy your visit, thank you for coming in and we hope to see you often. This is our neighborhood meeting place for friends, old and new.
