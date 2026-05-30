@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+
+/** One picture in the masonry: its full-size R2 URL and alt text. */
+interface MasonryImage {
+  photo: string;
+  alt: string;
+}
+
+interface Props {
+  images: MasonryImage[];
+}
+
+const { images } = Astro.props;
+---
+
+{
+  images.length > 0 && (
+    <ul class="list-none columns-1 gap-4 p-0 md:columns-2 lg:columns-3">
+      {images.map((image) => (
+        <li class="reveal mb-4 break-inside-avoid">
+          <a
+            href={image.photo}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open full size: ${image.alt}`}
+            class="group block overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 transition-[transform,border-color] duration-snap ease-soft hover:-translate-y-1 hover:border-foreground/20"
+          >
+            <figure class="m-0">
+              <Image
+                src={image.photo}
+                alt={image.alt}
+                inferSize
+                widths={[320, 640, 960, 1280]}
+                sizes="(min-width: 64rem) 33vw, (min-width: 48rem) 50vw, 100vw"
+                loading="lazy"
+                class="block h-auto w-full"
+              />
+            </figure>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

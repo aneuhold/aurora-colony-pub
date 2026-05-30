@@ -8,7 +8,7 @@ import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import { globalConstants } from '$util/globalConstants';
 
-const aboutHeroPhoto = globalConstants.mediaUrl('interior-bar-red-ceiling.jpg');
+const aboutHeroPhoto = globalConstants.mediaUrl('exterior-full-building.jpg');
 ---
 
 <BaseLayout
@@ -19,7 +19,7 @@ const aboutHeroPhoto = globalConstants.mediaUrl('interior-bar-red-ceiling.jpg');
     <Section padding="hero" class="relative flex min-h-[40svh] items-end overflow-hidden">
       <Image
         src={aboutHeroPhoto}
-        alt="Red ceiling glowing over the bar, neon signs reflecting off the wood."
+        alt="The pub in daylight — white wood-frame walls, black tin roof and the big roadside sign."
         inferSize
         widths={[768, 1280, 1920, 2560]}
         sizes="100vw"

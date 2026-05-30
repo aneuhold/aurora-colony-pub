@@ -11,7 +11,7 @@ import { globalConstants } from '$util/globalConstants';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import Logo from '../assets/logo.svg';
 
-const heroPhoto = globalConstants.mediaUrl('interior-wood-bar.jpg');
+const heroPhoto = globalConstants.mediaUrl('drink-pint-neon-bar.jpg');
 
 interface Props {
   title: string;
@@ -40,15 +40,15 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
   <Image
     src={heroPhoto}
-    alt="Inside the pub — wood paneling, neon signs and the long bar."
+    alt="A golden pint of lager on the wood bar top, Budweiser and Colony Pub neon glowing behind the tap handles."
     inferSize
     widths={[768, 1280, 1920, 2560]}
     sizes="100vw"
     loading="eager"
     fetchpriority="high"
-    class="absolute inset-0 h-full w-full object-cover"
+    class="absolute inset-0 h-full w-full object-cover object-bottom"
   />
-  <div class="absolute inset-0 bg-linear-to-t from-foreground/70 via-foreground/30 to-transparent">
+  <div class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10">
   </div>
 
   <Logo

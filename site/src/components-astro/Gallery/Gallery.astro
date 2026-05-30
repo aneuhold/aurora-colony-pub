@@ -1,6 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import MasonryImages from '$components-astro/MasonryImages.astro';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
@@ -15,38 +15,17 @@ const { limit, heading = 'From the room.' } = Astro.props;
 
 const sorted = galleryService.sortEntries(await getCollection('gallery'));
 const entries = typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
+const images = entries.map((entry) => ({ photo: entry.data.photo, alt: entry.data.alt }));
 ---
 
 {
-  entries.length > 0 && (
+  images.length > 0 && (
     <Section id="gallery">
       <Container size="wide">
         <Heading level={2}>{heading}</Heading>
-        <ul class="mt-10 grid list-none grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-4 p-0">
-          {entries.map((entry) => (
-            <li class="reveal">
-              <a
-                href={entry.data.photo}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open full size: ${entry.data.alt}`}
-                class="group block overflow-hidden rounded-md border border-foreground/10"
-              >
-                <figure class="m-0">
-                  <Image
-                    src={entry.data.photo}
-                    alt={entry.data.alt}
-                    inferSize
-                    widths={[320, 640, 960, 1280]}
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    loading="lazy"
-                    class="block h-auto w-full transition-transform duration-glide ease-soft group-hover:scale-[1.02]"
-                  />
-                </figure>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div class="mt-10">
+          <MasonryImages images={images} />
+        </div>
       </Container>
     </Section>
   )
