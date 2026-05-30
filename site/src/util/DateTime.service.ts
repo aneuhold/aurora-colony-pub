@@ -194,4 +194,5 @@ class DateTimeService {
   }
 }
 
-export default new DateTimeService();
+const dateTimeService = new DateTimeService();
+export default dateTimeService;

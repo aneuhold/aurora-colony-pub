@@ -218,4 +218,5 @@ class SveltiaR2Service {
   }
 }
 
-export default new SveltiaR2Service();
+const sveltiaR2Service = new SveltiaR2Service();
+export default sveltiaR2Service;

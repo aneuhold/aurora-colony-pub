@@ -62,4 +62,5 @@ class FbFeedSyncService {
   }
 }
 
-export default new FbFeedSyncService();
+const fbFeedSyncService = new FbFeedSyncService();
+export default fbFeedSyncService;

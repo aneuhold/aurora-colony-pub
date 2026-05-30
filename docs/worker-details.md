@@ -49,6 +49,7 @@ sequenceDiagram
 - [Here is the link to the Facebook Business Portfolio for "Anton Neuhold Freelance"](https://business.facebook.com/latest/settings/pages/?business_id=1592741911818216&selected_asset_id=465497836965753&selected_asset_type=page) which was needed for the API setup
 - [Here is the link to the Facebook System User for the sync mechanism](https://business.facebook.com/latest/settings/system_users?business_id=1592741911818216&selected_user_id=61590579565690)
 - [See the docs here for how the token setup works](./facebook-token-setup.md)
+- Use the `pnpm workers:trigger-fbsync:local` command or `workers:trigger-fbsync:remote` for remote to trigger manually.
 
 ## Form Worker (1 Worker)
 

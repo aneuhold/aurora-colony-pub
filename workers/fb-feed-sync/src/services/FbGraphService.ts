@@ -36,4 +36,5 @@ class FbGraphService {
   }
 }
 
-export default new FbGraphService();
+const fbGraphService = new FbGraphService();
+export default fbGraphService;

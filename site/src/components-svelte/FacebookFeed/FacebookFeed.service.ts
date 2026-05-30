@@ -34,4 +34,5 @@ class FacebookFeedService {
   }
 }
 
-export default new FacebookFeedService();
+const facebookFeedService = new FacebookFeedService();
+export default facebookFeedService;

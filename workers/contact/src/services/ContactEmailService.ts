@@ -89,4 +89,5 @@ class ContactEmailService {
   }
 }
 
-export default new ContactEmailService();
+const contactEmailService = new ContactEmailService();
+export default contactEmailService;

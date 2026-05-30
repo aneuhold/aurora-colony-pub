@@ -69,4 +69,5 @@ class OpenNowChipService {
   }
 }
 
-export default new OpenNowChipService();
+const openNowChipService = new OpenNowChipService();
+export default openNowChipService;

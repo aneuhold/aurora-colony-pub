@@ -137,4 +137,5 @@ class SeoGraphService {
   }
 }
 
-export default new SeoGraphService();
+const seoGraphService = new SeoGraphService();
+export default seoGraphService;
