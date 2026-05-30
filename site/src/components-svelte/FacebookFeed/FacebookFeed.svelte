@@ -38,17 +38,25 @@
     { length: facebookFeedConstants.loadingSkeletonCount },
     (_, i) => i
   );
+
+  // Staggered placeholder heights so the loading state hints at the masonry
+  // layout instead of a uniform grid. Cycled by index.
+  const skeletonHeights = ['h-56', 'h-72', 'h-48'];
 </script>
 
 <section aria-label="Latest from our Facebook page" data-testid="facebook-feed">
   {#if status === 'loading'}
     <ul
-      class="grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3"
+      class="list-none columns-1 gap-6 p-0 md:columns-2 lg:columns-3"
       data-testid="facebook-feed-loading"
     >
       {#each skeletonRange as i (i)}
-        <li class="overflow-hidden rounded-lg border border-foreground/10 bg-background">
-          <div class="aspect-4/3 w-full animate-pulse bg-foreground/5"></div>
+        <li
+          class="mb-6 break-inside-avoid overflow-hidden rounded-lg border border-foreground/10 bg-background"
+        >
+          <div
+            class={`w-full animate-pulse bg-foreground/5 ${skeletonHeights[i % skeletonHeights.length]}`}
+          ></div>
           <div class="space-y-3 p-5">
             <div class="h-3 w-24 animate-pulse rounded-sm bg-foreground/10"></div>
             <div class="h-3 w-full animate-pulse rounded-sm bg-foreground/10"></div>
@@ -73,11 +81,11 @@
     </div>
   {:else}
     <ul
-      class="grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3"
+      class="list-none columns-1 gap-6 p-0 md:columns-2 lg:columns-3"
       data-testid="facebook-feed-list"
     >
       {#each posts as post (post.id)}
-        <li class="reveal">
+        <li class="reveal mb-6">
           <a
             href={post.permalink}
             target="_blank"
@@ -85,16 +93,10 @@
             aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
             class="group block overflow-hidden rounded-lg border border-foreground/10 bg-background transition-[transform,border-color] duration-snap ease-soft hover:-translate-y-1 hover:border-foreground/20"
           >
-            <article class="flex h-full flex-col">
+            <article class="flex flex-col">
               {#if post.imageUrl}
-                <figure class="m-0 aspect-4/3 w-full overflow-hidden bg-foreground/5">
-                  <img
-                    src={post.imageUrl}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    class="h-full w-full object-cover"
-                  />
+                <figure class=" bg-foreground/5">
+                  <img src={post.imageUrl} alt="" loading="lazy" decoding="async" />
                 </figure>
               {/if}
               <div class="flex flex-1 flex-col gap-2 p-5">
