@@ -120,8 +120,14 @@
               >
                 <article class="flex flex-col">
                   {#if post.imageUrl}
-                    <figure class=" bg-foreground/5">
-                      <img src={post.imageUrl} alt="" loading="lazy" decoding="async" />
+                    <figure class="m-0 bg-foreground/5">
+                      <img
+                        src={post.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        class="w-full"
+                      />
                     </figure>
                   {/if}
                   <div class="flex flex-1 flex-col gap-2 p-5">

@@ -1,5 +1,6 @@
 import { graphPostsToWorkerPosts, type WorkerFbFeedResponse } from '@aurora/shared';
 import { checkIpRateLimit } from '@aurora/workers-shared';
+import * as Sentry from '@sentry/cloudflare';
 import type { Env } from '../Env';
 import { fbFeedSyncConstants } from '../util/fbFeedSyncConstants';
 import fbGraphService from './FbGraphService';
@@ -28,7 +29,11 @@ class FbFeedSyncService {
     }
     try {
       await this.syncFeed(env);
-    } catch {
+    } catch (error) {
+      // The cron path lets errors bubble to the withSentry wrapper; the
+      // manual path swallows them to return a clean 502, so capture here
+      // explicitly to keep manual-trigger failures visible in Sentry.
+      Sentry.captureException(error);
       return new Response('Bad Gateway', { status: 502 });
     }
     return new Response('OK', { status: 200 });
