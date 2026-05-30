@@ -122,4 +122,5 @@ class ContactFormService {
   }
 }
 
-export default new ContactFormService();
+const contactFormService = new ContactFormService();
+export default contactFormService;

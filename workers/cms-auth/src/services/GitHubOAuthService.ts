@@ -77,4 +77,5 @@ class GitHubOAuthService {
   }
 }
 
-export default new GitHubOAuthService();
+const gitHubOAuthService = new GitHubOAuthService();
+export default gitHubOAuthService;

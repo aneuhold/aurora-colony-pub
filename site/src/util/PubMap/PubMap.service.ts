@@ -31,4 +31,5 @@ class PubMapService {
   }
 }
 
-export default new PubMapService();
+const pubMapService = new PubMapService();
+export default pubMapService;

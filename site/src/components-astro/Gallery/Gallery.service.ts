@@ -27,4 +27,5 @@ class GalleryService {
   }
 }
 
-export default new GalleryService();
+const galleryService = new GalleryService();
+export default galleryService;

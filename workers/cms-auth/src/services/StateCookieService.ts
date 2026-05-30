@@ -124,4 +124,5 @@ class StateCookieService {
   }
 }
 
-export default new StateCookieService();
+const stateCookieService = new StateCookieService();
+export default stateCookieService;

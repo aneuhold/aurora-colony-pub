@@ -91,11 +91,11 @@ class GlobalConstants {
   /** schema.org `BarOrPub.currenciesAccepted`. */
   readonly currenciesAccepted = 'USD';
 
-  readonly contactWorkerUrl = import.meta.env.DEV
+  readonly contactWorkerUrl = import.meta.env?.DEV
     ? 'http://localhost:8787'
     : 'https://aurora-contact.agneuhold.workers.dev';
 
-  readonly fbFeedReadWorkerUrl = import.meta.env.DEV
+  readonly fbFeedReadWorkerUrl = import.meta.env?.DEV
     ? 'http://localhost:8788'
     : 'https://aurora-fb-feed-read.agneuhold.workers.dev';
 

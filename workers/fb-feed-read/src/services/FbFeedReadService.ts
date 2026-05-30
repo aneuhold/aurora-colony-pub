@@ -66,4 +66,5 @@ class FbFeedReadService {
   }
 }
 
-export default new FbFeedReadService();
+const fbFeedReadService = new FbFeedReadService();
+export default fbFeedReadService;
