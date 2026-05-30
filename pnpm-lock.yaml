@@ -218,6 +218,9 @@ importers:
 
   workers/fb-feed-sync:
     dependencies:
+      '@aurora/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@aurora/workers-shared':
         specifier: workspace:*
         version: link:../../packages/workers-shared

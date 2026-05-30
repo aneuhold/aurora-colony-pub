@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --test-scheduled --env-file ../../.env",
+    "dev": "wrangler dev --test-scheduled --env-file ../../.env --persist-to ../.wrangler/state",
     "check": "wrangler types > /dev/null && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
@@ -13,6 +13,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@aurora/shared": "workspace:*",
     "@aurora/workers-shared": "workspace:*",
     "@sentry/cloudflare": "^10.53.1"
   },

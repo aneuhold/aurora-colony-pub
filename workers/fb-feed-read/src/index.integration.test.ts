@@ -7,7 +7,6 @@ import {
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fbFeedReadConstants } from './util/fbFeedReadConstants';
-import { buildMockFbGraphResponse, mockFbPostCount } from './util/mockFbGraphResponse';
 
 const ORIGIN = allowedOrigins[0];
 const FORBIDDEN_ORIGIN = 'https://evil.example.com';
@@ -64,32 +63,12 @@ describe('fb-feed-read worker', () => {
     expect(response.headers.get('Access-Control-Allow-Methods')).toContain('GET');
   });
 
-  it('returns 200 with the transformed mock payload when KV is empty', async () => {
+  it('returns 200 with an empty feed when KV is empty', async () => {
     const response = await get();
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe(fbFeedReadConstants.cacheControl);
     const body = await response.json<WorkerFbFeedResponse>();
-    expect(body.posts).toHaveLength(mockFbPostCount);
-    const firstSeedId = buildMockFbGraphResponse('https://example.test').data[0].id;
-    expect(body.posts[0].id).toBe(firstSeedId);
-    expect(typeof body.syncedAt).toBe('string');
-  });
-
-  it('anchors photo URLs at the allowlisted caller origin', async () => {
-    const response = await get();
-    const body = await response.json<WorkerFbFeedResponse>();
-    const firstWithImage = body.posts.find((post) => post.imageUrl !== undefined);
-    expect(firstWithImage?.imageUrl).toMatch(new RegExp(`^${ORIGIN}/fb-mock/.+\\.jpg$`));
-  });
-
-  it('falls back to the default photo origin when no Origin header is present', async () => {
-    const response = await exports.default.fetch('https://fb-feed-read.example.com/', {
-      method: 'GET',
-      headers: { 'CF-Connecting-IP': nextIp() }
-    });
-    const body = await response.json<WorkerFbFeedResponse>();
-    const firstWithImage = body.posts.find((post) => post.imageUrl !== undefined);
-    expect(firstWithImage?.imageUrl?.startsWith(fbFeedReadConstants.defaultPhotoOrigin)).toBe(true);
+    expect(body).toEqual({ posts: [], syncedAt: null });
   });
 
   it('returns the KV-stored payload verbatim when one is present', async () => {

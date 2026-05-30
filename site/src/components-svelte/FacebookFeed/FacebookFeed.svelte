@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
   import type { WorkerFbFeedPost } from '@aurora/shared';
+  import { MediaQuery } from 'svelte/reactivity';
   import dateTimeService from '$util/DateTime.service';
   import facebookFeedService from './FacebookFeed.service';
   import { facebookFeedConstants } from './facebookFeedConstants';
@@ -34,21 +35,50 @@
     void load();
   });
 
+  // Track the same breakpoints Tailwind uses (md = 48rem, lg = 64rem) so the JS
+  // column logic matches what the CSS grid renders. `MediaQuery` from
+  // svelte/reactivity keeps `.current` reactive and SSR-safe (the default
+  // fallback renders mobile-first).
+  const mdQuery = new MediaQuery('min-width: 48rem');
+  const lgQuery = new MediaQuery('min-width: 64rem');
+
+  const columnCount = $derived(lgQuery.current ? 3 : mdQuery.current ? 2 : 1);
+
+  // Round-robin the posts across the active columns so they read left-to-right,
+  // newest first (post i lands in column i % columnCount), then flow down the
+  // page. Columns balance by count rather than height, which keeps a true
+  // masonry feel without the column-major ordering CSS `columns` forces.
+  const columns = $derived.by(() => {
+    const cols: WorkerFbFeedPost[][] = Array.from({ length: columnCount }, () => []);
+    posts.forEach((post, i) => {
+      cols[i % columnCount].push(post);
+    });
+    return cols;
+  });
+
   const skeletonRange = Array.from(
     { length: facebookFeedConstants.loadingSkeletonCount },
     (_, i) => i
   );
+
+  // Staggered placeholder heights so the loading state hints at the masonry
+  // layout instead of a uniform grid. Cycled by index.
+  const skeletonHeights = ['h-56', 'h-72', 'h-48'];
 </script>
 
 <section aria-label="Latest from our Facebook page" data-testid="facebook-feed">
   {#if status === 'loading'}
     <ul
-      class="grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3"
+      class="list-none columns-1 gap-6 p-0 md:columns-2 lg:columns-3"
       data-testid="facebook-feed-loading"
     >
       {#each skeletonRange as i (i)}
-        <li class="overflow-hidden rounded-lg border border-foreground/10 bg-background">
-          <div class="aspect-4/3 w-full animate-pulse bg-foreground/5"></div>
+        <li
+          class="mb-6 break-inside-avoid overflow-hidden rounded-lg border border-foreground/10 bg-background"
+        >
+          <div
+            class={`w-full animate-pulse bg-foreground/5 ${skeletonHeights[i % skeletonHeights.length]}`}
+          ></div>
           <div class="space-y-3 p-5">
             <div class="h-3 w-24 animate-pulse rounded-sm bg-foreground/10"></div>
             <div class="h-3 w-full animate-pulse rounded-sm bg-foreground/10"></div>
@@ -72,53 +102,58 @@
       </a>
     </div>
   {:else}
-    <ul
-      class="grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3"
-      data-testid="facebook-feed-list"
-    >
-      {#each posts as post (post.id)}
-        <li class="reveal">
-          <a
-            href={post.permalink}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
-            class="group block overflow-hidden rounded-lg border border-foreground/10 bg-background transition-[transform,border-color] duration-snap ease-soft hover:-translate-y-1 hover:border-foreground/20"
-          >
-            <article class="flex h-full flex-col">
-              {#if post.imageUrl}
-                <figure class="m-0 aspect-4/3 w-full overflow-hidden bg-foreground/5">
-                  <img
-                    src={post.imageUrl}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    class="h-full w-full object-cover"
-                  />
-                </figure>
-              {/if}
-              <div class="flex flex-1 flex-col gap-2 p-5">
-                <time
-                  datetime={post.createdAt}
-                  class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60"
-                >
-                  {dateTimeService.formatRelativeTime(post.createdAt)}
-                </time>
-                {#if post.message}
-                  <p class="whitespace-pre-line leading-relaxed text-foreground/80">
-                    {post.message}
-                  </p>
-                {/if}
-                <span
-                  class="mt-auto pt-2 font-display text-sm uppercase tracking-[0.18em] text-primary"
-                >
-                  {facebookFeedConstants.readMoreLabel}
-                </span>
-              </div>
-            </article>
-          </a>
-        </li>
+    <!--
+      Masonry-style layout. Posts are distributed across columns in JS (see
+      `columns` above) so they read left-to-right, newest first, then flow down.
+    -->
+    <div class="flex gap-6" data-testid="facebook-feed-list">
+      {#each columns as column, colIndex (colIndex)}
+        <ul class="flex flex-1 list-none flex-col gap-6 p-0">
+          {#each column as post (post.id)}
+            <li class="reveal">
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
+                class="group block overflow-hidden rounded-lg border border-foreground/10 bg-background transition-[transform,border-color] duration-snap ease-soft hover:-translate-y-1 hover:border-foreground/20"
+              >
+                <article class="flex flex-col">
+                  {#if post.imageUrl}
+                    <figure class="m-0 bg-foreground/5">
+                      <img
+                        src={post.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        class="w-full"
+                      />
+                    </figure>
+                  {/if}
+                  <div class="flex flex-1 flex-col gap-2 p-5">
+                    <time
+                      datetime={post.createdAt}
+                      class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60"
+                    >
+                      {dateTimeService.formatRelativeTime(post.createdAt)}
+                    </time>
+                    {#if post.message}
+                      <p class="whitespace-pre-line leading-relaxed text-foreground/80">
+                        {post.message}
+                      </p>
+                    {/if}
+                    <span
+                      class="mt-auto pt-2 font-display text-sm uppercase tracking-[0.18em] text-primary"
+                    >
+                      {facebookFeedConstants.readMoreLabel}
+                    </span>
+                  </div>
+                </article>
+              </a>
+            </li>
+          {/each}
+        </ul>
       {/each}
-    </ul>
+    </div>
   {/if}
 </section>
