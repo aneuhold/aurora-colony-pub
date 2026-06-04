@@ -1,12 +1,9 @@
 ---
-import { getEntry } from 'astro:content';
 import { globalConstants } from '$util/globalConstants';
+import pubContentService from '$util/PubContent.service';
 import pubMapService from '$util/PubMap/PubMap.service';
 
-const entry = await getEntry('contact', 'contact');
-if (!entry) {
-  throw new Error('Missing contact content entry');
-}
+const entry = await pubContentService.contact();
 const { phone, email } = entry.data;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 ---

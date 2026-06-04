@@ -1,12 +1,10 @@
 ---
-import { getEntry, render } from 'astro:content';
+import { render } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Section from '$components-astro/ui/Section.astro';
+import pubContentService from '$util/PubContent.service';
 
-const entry = await getEntry('about', 'about');
-if (!entry) {
-  throw new Error('Missing about content entry');
-}
+const entry = await pubContentService.about();
 const { Content } = await render(entry);
 
 interface Fact {
@@ -25,7 +23,7 @@ const facts: Fact[] = [
   },
   {
     headline: 'Original meat-locker door',
-    body: 'Still behind the bar, still keeping our kegs and bottles cold.'
+    body: 'Still in the bar, still keeping our kegs and bottles cold.'
   }
 ];
 ---

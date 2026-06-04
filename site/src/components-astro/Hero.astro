@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import { getEntry } from 'astro:content';
 import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
@@ -8,10 +7,11 @@ import Section from '$components-astro/ui/Section.astro';
 import OpenNowChip from '$components-svelte/OpenNowChip';
 import dateTimeService from '$util/DateTime.service';
 import { globalConstants } from '$util/globalConstants';
+import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import Logo from '../assets/logo.svg';
 
-const heroPhoto = globalConstants.mediaUrl('drink-pint-neon-bar.jpg');
+const heroPhoto = globalConstants.mediaUrl('interior-booth-dining.jpg');
 
 interface Props {
   title: string;
@@ -20,14 +20,8 @@ interface Props {
 
 const { title, tagline } = Astro.props;
 
-const hoursEntry = await getEntry('hours', 'hours');
-if (!hoursEntry) {
-  throw new Error('Missing hours content entry');
-}
-const contactEntry = await getEntry('contact', 'contact');
-if (!contactEntry) {
-  throw new Error('Missing contact content entry');
-}
+const hoursEntry = await pubContentService.hours();
+const contactEntry = await pubContentService.contact();
 const { orderUrl } = contactEntry.data;
 
 const todayIdx = new Date().getDay();
@@ -40,7 +34,7 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
   <Image
     src={heroPhoto}
-    alt="A golden pint of lager on the wood bar top, Budweiser and Colony Pub neon glowing behind the tap handles."
+    alt="Booth seating along the back, wood paneling and vintage beer signs, six folks tucking into burgers."
     inferSize
     widths={[768, 1280, 1920, 2560]}
     sizes="100vw"

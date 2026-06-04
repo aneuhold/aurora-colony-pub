@@ -1,8 +1,4 @@
 {
-  "links": [
-    {
-      "label": "Facebook",
-      "url": "https://www.facebook.com/theauroracolonypub/"
-    }
-  ]
+  "facebookLink": "https://www.facebook.com/theauroracolonypub/",
+  "otherSocialMediaLinks": []
 }

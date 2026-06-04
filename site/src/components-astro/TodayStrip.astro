@@ -1,19 +1,13 @@
 ---
-import { getEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Section from '$components-astro/ui/Section.astro';
 import dateTimeService from '$util/DateTime.service';
 import { globalConstants } from '$util/globalConstants';
+import pubContentService from '$util/PubContent.service';
 import pubMapService from '$util/PubMap/PubMap.service';
 
-const hoursEntry = await getEntry('hours', 'hours');
-if (!hoursEntry) {
-  throw new Error('Missing hours content entry');
-}
-const contactEntry = await getEntry('contact', 'contact');
-if (!contactEntry) {
-  throw new Error('Missing contact content entry');
-}
+const hoursEntry = await pubContentService.hours();
+const contactEntry = await pubContentService.contact();
 
 const now = new Date();
 const todayIdx = now.getDay();

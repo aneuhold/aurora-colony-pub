@@ -1,15 +1,13 @@
 ---
-import { getEntry } from 'astro:content';
 import Container from '$components-astro/ui/Container.astro';
 import Hours from '$components-astro/Hours.astro';
 import SiteInfo from '$components-astro/SiteInfo.astro';
+import pubContentService from '$util/PubContent.service';
 import Logo from '../assets/logo.svg';
 
-const socialEntry = await getEntry('socialMediaLinks', 'social-media-links');
-if (!socialEntry) {
-  throw new Error('Missing socialMediaLinks content entry');
-}
-const { links } = socialEntry.data;
+const socialEntry = await pubContentService.socialMediaLinks();
+const { facebookLink, otherSocialMediaLinks } = socialEntry.data;
+const links = [{ label: 'Facebook', url: facebookLink }, ...otherSocialMediaLinks];
 const currentYear = new Date().getFullYear();
 ---
 
