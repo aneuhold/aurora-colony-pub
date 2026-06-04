@@ -1,10 +1,7 @@
 ---
-import { getEntry } from 'astro:content';
+import pubContentService from '$util/PubContent.service';
 
-const entry = await getEntry('hours', 'hours');
-if (!entry) {
-  throw new Error('Missing hours content entry');
-}
+const entry = await pubContentService.hours();
 const { weekly, happyHour } = entry.data;
 ---
 
