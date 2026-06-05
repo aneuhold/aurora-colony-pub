@@ -9,6 +9,7 @@ interface Props {
   target?: '_blank' | '_self';
   rel?: string;
   class?: string;
+  'aria-label'?: string;
 }
 
 const {
@@ -18,7 +19,8 @@ const {
   disabled,
   target,
   rel,
-  class: className
+  class: className,
+  'aria-label': ariaLabel
 } = Astro.props;
 
 const variantClass: Record<Variant, string> = {
@@ -38,11 +40,11 @@ const classes = [variantClass[variant], className];
 
 {
   href ? (
-    <a href={href} target={target} rel={rel} class:list={classes}>
+    <a href={href} target={target} rel={rel} aria-label={ariaLabel} class:list={classes}>
       <slot />
     </a>
   ) : (
-    <button type={type} disabled={disabled} class:list={classes}>
+    <button type={type} disabled={disabled} aria-label={ariaLabel} class:list={classes}>
       <slot />
     </button>
   )

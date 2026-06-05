@@ -131,17 +131,24 @@ collections:
         editor:
           preview: false
         fields:
-          - name: links
-            label: Links
+          - {
+              name: facebookLink,
+              label: Facebook Link,
+              widget: string,
+              hint: 'Full URL to the Facebook page including https://. Always shown in the header and footer.'
+            }
+          - name: otherSocialMediaLinks
+            label: Other Social Media Links
             widget: list
+            required: false
             summary: '{{fields.label}} — {{fields.url}}'
-            hint: 'Each entry becomes one link in the footer. Add as many as you want — Facebook, Instagram, Yelp, etc.'
+            hint: 'Each entry becomes one extra link in the footer — e.g. Instagram, Yelp.'
             fields:
               - {
                   name: label,
                   label: Label,
                   widget: string,
-                  hint: 'What the link should say — e.g. Facebook, Instagram.'
+                  hint: 'What the link should say — e.g. Instagram, Yelp.'
                 }
               - { name: url, label: URL, widget: string, hint: 'Full URL including https://.' }
 

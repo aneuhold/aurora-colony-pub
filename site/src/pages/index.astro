@@ -1,5 +1,4 @@
 ---
-import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AboutTeaser from '$components-astro/AboutTeaser.astro';
 import FacebookFeedSection from '$components-astro/FacebookFeedSection.astro';
@@ -8,11 +7,9 @@ import Hero from '$components-astro/Hero.astro';
 import MenuTeaser from '$components-astro/Menu/MenuTeaser.astro';
 import PatioCallout from '$components-astro/PatioCallout.astro';
 import TodayStrip from '$components-astro/TodayStrip.astro';
+import pubContentService from '$util/PubContent.service';
 
-const titleTagline = await getEntry('titleTagline', 'title-tagline');
-if (!titleTagline) {
-  throw new Error('Missing titleTagline content entry');
-}
+const titleTagline = await pubContentService.titleTagline();
 ---
 
 <BaseLayout

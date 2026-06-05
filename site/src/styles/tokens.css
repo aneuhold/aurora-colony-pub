@@ -18,15 +18,30 @@
   --color-accent: oklch(0.42 0.06 150);
   --color-accent-foreground: oklch(0.98 0.006 80);
 
-  /* Typography — 2 vars. Tailwind generates font-display and font-body.
-     The literal font families (Zilla Slab + Inter) are configured in
+  /* Heritage surface — backs the footer wood band ONLY (the single wood/aged-paper
+     surface site-wide). Minted as real tokens because opacity-on-foreground can't
+     produce a dark warm-brown: low chroma so it reads espresso walnut, not orange
+     pine; hue kept in the primary's warm family. Pair these like primary/-foreground
+     so the Section 'wood' variant is self-contained. */
+  --color-surface-wood: oklch(0.27 0.03 55);
+  --color-surface-wood-foreground: oklch(0.95 0.012 80);
+
+  /* Typography — three roles. Tailwind generates font-display, font-body, font-script.
+     The literal font families (Zilla Slab + Inter + Yellowtail) are configured in
      astro.config.ts under `fonts`, and the Font components in BaseLayout.astro
-     wire the --font-zilla-slab and --font-inter CSS variables. Swap providers
-     or weights there; this file is the only place to switch which face plays
-     which role.
+     wire the --font-zilla-slab / --font-inter / --font-yellowtail CSS variables.
+     Swap providers or weights there; this file is the only place to switch which
+     face plays which role.
+       - font-display (Zilla Slab): headings, buttons, nav, enamel-signage caps lockups.
+       - font-body (Inter): all long-form copy.
+       - font-script (Yellowtail): "old text" warmth ONLY — 1–3 accent words at display
+         size, paired with the slab. Never body, nav, buttons, or a full heading. One
+         weight ships, so lighten via a lighter solid color / color-mix toward the paper,
+         never opacity (a translucent fill darkens the overlapping brush-stroke seams).
      Expand when needed: add --font-mono if monospace is required. */
   --font-display: var(--font-zilla-slab);
   --font-body: var(--font-inter);
+  --font-script: var(--font-yellowtail);
 }
 
 /* Paper-grain — a whisper of SVG fractal noise applied at low opacity over the
@@ -37,4 +52,27 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-repeat: repeat;
   background-size: 160px 160px;
+}
+
+/* Wood-grain — the same SVG fractal-noise lever as bg-paper, retuned directional:
+   a low X / higher Y baseFrequency stretches the noise into long horizontal fibers,
+   so the flat --color-surface-wood field reads as a warm walnut board instead of a
+   paint swatch. Two layers:
+     1. The visible grain (lighter warm fibers catching lamp light) is one large image
+        scaled to `cover`, NOT tiled — feTurbulence is only seamless inside its filter
+        region, so CSS-repeating a slice of it shows edge seams once the opacity is high
+        enough to read. A single cover image never repeats, so there is no seam.
+     2. A fine dark tooth, tiled — its high-frequency noise hides any repeat boundary.
+   Continuous field, no plank seams: it must read as a material under warm light, never
+   as tiled plank-wallpaper (the "archaic" line). To intensify, raise the grain rect
+   `opacity`; to soften toward plain brown, lower it. Pair only with bg-surface-wood
+   (the single heritage surface). */
+@utility bg-wood-grain {
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1400' height='700'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.004 0.09' numOctaves='3' seed='8'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.42  0 0 0 0 0.27  0 0 0 0.62 0'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.34'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-repeat: no-repeat, repeat;
+  background-size:
+    cover,
+    160px 160px;
 }

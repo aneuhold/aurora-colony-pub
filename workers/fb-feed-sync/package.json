@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev --test-scheduled --env-file ../../.env --persist-to ../.wrangler/state",
+    "dev": "concurrently -n sync,seed -c cyan,gray \"wrangler dev --test-scheduled --env-file ../../.env --persist-to ../.wrangler/state\" \"tsx ../../scripts/trigger-fbsync.ts local --wait\"",
     "check": "wrangler types > /dev/null && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",

@@ -4,6 +4,7 @@ import Hours from '$components-astro/Hours.astro';
 import SiteInfo from '$components-astro/SiteInfo.astro';
 import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
+import OldText from '$components-astro/ui/OldText.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import ContactForm from '$components-svelte/ContactForm';
@@ -32,15 +33,11 @@ import pubMapService from '$util/PubMap/PubMap.service';
       <Container size="wide">
         <div class="grid gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
           <aside class="rounded-lg border border-foreground/10 bg-foreground/5 p-6 md:p-8">
-            <h2 class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">
-              Find us
-            </h2>
+            <OldText as="h2" class="text-foreground/60">Find us</OldText>
             <div class="mt-4">
               <SiteInfo />
             </div>
-            <h2 class="mt-8 font-display text-sm uppercase tracking-[0.18em] text-foreground/60">
-              Hours
-            </h2>
+            <OldText as="h2" class="mt-8 text-foreground/60">Hours</OldText>
             <div class="mt-4">
               <Hours />
             </div>
@@ -50,9 +47,7 @@ import pubMapService from '$util/PubMap/PubMap.service';
           </aside>
 
           <div>
-            <h2 class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60">
-              Send a note
-            </h2>
+            <OldText as="h2" class="text-foreground/60">Send a note</OldText>
             <p class="mt-4 max-w-prose text-foreground/80">
               Questions, feedback, or a special event you're planning — we'd love to hear from you.
             </p>

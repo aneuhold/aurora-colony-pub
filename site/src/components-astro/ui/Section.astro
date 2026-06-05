@@ -1,5 +1,5 @@
 ---
-type Background = 'default' | 'muted' | 'primary';
+type Background = 'default' | 'muted' | 'primary' | 'wood';
 type Padding = 'default' | 'tight' | 'hero';
 
 interface Props {
@@ -23,7 +23,8 @@ const Tag = as;
 const backgroundClass: Record<Background, string> = {
   default: '',
   muted: 'bg-foreground/5',
-  primary: 'bg-primary text-primary-foreground'
+  primary: 'bg-primary text-primary-foreground',
+  wood: 'bg-surface-wood text-surface-wood-foreground'
 };
 
 const paddingClass: Record<Padding, string> = {

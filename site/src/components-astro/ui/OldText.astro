@@ -1,0 +1,24 @@
+---
+// The "old-text" lockup primitive — small uppercase, letter-spaced Zilla caps in
+// the spirit of the menu's "HISTORIC AURORA, OR · ESTABLISHED 1856" footer. This is
+// the structural heritage layer (enamel-signage / railroad-timetable energy); the
+// script warmth (Yellowtail) is a separate, narrowly-caged treatment, never a label.
+// Like Heading, this owns typography but NOT color: pass the color per surface via
+// `class` (e.g. text-foreground/60 on light, text-background/80 on a dark hero). Color
+// is left to the caller on purpose — baking a default here loses Tailwind's cascade
+// race against an override, since utility order follows token-definition order.
+type Tag = keyof HTMLElementTagNameMap;
+
+interface Props {
+  as?: Tag;
+  class?: string;
+}
+
+const { as = 'p', class: className } = Astro.props as Props;
+
+const Tag = as;
+---
+
+<Tag class:list={['font-display text-sm uppercase tracking-[0.18em]', className]}>
+  <slot />
+</Tag>

@@ -50,12 +50,15 @@ const hours = defineCollection({
 const socialMediaLinks = defineCollection({
   loader: glob({ pattern: 'social-media-links.json', base: 'src/content' }),
   schema: z.object({
-    links: z.array(
-      z.object({
-        label: z.string(),
-        url: z.url()
-      })
-    )
+    facebookLink: z.url(),
+    otherSocialMediaLinks: z
+      .array(
+        z.object({
+          label: z.string(),
+          url: z.url()
+        })
+      )
+      .default([])
   })
 });
 

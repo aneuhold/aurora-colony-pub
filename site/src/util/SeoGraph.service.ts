@@ -6,10 +6,10 @@ import {
   type GraphEntity,
   makeIds
 } from '@jdevalk/seo-graph-core';
-import { getEntry } from 'astro:content';
 import type { BarOrPub } from 'schema-dts';
 import dateTimeService from './DateTime.service';
 import { globalConstants } from './globalConstants';
+import pubContentService from './PubContent.service';
 
 class SeoGraphService {
   /** Stable slug for the BarOrPub `@id` URI. */
@@ -40,13 +40,10 @@ class SeoGraphService {
     const pubId = ids.organization(SeoGraphService.PUB_SLUG);
 
     const [hoursEntry, contactEntry, socialEntry] = await Promise.all([
-      getEntry('hours', 'hours'),
-      getEntry('contact', 'contact'),
-      getEntry('socialMediaLinks', 'social-media-links')
+      pubContentService.hours(),
+      pubContentService.contact(),
+      pubContentService.socialMediaLinks()
     ]);
-    if (!hoursEntry) throw new Error('Missing hours content entry');
-    if (!contactEntry) throw new Error('Missing contact content entry');
-    if (!socialEntry) throw new Error('Missing socialMediaLinks content entry');
 
     const { lat, lng } = globalConstants.geo;
     const logoUrl = new URL('/favicon.svg', site).href;
@@ -111,7 +108,10 @@ class SeoGraphService {
       priceRange: globalConstants.priceRange,
       paymentAccepted: [...globalConstants.paymentAccepted],
       currenciesAccepted: globalConstants.currenciesAccepted,
-      sameAs: socialEntry.data.links.map((link) => link.url),
+      sameAs: [
+        socialEntry.data.facebookLink,
+        ...socialEntry.data.otherSocialMediaLinks.map((link) => link.url)
+      ],
       hasMenu: menuUrl
     });
 
