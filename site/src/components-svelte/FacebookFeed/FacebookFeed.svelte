@@ -85,7 +85,7 @@
       data-testid="facebook-feed-loading"
     >
       {#each skeletonRange as i (i)}
-        <li class="torn-paper mb-8 break-inside-avoid bg-background bg-paper px-6 py-7">
+        <li class="torn-paper mb-8 break-inside-avoid bg-background bg-paper px-6 py-12">
           <div
             class={`w-full animate-pulse bg-foreground/5 ${skeletonHeights[i % skeletonHeights.length]}`}
           ></div>
@@ -127,7 +127,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
-                class={`group flex flex-col bg-background bg-paper px-6 py-7 transition-transform duration-glide ease-soft hover:-translate-y-1 hover:rotate-0 ${tornSeeds[postIndex % tornSeeds.length]} ${scrapTilts[postIndex % scrapTilts.length]}`}
+                class={`group flex flex-col bg-background bg-paper px-6 py-12 transition-transform duration-glide ease-soft hover:-translate-y-1 hover:rotate-0 ${tornSeeds[postIndex % tornSeeds.length]} ${scrapTilts[postIndex % scrapTilts.length]}`}
               >
                 {#if post.imageUrl}
                   <figure
