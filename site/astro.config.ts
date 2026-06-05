@@ -56,6 +56,14 @@ export default defineConfig({
       weights: [400, 500, 600],
       styles: ['normal'],
       fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif']
+    },
+    {
+      name: 'Yellowtail',
+      cssVariable: '--font-yellowtail',
+      provider: fontProviders.google(),
+      weights: [400],
+      styles: ['normal'],
+      fallbacks: ['cursive']
     }
   ],
   vite: {
