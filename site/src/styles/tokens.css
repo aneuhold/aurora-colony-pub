@@ -54,25 +54,166 @@
   background-size: 160px 160px;
 }
 
-/* Wood-grain — the same SVG fractal-noise lever as bg-paper, retuned directional:
-   a low X / higher Y baseFrequency stretches the noise into long horizontal fibers,
-   so the flat --color-surface-wood field reads as a warm walnut board instead of a
-   paint swatch. Two layers:
-     1. The visible grain (lighter warm fibers catching lamp light) is one large image
-        scaled to `cover`, NOT tiled — feTurbulence is only seamless inside its filter
-        region, so CSS-repeating a slice of it shows edge seams once the opacity is high
-        enough to read. A single cover image never repeats, so there is no seam.
-     2. A fine dark tooth, tiled — its high-frequency noise hides any repeat boundary.
-   Continuous field, no plank seams: it must read as a material under warm light, never
-   as tiled plank-wallpaper (the "archaic" line). To intensify, raise the grain rect
-   `opacity`; to soften toward plain brown, lower it. Pair only with bg-surface-wood
-   (the single heritage surface). */
-@utility bg-wood-grain {
+/* Torn-scrap paper — the bg-paper grain PLUS a soft ink wash at the very top and bottom
+   so the sheet looks like it dips into shadow at the torn edges instead of lying dead
+   flat. The wash is the first (top) background layer; the grain sits under it. Fixed-px
+   bands (not %) so the shading hugs the tear the same on any card height, and the torn
+   mask clips it to the paper silhouette. Use on the torn scraps in place of bg-paper;
+   raise the ink % for a deeper curl, lower it to flatten. */
+@utility bg-paper-shade {
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1400' height='700'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.004 0.09' numOctaves='3' seed='8'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.42  0 0 0 0 0.27  0 0 0 0.62 0'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.34'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--color-foreground) 30%, transparent),
+      transparent 56px,
+      transparent calc(100% - 56px),
+      color-mix(in oklch, var(--color-foreground) 25%, transparent)
+    ),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-repeat: no-repeat, repeat;
   background-size:
-    cover,
+    100% 100%,
     160px 160px;
+  background-position: center, center;
+}
+
+/* Real walnut board — a CC0 photograph (Poly Haven "Wood Table 001", public domain),
+   committed to site/public/ (NOT the media bucket) and TILED at a fixed pixel size
+   rather than object-cover scaled. Why tiled-fixed instead of an <Image> cover:
+     1. Consistent scale — cover sizes the board to each section's box, so a tall feed
+        section zooms the grain in ("a board an arm's length away") while a short footer
+        zooms it out ("the same board shrunk to a quarter"). A fixed background-size
+        renders the grain at ONE physical scale on every surface, tall or short.
+     2. Crisp on tall/mobile — cover stretches a single responsive variant over the whole
+        box, so a very tall section on a narrow phone upscales a small image into mush.
+        Each tile here is sourced near 1:1, so height never drives resolution.
+   Why local + image-set instead of the bucket JPEG: Astro's <Image>/getImage pipeline
+   never touches CSS url(), so the bucket file shipped as a 561 KB baseline JPEG with a
+   4 h cache, cross-origin, on nearly every page. The source is now a 1280px texture
+   committed to public/ as AVIF (~124 KB, modern browsers) with a WebP fallback (~166 KB)
+   — same-origin, optimized format, ~78% smaller. The first background-image declaration
+   is the progressive-enhancement fallback (plain WebP url) for engines that don't grok
+   image-set(); the second hands AVIF to those that do. Regenerate both from the source
+   when rebranding; keep them seamless (uniform resize, no crop) so repeat shows no plank
+   seam (the "archaic" line). A flat surface-wood wash sits on top for cream-type
+   legibility; surface-wood is the load/fallback colour. Tune --wood-tile to dolly the
+   board nearer (larger) or further (smaller). */
+@utility bg-wood-photo {
+  --wood-tile: 820px;
+  background-color: var(--color-surface-wood);
+  background-image:
+    linear-gradient(
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent),
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent)
+    ),
+    url('/wood-walnut.webp');
+  background-image:
+    linear-gradient(
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent),
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent)
+    ),
+    image-set(
+      url('/wood-walnut.avif') type('image/avif'),
+      url('/wood-walnut.webp') type('image/webp')
+    );
+  background-repeat: no-repeat, repeat;
+  background-size: cover, var(--wood-tile);
+  background-position: center, center;
+}
+
+/* Torn-paper edge — a deckled mask that rips the TOP and BOTTOM of a cream scrap (sides
+   stay straight, like a strip torn from a sheet) so it reads as hand-torn paper on the
+   wood, the way the menu's first page does. Built as three composited mask layers — a
+   torn TOP band, a solid middle fill, a torn BOTTOM band — each a fixed pixel height so
+   the tear never stretches with card height. Each band's edge is a full-width rect
+   pushed around by feTurbulence + feDisplacementMap; the rect runs WIDER than the
+   viewBox so its left/right edges fall off-canvas, leaving the sides clean while only
+   the top/bottom contour tears. A low horizontal baseFrequency makes the tear wander up
+   and down across the width (varied tear height); a tiny feGaussianBlur only
+   anti-aliases (kept low so the edge stays crisp, not fuzzy). Each SVG carries explicit
+   width/height so the browser rasterizes the mask at HIGH RESOLUTION instead of scaling
+   up a tiny bitmap — that's what kills the pixel stair-steps. The `filter` stack then
+   fakes what a flat alpha cut can't, each drop-shadow following the silhouette: a light
+   fiber lip on top edges, a hairline under-shadow for thickness, a tight grime hug, and
+   a soft contact shadow lifting the scrap off the board. Three seeds (torn-paper / -2 /
+   -3) so a column never looks rubber-stamped — cycle by index. Pair with bg-background +
+   bg-paper on a bg-wood-photo surface; keep vertical padding ≥ the band height (py-12)
+   so type clears the tear. Tune: feDisplacementMap scale = tear depth + height
+   variation; the band mask-size = how tall the torn zone is. */
+@utility torn-paper {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='5' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='6' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='5' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='6' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  -webkit-mask-position: top, center, bottom;
+  mask-position: top, center, bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
+    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
+    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
+}
+
+@utility torn-paper-2 {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='11' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='12' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='11' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='12' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  -webkit-mask-position: top, center, bottom;
+  mask-position: top, center, bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
+    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
+    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
+}
+
+@utility torn-paper-3 {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='17' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='18' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='17' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='18' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  -webkit-mask-position: top, center, bottom;
+  mask-position: top, center, bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
+    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
+    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
 }

@@ -1,8 +1,14 @@
 <!--
   @component
   FacebookFeed island. Fetches the read Worker once on mount and renders the
-  posts as editorial cards. Loading / empty / error / ready are handled in
-  this file; all data behavior lives in `FacebookFeed.service.ts`.
+  posts as torn-paper scraps on the wood band. Loading / empty / error / ready
+  are handled here; all data behavior lives in `FacebookFeed.service.ts`.
+
+  Each post is its own cream scrap: a `torn-paper` mask (hand-torn top + bottom
+  edges lifted from the owner's layered-peaks SVG) over a paper-grain fill, with a
+  soft contact shadow following the tear so it lifts off the real walnut board.
+  The three torn-edge seeds + a whisper of tilt are cycled by index so a column
+  reads hand-placed, never rubber-stamped.
 -->
 <script lang="ts">
   import type { WorkerFbFeedPost } from '@aurora/shared';
@@ -16,6 +22,12 @@
   let status = $state<Status>('loading');
   let posts = $state<WorkerFbFeedPost[]>([]);
   let errorMessage = $state('');
+
+  // Cycle the three torn-edge seeds + a whisper of rotation by index so a column
+  // of scraps reads hand-placed, never rubber-stamped. Rotation stays ≤1deg and
+  // straightens on hover, so the gap-8 grid never overlaps.
+  const tornSeeds = ['torn-paper', 'torn-paper-2', 'torn-paper-3'];
+  const scrapTilts = ['-rotate-1', 'rotate-1', 'rotate-0', 'rotate-1', '-rotate-1'];
 
   $effect(() => {
     const load = async (): Promise<void> => {
@@ -69,17 +81,15 @@
 <section aria-label="Latest from our Facebook page" data-testid="facebook-feed">
   {#if status === 'loading'}
     <ul
-      class="list-none columns-1 gap-6 p-0 md:columns-2 lg:columns-3"
+      class="list-none columns-1 gap-8 p-0 md:columns-2 lg:columns-3"
       data-testid="facebook-feed-loading"
     >
       {#each skeletonRange as i (i)}
-        <li
-          class="mb-6 break-inside-avoid overflow-hidden rounded-lg border border-foreground/10 bg-background"
-        >
+        <li class="torn-paper mb-8 break-inside-avoid bg-background bg-paper-shade px-6 py-12">
           <div
             class={`w-full animate-pulse bg-foreground/5 ${skeletonHeights[i % skeletonHeights.length]}`}
           ></div>
-          <div class="space-y-3 p-5">
+          <div class="space-y-3 pt-5">
             <div class="h-3 w-24 animate-pulse rounded-sm bg-foreground/10"></div>
             <div class="h-3 w-full animate-pulse rounded-sm bg-foreground/10"></div>
             <div class="h-3 w-3/4 animate-pulse rounded-sm bg-foreground/10"></div>
@@ -88,7 +98,7 @@
       {/each}
     </ul>
   {:else if status === 'error' || status === 'empty'}
-    <div data-testid="facebook-feed-fallback" class="text-foreground/80">
+    <div data-testid="facebook-feed-fallback" class="text-surface-wood-foreground/80">
       <p>
         {status === 'error' ? errorMessage : facebookFeedConstants.emptyMessage}
       </p>
@@ -96,59 +106,60 @@
         href={facebookFeedConstants.facebookPageUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="mt-3 inline-block font-display text-sm uppercase tracking-[0.18em] text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+        class="mt-3 inline-block font-display text-sm uppercase tracking-[0.18em] text-surface-wood-foreground underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
       >
         {facebookFeedConstants.followLinkLabel}
       </a>
     </div>
   {:else}
     <!--
-      Masonry-style layout. Posts are distributed across columns in JS (see
-      `columns` above) so they read left-to-right, newest first, then flow down.
+      Each post is a torn-paper scrap on the wood. Posts are distributed across
+      columns in JS (see `columns` above) so they read left-to-right, newest
+      first, then flow down.
     -->
     <div class="flex gap-6" data-testid="facebook-feed-list">
       {#each columns as column, colIndex (colIndex)}
-        <ul class="flex flex-1 list-none flex-col gap-6 p-0">
-          {#each column as post (post.id)}
+        <ul class="flex flex-1 list-none flex-col gap-8 p-0">
+          {#each column as post, postIndex (post.id)}
             <li class="reveal">
               <a
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
-                class="group block overflow-hidden rounded-lg border border-foreground/10 bg-background transition-[transform,border-color] duration-snap ease-soft hover:-translate-y-1 hover:border-foreground/20"
+                class={`group flex flex-col bg-background bg-paper-shade px-6 py-12 transition-transform duration-glide ease-soft hover:-translate-y-1 hover:rotate-0 ${tornSeeds[postIndex % tornSeeds.length]} ${scrapTilts[postIndex % scrapTilts.length]}`}
               >
-                <article class="flex flex-col">
-                  {#if post.imageUrl}
-                    <figure class="m-0 bg-foreground/5">
-                      <img
-                        src={post.imageUrl}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        class="w-full"
-                      />
-                    </figure>
+                {#if post.imageUrl}
+                  <figure
+                    class="m-0 mb-4 overflow-hidden border border-foreground/10 bg-foreground/5"
+                  >
+                    <img
+                      src={post.imageUrl}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      class="block w-full"
+                    />
+                  </figure>
+                {/if}
+                <div class="flex flex-1 flex-col gap-2">
+                  <time
+                    datetime={post.createdAt}
+                    class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60"
+                  >
+                    {dateTimeService.formatRelativeTime(post.createdAt)}
+                  </time>
+                  {#if post.message}
+                    <p class="whitespace-pre-line leading-relaxed text-foreground/80">
+                      {post.message}
+                    </p>
                   {/if}
-                  <div class="flex flex-1 flex-col gap-2 p-5">
-                    <time
-                      datetime={post.createdAt}
-                      class="font-display text-sm uppercase tracking-[0.18em] text-foreground/60"
-                    >
-                      {dateTimeService.formatRelativeTime(post.createdAt)}
-                    </time>
-                    {#if post.message}
-                      <p class="whitespace-pre-line leading-relaxed text-foreground/80">
-                        {post.message}
-                      </p>
-                    {/if}
-                    <span
-                      class="mt-auto pt-2 font-display text-sm uppercase tracking-[0.18em] text-primary"
-                    >
-                      {facebookFeedConstants.readMoreLabel}
-                    </span>
-                  </div>
-                </article>
+                  <span
+                    class="mt-auto pt-2 font-display text-sm uppercase tracking-[0.18em] text-primary"
+                  >
+                    {facebookFeedConstants.readMoreLabel}
+                  </span>
+                </div>
               </a>
             </li>
           {/each}
