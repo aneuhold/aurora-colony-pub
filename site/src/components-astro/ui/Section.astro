@@ -24,7 +24,10 @@ const backgroundClass: Record<Background, string> = {
   default: '',
   muted: 'bg-foreground/5',
   primary: 'bg-primary text-primary-foreground',
-  wood: 'bg-surface-wood text-surface-wood-foreground'
+  // The wood variant owns its surface: a real walnut board tiled at a fixed scale
+  // (bg-wood-photo) so the grain reads the same size on every section, plus the cream
+  // foreground colour. See bg-wood-photo in tokens.css for the why.
+  wood: 'bg-wood-photo text-surface-wood-foreground'
 };
 
 const paddingClass: Record<Padding, string> = {

@@ -54,25 +54,137 @@
   background-size: 160px 160px;
 }
 
-/* Wood-grain — the same SVG fractal-noise lever as bg-paper, retuned directional:
-   a low X / higher Y baseFrequency stretches the noise into long horizontal fibers,
-   so the flat --color-surface-wood field reads as a warm walnut board instead of a
-   paint swatch. Two layers:
-     1. The visible grain (lighter warm fibers catching lamp light) is one large image
-        scaled to `cover`, NOT tiled — feTurbulence is only seamless inside its filter
-        region, so CSS-repeating a slice of it shows edge seams once the opacity is high
-        enough to read. A single cover image never repeats, so there is no seam.
-     2. A fine dark tooth, tiled — its high-frequency noise hides any repeat boundary.
-   Continuous field, no plank seams: it must read as a material under warm light, never
-   as tiled plank-wallpaper (the "archaic" line). To intensify, raise the grain rect
-   `opacity`; to soften toward plain brown, lower it. Pair only with bg-surface-wood
-   (the single heritage surface). */
-@utility bg-wood-grain {
+/* Real walnut board — a CC0 photograph (Poly Haven "Wood Table 001", public domain),
+   hosted on the media bucket and TILED at a fixed pixel size rather than object-cover
+   scaled. Why tiled-fixed instead of an <Image> cover:
+     1. Consistent scale — cover sizes the board to each section's box, so a tall feed
+        section zooms the grain in ("a board an arm's length away") while a short footer
+        zooms it out ("the same board shrunk to a quarter"). A fixed background-size
+        renders the grain at ONE physical scale on every surface, tall or short.
+     2. Crisp on tall/mobile — cover stretches a single responsive variant over the whole
+        box, so a very tall section on a narrow phone upscales a small image into mush.
+        Each tile here is sourced near 1:1, so height never drives resolution.
+   The texture is seamless, so repeat shows no plank seam (the "archaic" line). A flat
+   surface-wood wash sits on top for cream-type legibility; surface-wood is the load/
+   fallback colour. Tune --wood-tile to dolly the board nearer (larger) or further
+   (smaller). Rebrand by re-uploading wood-walnut.jpg to the bucket (pnpm upload:images). */
+@utility bg-wood-photo {
+  --wood-tile: 820px;
+  background-color: var(--color-surface-wood);
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1400' height='700'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.004 0.09' numOctaves='3' seed='8'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.42  0 0 0 0 0.27  0 0 0 0.62 0'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='0.34'/></svg>"),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    linear-gradient(
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent),
+      color-mix(in oklch, var(--color-surface-wood) 35%, transparent)
+    ),
+    url("https://media.auroracolonypub.aneuhold.dev/wood-walnut.jpg");
   background-repeat: no-repeat, repeat;
   background-size:
     cover,
-    160px 160px;
+    var(--wood-tile);
+  background-position:
+    center,
+    center;
+}
+
+/* Torn-paper edge — a deckled mask that clips a cream surface so its top + bottom
+   read as hand-torn paper laid on the wood, the way the menu's first page does. The
+   jagged coordinates are lifted straight from the owner's layered-peaks Haikei SVG
+   (src/assets/stylistic-svgs), so the tear is a real authored deckle, not procedural
+   noise. Construction is three composited mask layers — a jagged TOP band, a solid
+   middle fill, a jagged BOTTOM band — each a fixed pixel height (mask-size 100% 26px)
+   so the tear amplitude never stretches with card height; only the straight middle
+   grows. Sides stay clean: it reads as a strip torn from a sheet. `filter:
+   drop-shadow` follows the masked silhouette (a soft warm contact shadow, NOT a
+   rectangular clip-art shadow) so the paper lifts off the board. Three variants
+   (torn-paper / -2 / -3) pair different Haikei layers top vs bottom so a column never
+   looks rubber-stamped — cycle by index. Pair with bg-background + bg-paper on a
+   bg-wood-photo surface; keep content padding ≥ p-6 so type clears the tear. */
+@utility torn-paper {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 445L42 446L83 453L125 469L167 453L209 452L250 443L292 473L334 457L376 462L417 446L459 470L501 467L543 468L584 472L626 456L668 461L710 453L751 442L793 472L835 454L877 469L918 469L960 451L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 499L918 505L877 497L835 502L793 500L751 504L710 503L668 500L626 503L584 496L543 491L501 504L459 498L417 502L376 496L334 503L292 506L250 501L209 491L167 500L125 491L83 501L42 505L0 503Z' fill='white'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 445L42 446L83 453L125 469L167 453L209 452L250 443L292 473L334 457L376 462L417 446L459 470L501 467L543 468L584 472L626 456L668 461L710 453L751 442L793 472L835 454L877 469L918 469L960 451L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 499L918 505L877 497L835 502L793 500L751 504L710 503L668 500L626 503L584 496L543 491L501 504L459 498L417 502L376 496L334 503L292 506L250 501L209 491L167 500L125 491L83 501L42 505L0 503Z' fill='white'/></svg>");
+  -webkit-mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  -webkit-mask-position:
+    top,
+    center,
+    bottom;
+  mask-position:
+    top,
+    center,
+    bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 9px 11px rgb(18 11 6 / 0.5));
+}
+
+@utility torn-paper-2 {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 478L42 471L83 470L125 468L167 467L209 479L250 468L292 484L334 481L376 473L417 466L459 470L501 467L543 483L584 472L626 476L668 463L710 474L751 480L793 471L835 467L877 477L918 482L960 475L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 508L918 513L877 510L835 511L793 509L751 508L710 510L668 513L626 516L584 507L543 507L501 517L459 509L417 516L376 508L334 510L292 511L250 507L209 511L167 515L125 513L83 516L42 514L0 513Z' fill='white'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 478L42 471L83 470L125 468L167 467L209 479L250 468L292 484L334 481L376 473L417 466L459 470L501 467L543 483L584 472L626 476L668 463L710 474L751 480L793 471L835 467L877 477L918 482L960 475L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 508L918 513L877 510L835 511L793 509L751 508L710 510L668 513L626 516L584 507L543 507L501 517L459 509L417 516L376 508L334 510L292 511L250 507L209 511L167 515L125 513L83 516L42 514L0 513Z' fill='white'/></svg>");
+  -webkit-mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  -webkit-mask-position:
+    top,
+    center,
+    bottom;
+  mask-position:
+    top,
+    center,
+    bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 9px 11px rgb(18 11 6 / 0.5));
+}
+
+@utility torn-paper-3 {
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 496L42 485L83 476L125 475L167 487L209 491L250 480L292 484L334 494L376 486L417 477L459 489L501 486L543 493L584 494L626 489L668 492L710 491L751 486L793 483L835 486L877 485L918 481L960 479L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 451L918 469L877 469L835 454L793 472L751 442L710 453L668 461L626 456L584 472L543 468L501 467L459 470L417 446L376 462L334 457L292 473L250 443L209 452L167 453L125 469L83 453L42 446L0 445Z' fill='white'/></svg>");
+  mask-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 496L42 485L83 476L125 475L167 487L209 491L250 480L292 484L334 494L376 486L417 477L459 489L501 486L543 493L584 494L626 489L668 492L710 491L751 486L793 483L835 486L877 485L918 481L960 479L960 510L0 510Z' fill='white'/></svg>"),
+    linear-gradient(white, white),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 440 960 70' preserveAspectRatio='none'><path d='M0 440L960 440L960 451L918 469L877 469L835 454L793 472L751 442L710 453L668 461L626 456L584 472L543 468L501 467L459 470L417 446L376 462L334 457L292 473L250 443L209 452L167 453L125 469L83 453L42 446L0 445Z' fill='white'/></svg>");
+  -webkit-mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  mask-size:
+    100% 26px,
+    100% calc(100% - 50px),
+    100% 26px;
+  -webkit-mask-position:
+    top,
+    center,
+    bottom;
+  mask-position:
+    top,
+    center,
+    bottom;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  filter: drop-shadow(0 9px 11px rgb(18 11 6 / 0.5));
 }
