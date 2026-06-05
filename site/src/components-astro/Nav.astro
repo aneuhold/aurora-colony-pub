@@ -1,9 +1,11 @@
 ---
-import { getEntry } from 'astro:content';
 import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
 import MobileNav from '$components-svelte/MobileNav';
+import dateTimeService from '$util/DateTime.service';
+import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
+import FacebookIcon from '../assets/icons/facebook.svg';
 import Logo from '../assets/logo.svg';
 
 type NavLink = {
@@ -25,16 +27,36 @@ const isCurrent = (href: string): boolean => {
   return normalized === currentPath;
 };
 
-const contactEntry = await getEntry('contact', 'contact');
-if (!contactEntry) {
-  throw new Error('Missing contact content entry');
-}
-const { orderUrl } = contactEntry.data;
+const contactEntry = await pubContentService.contact();
+const { orderUrl, phone } = contactEntry.data;
+
+const hoursEntry = await pubContentService.hours();
+const socialEntry = await pubContentService.socialMediaLinks();
+const { facebookLink } = socialEntry.data;
+
+const todayRow =
+  dateTimeService.rowForDay(hoursEntry.data.weekly, new Date().getDay()) ??
+  hoursEntry.data.weekly[0];
+const todayHoursLine = `Today ${todayRow.open} – ${todayRow.close}`;
+const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 ---
 
 <nav
   class="sticky top-0 z-40 bg-background/85 font-body backdrop-blur supports-backdrop-filter:bg-background/70"
 >
+  <div class="border-b border-foreground/10 bg-foreground/5">
+    <Container
+      size="wide"
+      class="flex items-center justify-center gap-2 px-6 py-1.5 text-sm text-foreground/70 md:justify-end"
+    >
+      <span>{todayHoursLine}</span>
+      <span aria-hidden="true">·</span>
+      <a href={telHref} class="transition-colors duration-snap ease-soft hover:text-primary">
+        {phone}
+      </a>
+    </Container>
+  </div>
+
   <Container size="wide" class="flex items-center justify-between gap-4 px-6 py-3 md:py-4">
     <a
       href="/"
@@ -51,7 +73,7 @@ const { orderUrl } = contactEntry.data;
             <a
               href={link.href}
               aria-current={isCurrent(link.href) ? 'page' : undefined}
-              class="font-display text-base text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-lg aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+              class="font-display text-lg font-semibold text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-xl aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
             >
               {link.label}
             </a>
@@ -61,6 +83,17 @@ const { orderUrl } = contactEntry.data;
     </ul>
 
     <div class="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        href={facebookLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Aurora Colony Pub on Facebook"
+        class="gap-2 border border-foreground/20 hover:border-foreground/30"
+      >
+        <FacebookIcon aria-hidden="true" class="h-5 w-5" />
+        <span class="hidden sm:inline">Facebook</span>
+      </Button>
       {
         orderUrl && (
           <Button
@@ -70,7 +103,7 @@ const { orderUrl } = contactEntry.data;
             rel="noopener noreferrer"
             class="gap-2"
           >
-            <DoorDashIcon aria-hidden="true" class="h-4 w-4" />
+            <DoorDashIcon aria-hidden="true" class="h-5 w-5" />
             <span>Order</span>
           </Button>
         )
