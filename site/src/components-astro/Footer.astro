@@ -1,5 +1,6 @@
 ---
 import Container from '$components-astro/ui/Container.astro';
+import OldText from '$components-astro/ui/OldText.astro';
 import Hours from '$components-astro/Hours.astro';
 import SiteInfo from '$components-astro/SiteInfo.astro';
 import pubContentService from '$util/PubContent.service';
@@ -11,55 +12,81 @@ const links = [{ label: 'Facebook', url: facebookLink }, ...otherSocialMediaLink
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="border-t border-foreground/10 bg-foreground/5 px-6 py-16 font-body md:py-20">
-  <Container>
-    <div class="flex items-center gap-5 text-foreground/70 md:gap-8">
-      <Logo class="h-12 w-auto shrink-0 md:h-16" />
-      <p class="font-display text-3xl tracking-tight md:text-5xl">Family friendly until 9 pm.</p>
-    </div>
+<footer class="font-body">
+  <!-- Heritage wood band — the single wood surface site-wide. Dark espresso ground with
+       directional grain (bg-wood-grain), framed by a cast-iron bracket rule (line +
+       weight, no texture). Carries the family line, a Yellowtail sign-off, and the
+       old-text lockup. -->
+  <div class="bg-surface-wood bg-wood-grain px-6 py-16 text-surface-wood-foreground md:py-20">
+    <Container>
+      <div class="border border-surface-wood-foreground/20 p-8 md:p-12">
+        <div class="flex items-center gap-5 text-surface-wood-foreground/80 md:gap-8">
+          <Logo class="h-12 w-auto shrink-0 text-surface-wood-foreground md:h-16" />
+          <p class="font-display text-3xl tracking-tight md:text-5xl">
+            Family friendly until 9 pm.
+          </p>
+        </div>
+        <div
+          class="mt-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-t border-surface-wood-foreground/20 pt-8"
+        >
+          <p
+            class="font-script text-5xl leading-none text-[color-mix(in_oklch,var(--color-surface-wood-foreground),var(--color-primary)_22%)] md:text-6xl"
+          >
+            See you soon
+          </p>
+          <OldText class="text-surface-wood-foreground/60">
+            Historic Aurora, OR · Established 1856
+          </OldText>
+        </div>
+      </div>
+    </Container>
+  </div>
 
-    <div class="mt-12 grid gap-10 md:mt-16 md:grid-cols-3">
-      <div class="md:order-1">
-        <h2 class="mb-3 font-display text-xl tracking-tight">Find us</h2>
-        <SiteInfo />
+  <div class="border-t border-foreground/10 bg-foreground/5 px-6 py-16 md:py-20">
+    <Container>
+      <div class="grid gap-10 md:grid-cols-3">
+        <div class="md:order-1">
+          <h2 class="mb-3 font-display text-xl tracking-tight">Find us</h2>
+          <SiteInfo />
+        </div>
+        <div class="md:order-2 md:text-center">
+          <h2 class="mb-3 font-display text-xl tracking-tight">Hours</h2>
+          <Hours />
+        </div>
+        <div class="md:order-3 md:text-right">
+          <h2 class="mb-3 font-display text-xl tracking-tight">Follow along</h2>
+          {
+            links.length > 0 && (
+              <ul class="list-none space-y-1 p-0">
+                {links.map((link) => (
+                  <li>
+                    <a
+                      href={link.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
       </div>
-      <div class="md:order-2 md:text-center">
-        <h2 class="mb-3 font-display text-xl tracking-tight">Hours</h2>
-        <Hours />
-      </div>
-      <div class="md:order-3 md:text-right">
-        <h2 class="mb-3 font-display text-xl tracking-tight">Follow along</h2>
-        {
-          links.length > 0 && (
-            <ul class="list-none space-y-1 p-0">
-              {links.map((link) => (
-                <li>
-                  <a
-                    href={link.url}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )
-        }
-      </div>
-    </div>
 
-    <div
-      class="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-6 text-sm text-foreground/60"
-    >
-      <p>© {currentYear} Aurora Colony Pub</p>
-      <a
-        href="/admin"
-        class="text-foreground/40 underline-offset-4 transition-colors duration-snap ease-soft hover:text-foreground/70 hover:underline"
+      <div
+        class="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-6 text-sm text-foreground/60"
       >
-        Staff
-      </a>
-    </div>
-  </Container>
+        <p>© {currentYear} Aurora Colony Pub</p>
+        <a
+          href="/admin"
+          class="text-foreground/40 underline-offset-4 transition-colors duration-snap ease-soft hover:text-foreground/70 hover:underline"
+        >
+          Staff
+        </a>
+      </div>
+    </Container>
+  </div>
 </footer>
