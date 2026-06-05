@@ -11,7 +11,7 @@ import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import Logo from '../assets/logo.svg';
 
-const heroPhoto = globalConstants.mediaUrl('interior-booth-dining.jpg');
+const heroPhoto = globalConstants.mediaUrl('interior-red-room.jpg');
 
 interface Props {
   title: string;
@@ -34,7 +34,7 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
   <Image
     src={heroPhoto}
-    alt="Booth seating along the back, wood paneling and vintage beer signs, six folks tucking into burgers."
+    alt="Red wood-paneled room with neon signs, vinyl booth seating, and patrons in the background."
     inferSize
     widths={[768, 1280, 1920, 2560]}
     sizes="100vw"
@@ -42,7 +42,9 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
     fetchpriority="high"
     class="absolute inset-0 h-full w-full object-cover object-bottom"
   />
-  <div class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10">
+  <div
+    class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10"
+  >
   </div>
 
   <Logo
