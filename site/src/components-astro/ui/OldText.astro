@@ -3,7 +3,10 @@
 // the spirit of the menu's "HISTORIC AURORA, OR · ESTABLISHED 1856" footer. This is
 // the structural heritage layer (enamel-signage / railroad-timetable energy); the
 // script warmth (Yellowtail) is a separate, narrowly-caged treatment, never a label.
-// Pass `class` to recolor on dark surfaces (e.g. text-surface-wood-foreground/60).
+// Like Heading, this owns typography but NOT color: pass the color per surface via
+// `class` (e.g. text-foreground/60 on light, text-background/80 on a dark hero). Color
+// is left to the caller on purpose — baking a default here loses Tailwind's cascade
+// race against an override, since utility order follows token-definition order.
 type Tag = keyof HTMLElementTagNameMap;
 
 interface Props {
@@ -16,8 +19,6 @@ const { as = 'p', class: className } = Astro.props as Props;
 const Tag = as;
 ---
 
-<Tag
-  class:list={['font-display text-sm uppercase tracking-[0.18em] text-foreground/60', className]}
->
+<Tag class:list={['font-display text-sm uppercase tracking-[0.18em]', className]}>
   <slot />
 </Tag>

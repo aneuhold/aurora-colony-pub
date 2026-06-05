@@ -29,12 +29,12 @@ const happyHourLine = isHappyHourDay ? `Happy hour ${happyHour.start} – ${happ
   <Container size="wide">
     <div class="grid gap-8 md:grid-cols-3 md:gap-12">
       <div>
-        <OldText>Today</OldText>
+        <OldText class="text-foreground/60">Today</OldText>
         <p class="mt-2 text-xl text-foreground md:text-2xl">{todayHoursLine}</p>
         {happyHourLine && <p class="mt-1 text-foreground/70">{happyHourLine}</p>}
       </div>
       <div>
-        <OldText>Find us</OldText>
+        <OldText class="text-foreground/60">Find us</OldText>
         <p class="mt-2 text-xl leading-snug text-foreground md:text-2xl">
           {globalConstants.fullAddress}
         </p>
@@ -48,7 +48,7 @@ const happyHourLine = isHappyHourDay ? `Happy hour ${happyHour.start} – ${happ
         </a>
       </div>
       <div>
-        <OldText>Call</OldText>
+        <OldText class="text-foreground/60">Call</OldText>
         <p class="mt-2">
           <a
             href={telHref}

@@ -31,7 +31,7 @@ const todayRow =
 const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 ---
 
-<Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden">
+<Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden pt-28 md:pt-32">
   <Image
     src={heroPhoto}
     alt="Red wood-paneled room with neon signs, vinyl booth seating, and patrons in the background."
@@ -46,6 +46,9 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
     class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10"
   >
   </div>
+  <!-- Warm tungsten glow pooling up from the bottom — makes the photo read lamp-lit
+       and lifts the type off the image. Kept subtle so it warms without tinting. -->
+  <div class="absolute inset-0 bg-linear-to-t from-primary/18 via-transparent to-transparent"></div>
 
   <Logo
     aria-hidden="true"
@@ -56,6 +59,9 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
     <div class="animate-fade-in">
       <Heading level={0}>{title}</Heading>
       {tagline && <p class="mt-3 font-display text-xl text-background/85 md:text-2xl">{tagline}</p>}
+      <p class="mt-4 font-display text-2xl text-background/90 md:text-3xl">
+        Bring the whole family in for <span class="font-script text-background">a great meal.</span>
+      </p>
       <div
         class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-background/85 md:text-base"
       >
