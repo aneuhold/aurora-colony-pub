@@ -1,6 +1,7 @@
 ---
 import Container from '$components-astro/ui/Container.astro';
 import OldText from '$components-astro/ui/OldText.astro';
+import Section from '$components-astro/ui/Section.astro';
 import Hours from '$components-astro/Hours.astro';
 import SiteInfo from '$components-astro/SiteInfo.astro';
 import pubContentService from '$util/PubContent.service';
@@ -13,11 +14,11 @@ const currentYear = new Date().getFullYear();
 ---
 
 <footer class="font-body">
-  <!-- Heritage wood band — the single wood surface site-wide. Dark espresso ground with
-       directional grain (bg-wood-grain), framed by a cast-iron bracket rule (line +
-       weight, no texture). Carries the family line, a Yellowtail sign-off, and the
-       old-text lockup. -->
-  <div class="bg-surface-wood bg-wood-grain px-6 py-16 text-surface-wood-foreground md:py-20">
+  <!-- Heritage wood band — the single wood surface site-wide. The Section 'wood' variant
+       supplies the espresso ground + cream foreground; bg-wood-grain layers the directional
+       grain on top, and a cast-iron bracket rule (line + weight, no texture) frames it.
+       Carries the family line, a Yellowtail sign-off, and the old-text lockup. -->
+  <Section as="div" background="wood" class="bg-wood-grain">
     <Container>
       <div class="border border-surface-wood-foreground/20 p-8 md:p-12">
         <div class="flex items-center gap-5 text-surface-wood-foreground/80 md:gap-8">
@@ -40,7 +41,7 @@ const currentYear = new Date().getFullYear();
         </div>
       </div>
     </Container>
-  </div>
+  </Section>
 
   <div class="border-t border-foreground/10 bg-foreground/5 px-6 py-16 md:py-20">
     <Container>
