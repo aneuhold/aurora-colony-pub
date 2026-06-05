@@ -64,10 +64,10 @@
   background-image:
     linear-gradient(
       to bottom,
-      color-mix(in oklch, var(--color-foreground) 13%, transparent),
+      color-mix(in oklch, var(--color-foreground) 30%, transparent),
       transparent 56px,
       transparent calc(100% - 56px),
-      color-mix(in oklch, var(--color-foreground) 13%, transparent)
+      color-mix(in oklch, var(--color-foreground) 25%, transparent)
     ),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='1' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-repeat: no-repeat, repeat;
@@ -149,8 +149,14 @@
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='5' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
     linear-gradient(white, white),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.005 0.022' numOctaves='3' seed='6' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='60' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
-  -webkit-mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
-  mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
   -webkit-mask-position: top, center, bottom;
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
@@ -169,8 +175,14 @@
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='11' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
     linear-gradient(white, white),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.0045 0.026' numOctaves='3' seed='12' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='70' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
-  -webkit-mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
-  mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
   -webkit-mask-position: top, center, bottom;
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
@@ -189,8 +201,14 @@
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='17' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='60' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>"),
     linear-gradient(white, white),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='120' viewBox='0 0 1000 120' preserveAspectRatio='none'><filter id='t' x='-10%' y='-25%' width='120%' height='150%'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.02' numOctaves='3' seed='18' result='n'/><feDisplacementMap in='SourceGraphic' in2='n' scale='50' xChannelSelector='R' yChannelSelector='G' result='d'/><feGaussianBlur in='d' stdDeviation='0.5'/></filter><rect x='-100' y='-140' width='1200' height='200' fill='white' filter='url(%23t)'/></svg>");
-  -webkit-mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
-  mask-size: 100% 36px, 100% calc(100% - 68px), 100% 36px;
+  -webkit-mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
+  mask-size:
+    100% 36px,
+    100% calc(100% - 68px),
+    100% 36px;
   -webkit-mask-position: top, center, bottom;
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
