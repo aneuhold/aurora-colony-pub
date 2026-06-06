@@ -122,7 +122,11 @@
       {#each columns as column, colIndex (colIndex)}
         <ul class="flex flex-1 list-none flex-col gap-8 p-0">
           {#each column as post, postIndex (post.id)}
-            <li class="reveal">
+            <!-- No .reveal here: a scroll-driven (animation-timeline: view()) transform
+                 on a masked + drop-shadowed scrap re-rasterizes the whole card every
+                 scroll frame, which tanked mobile FPS in this section. The scraps stay
+                 static so the heavy mask/shadow paint happens once, not per frame. -->
+            <li>
               <a
                 href={post.permalink}
                 target="_blank"
