@@ -2,7 +2,7 @@
 import Button from '$components-astro/ui/Button.astro';
 import Container from '$components-astro/ui/Container.astro';
 import MobileNav from '$components-svelte/MobileNav';
-import dateTimeService from '$util/DateTime.service';
+import TodayHours from '$components-svelte/TodayHours';
 import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import FacebookIcon from '../assets/icons/facebook.svg';
@@ -34,10 +34,6 @@ const hoursEntry = await pubContentService.hours();
 const socialEntry = await pubContentService.socialMediaLinks();
 const { facebookLink } = socialEntry.data;
 
-const todayRow =
-  dateTimeService.rowForDay(hoursEntry.data.weekly, new Date().getDay()) ??
-  hoursEntry.data.weekly[0];
-const todayHoursLine = `Today ${todayRow.open} – ${todayRow.close}`;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 ---
 
@@ -49,7 +45,7 @@ const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
       size="wide"
       class="flex items-center justify-center gap-2 px-6 py-1.5 text-sm text-foreground/70 md:justify-end"
     >
-      <span>{todayHoursLine}</span>
+      <span>Today <TodayHours weekly={hoursEntry.data.weekly} client:idle /></span>
       <span aria-hidden="true">·</span>
       <a href={telHref} class="transition-colors duration-snap ease-soft hover:text-primary">
         {phone}

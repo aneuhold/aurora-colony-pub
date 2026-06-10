@@ -5,7 +5,7 @@ import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import OpenNowChip from '$components-svelte/OpenNowChip';
-import dateTimeService from '$util/DateTime.service';
+import TodayHours from '$components-svelte/TodayHours';
 import { globalConstants } from '$util/globalConstants';
 import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
@@ -23,12 +23,6 @@ const { title, tagline } = Astro.props;
 const hoursEntry = await pubContentService.hours();
 const contactEntry = await pubContentService.contact();
 const { orderUrl } = contactEntry.data;
-
-const todayIdx = new Date().getDay();
-const todayRow =
-  dateTimeService.rowForDay(hoursEntry.data.weekly, todayIdx) ?? hoursEntry.data.weekly[0];
-
-const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
 ---
 
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden pt-28 md:pt-32">
@@ -67,7 +61,7 @@ const todayHoursLabel = `Today ${todayRow.open} – ${todayRow.close}`;
       >
         <OpenNowChip weekly={hoursEntry.data.weekly} client:idle />
         <span aria-hidden="true">·</span>
-        <span>{todayHoursLabel}</span>
+        <span>Today <TodayHours weekly={hoursEntry.data.weekly} client:idle /></span>
         <span aria-hidden="true">·</span>
         <span>{globalConstants.cityLabel}</span>
       </div>
