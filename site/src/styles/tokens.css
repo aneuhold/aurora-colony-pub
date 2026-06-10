@@ -132,10 +132,10 @@
    and down across the width (varied tear height); a tiny feGaussianBlur only
    anti-aliases (kept low so the edge stays crisp, not fuzzy). Each SVG carries explicit
    width/height so the browser rasterizes the mask at HIGH RESOLUTION instead of scaling
-   up a tiny bitmap — that's what kills the pixel stair-steps. The `filter` stack then
-   fakes what a flat alpha cut can't, each drop-shadow following the silhouette: a light
-   fiber lip on top edges, a hairline under-shadow for thickness, a tight grime hug, and
-   a soft contact shadow lifting the scrap off the board. Three seeds (torn-paper / -2 /
+   up a tiny bitmap — that's what kills the pixel stair-steps. No cast shadow: a
+   filter: drop-shadow stack here re-blurred the torn silhouette every scroll frame and
+   tanked mobile FPS, so the scrap lies flat on the board (the bg-paper-shade edge wash
+   carries what depth there is). Three seeds (torn-paper / -2 /
    -3) so a column never looks rubber-stamped — cycle by index. Pair with bg-background +
    bg-paper on a bg-wood-photo surface; keep vertical padding ≥ the band height (py-12)
    so type clears the tear. Tune: feDisplacementMap scale = tear depth + height
@@ -161,9 +161,6 @@
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
-    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
-    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
 }
 
 @utility torn-paper-2 {
@@ -187,9 +184,6 @@
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
-    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
-    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
 }
 
 @utility torn-paper-3 {
@@ -213,7 +207,4 @@
   mask-position: top, center, bottom;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  filter: drop-shadow(0 -1px 1px rgb(252 247 235 / 0.6))
-    drop-shadow(0 1.5px 1px rgb(20 12 6 / 0.45)) drop-shadow(0 0 1px rgb(40 26 15 / 0.5))
-    drop-shadow(0 10px 13px rgb(18 11 6 / 0.5));
 }

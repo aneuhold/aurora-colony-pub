@@ -23,12 +23,13 @@
   let posts = $state<WorkerFbFeedPost[]>([]);
   let errorMessage = $state('');
 
-  // Cycle the three torn-edge seeds by index so a column of scraps never looks
-  // rubber-stamped. No per-card tilt: rotating a masked + drop-shadowed card knocks it
-  // off the GPU's cheap compositor path, so every frame of the scroll-driven reveal the
-  // browser re-rasterizes the angled text + turbulence mask + 4 drop-shadows from
-  // scratch — that was the mobile scroll jank. Axis-aligned cards cache and stay smooth.
+  // Cycle the three torn-edge seeds + a whisper of rotation by index so a column
+  // of scraps reads hand-placed, never rubber-stamped. Rotation stays ≤1deg and
+  // straightens on hover, so the gap-8 grid never overlaps. Cheap to scroll now that
+  // the torn edge is a baked raster mask with no drop-shadow (tokens.css): a static
+  // rotation just rides the compositor instead of re-rasterizing per frame.
   const tornSeeds = ['torn-paper', 'torn-paper-2', 'torn-paper-3'];
+  const scrapTilts = ['-rotate-1', 'rotate-1', 'rotate-0', 'rotate-1', '-rotate-1'];
 
   $effect(() => {
     const load = async (): Promise<void> => {
@@ -122,17 +123,17 @@
       {#each columns as column, colIndex (colIndex)}
         <ul class="flex flex-1 list-none flex-col gap-8 p-0">
           {#each column as post, postIndex (post.id)}
-            <!-- No .reveal here: a scroll-driven (animation-timeline: view()) transform
-                 on a masked + drop-shadowed scrap re-rasterizes the whole card every
-                 scroll frame, which tanked mobile FPS in this section. The scraps stay
-                 static so the heavy mask/shadow paint happens once, not per frame. -->
-            <li>
+            <!-- Scroll-driven (animation-timeline: view()) fade-up reveal. Cheap now that
+                 the torn edge is a baked raster mask with no drop-shadow (tokens.css): the
+                 scrap rides the compositor instead of re-rasterizing the mask + shadow
+                 stack every scroll frame — the jank that forced this static before. -->
+            <li class="reveal">
               <a
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={facebookFeedConstants.readOnFacebookAriaSuffix}
-                class={`group flex flex-col bg-background bg-paper-shade px-6 py-12 transition-transform duration-glide ease-soft hover:-translate-y-1 ${tornSeeds[postIndex % tornSeeds.length]}`}
+                class={`group flex flex-col bg-background bg-paper-shade px-6 py-12 transition-transform duration-glide ease-soft hover:-translate-y-1 hover:rotate-0 ${tornSeeds[postIndex % tornSeeds.length]} ${scrapTilts[postIndex % scrapTilts.length]}`}
               >
                 {#if post.imageUrl}
                   <figure
