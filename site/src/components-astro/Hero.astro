@@ -11,14 +11,14 @@ import pubContentService from '$util/PubContent.service';
 import DoorDashIcon from '../assets/icons/doordash.svg';
 import Logo from '../assets/logo.svg';
 
-const heroPhoto = globalConstants.mediaUrl('interior-red-room.jpg');
-
 interface Props {
   title: string;
   tagline?: string;
+  heroImage: string;
+  heroImageAlt: string;
 }
 
-const { title, tagline } = Astro.props;
+const { title, tagline, heroImage, heroImageAlt } = Astro.props;
 
 const hoursEntry = await pubContentService.hours();
 const contactEntry = await pubContentService.contact();
@@ -27,8 +27,8 @@ const { orderUrl } = contactEntry.data;
 
 <Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden pt-28 md:pt-32">
   <Image
-    src={heroPhoto}
-    alt="Red wood-paneled room with neon signs, vinyl booth seating, and patrons in the background."
+    src={heroImage}
+    alt={heroImageAlt}
     inferSize
     widths={[768, 1280, 1920, 2560]}
     sizes="100vw"

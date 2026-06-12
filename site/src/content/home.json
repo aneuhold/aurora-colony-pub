@@ -1,0 +1,10 @@
+{
+  "title": "Aurora Colony Pub",
+  "tagline": "Family Friendly until 9 pm",
+  "heroImage": "https://media.auroracolonypub.aneuhold.dev/interior-red-room.jpg",
+  "heroImageAlt": "Red wood-paneled room with neon signs, vinyl booth seating, and patrons in the background.",
+  "patio": {
+    "heading": "Out on the patio.",
+    "body": "A newer addition that welcomes weary antique shoppers and the locals alike — a relaxing place to sit on a warm day, kids and all."
+  }
+}

@@ -9,7 +9,7 @@ import PatioCallout from '$components-astro/PatioCallout.astro';
 import TodayStrip from '$components-astro/TodayStrip.astro';
 import pubContentService from '$util/PubContent.service';
 
-const titleTagline = await pubContentService.titleTagline();
+const home = await pubContentService.home();
 ---
 
 <BaseLayout
@@ -17,7 +17,12 @@ const titleTagline = await pubContentService.titleTagline();
   description="Family-friendly historic pub on old Hwy 99E in Aurora, Oregon. Burgers, breakfast on weekends, happy hour Mon–Fri 3–6, patio in season."
 >
   <main>
-    <Hero title={titleTagline.data.title} tagline={titleTagline.data.tagline} />
+    <Hero
+      title={home.data.title}
+      tagline={home.data.tagline}
+      heroImage={home.data.heroImage}
+      heroImageAlt={home.data.heroImageAlt}
+    />
     <FacebookFeedSection />
     <TodayStrip />
     <MenuTeaser />

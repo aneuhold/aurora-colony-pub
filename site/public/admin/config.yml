@@ -27,9 +27,9 @@ collections:
     label: General Pub Info
     description: Site-wide pub info shown across the home, menu, about, contact, and footer.
     files:
-      - name: titleTagline
-        label: Title + Tagline
-        file: site/src/content/title-tagline.json
+      - name: home
+        label: Home
+        file: site/src/content/home.json
         format: json
         editor:
           preview: false
@@ -47,6 +47,35 @@ collections:
               required: false,
               hint: 'One short line shown under the title. Leave blank for none.'
             }
+          - {
+              name: heroImage,
+              label: Hero image,
+              widget: image,
+              hint: 'Large background photo at the top of the home page. Upload a wide JPG or PNG — it will be optimized automatically.'
+            }
+          - {
+              name: heroImageAlt,
+              label: Hero image description,
+              widget: string,
+              hint: "Short, specific description of the hero photo — used by screen readers and search. Write what someone would see, e.g. 'Red wood-paneled room with neon signs and booth seating'."
+            }
+          - name: patio
+            label: Patio section
+            widget: object
+            hint: 'The patio callout further down the home page.'
+            fields:
+              - {
+                  name: heading,
+                  label: Heading,
+                  widget: string,
+                  hint: "Heading for the patio section — e.g. 'Out on the patio.'"
+                }
+              - {
+                  name: body,
+                  label: Text,
+                  widget: text,
+                  hint: 'One or two sentences shown next to the patio photo.'
+                }
 
       - name: about
         label: About
@@ -64,6 +93,40 @@ collections:
               label: Text,
               widget: markdown,
               hint: 'Free-form text — supports bold, links, headings, and inline images.'
+            }
+          - name: highlights
+            label: Highlights
+            widget: list
+            min: 3
+            max: 3
+            summary: '{{fields.headline}}'
+            hint: 'The three highlight blocks shown under the About text. Exactly three.'
+            fields:
+              - {
+                  name: headline,
+                  label: Title,
+                  widget: string,
+                  hint: 'Short bold title — e.g. Since 2015.'
+                }
+              - {
+                  name: body,
+                  label: Blurb,
+                  widget: text,
+                  hint: 'One or two sentences shown under the title.'
+                }
+
+      - name: menuIntro
+        label: Menu
+        file: site/src/content/menu-intro.json
+        format: json
+        editor:
+          preview: false
+        fields:
+          - {
+              name: body,
+              label: Intro text,
+              widget: text,
+              hint: 'Short paragraph shown under the "Menus." title at the top of the menu page.'
             }
 
       - name: contact
@@ -91,6 +154,12 @@ collections:
               widget: string,
               required: false,
               hint: 'Full URL to the DoorDash storefront. When set, the Order button appears in the nav and on the home hero. Leave blank to hide both.'
+            }
+          - {
+              name: note,
+              label: 'Send a note text',
+              widget: text,
+              hint: 'Short paragraph shown under the "Send a note" heading on the contact page.'
             }
 
       - name: hours

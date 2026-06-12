@@ -4,18 +4,37 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { defineCollection } from 'astro:content';
 
-const titleTagline = defineCollection({
-  loader: glob({ pattern: 'title-tagline.json', base: 'src/content' }),
+const home = defineCollection({
+  loader: glob({ pattern: 'home.json', base: 'src/content' }),
   schema: z.object({
     title: z.string(),
-    tagline: z.string().optional()
+    tagline: z.string().optional(),
+    heroImage: z.url(),
+    heroImageAlt: z.string(),
+    patio: z.object({
+      heading: z.string(),
+      body: z.string()
+    })
   })
 });
 
 const about = defineCollection({
   loader: glob({ pattern: 'about.md', base: 'src/content' }),
   schema: z.object({
-    heading: z.string()
+    heading: z.string(),
+    highlights: z.array(
+      z.object({
+        headline: z.string(),
+        body: z.string()
+      })
+    )
+  })
+});
+
+const menuIntro = defineCollection({
+  loader: glob({ pattern: 'menu-intro.json', base: 'src/content' }),
+  schema: z.object({
+    body: z.string()
   })
 });
 
@@ -24,7 +43,8 @@ const contact = defineCollection({
   schema: z.object({
     phone: z.string(),
     email: z.string(),
-    orderUrl: z.url().optional()
+    orderUrl: z.url().optional(),
+    note: z.string()
   })
 });
 
@@ -82,8 +102,9 @@ const gallery = defineCollection({
 });
 
 export const collections = {
-  titleTagline,
+  home,
   about,
+  menuIntro,
   contact,
   hours,
   socialMediaLinks,

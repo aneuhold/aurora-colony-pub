@@ -6,26 +6,7 @@ import pubContentService from '$util/PubContent.service';
 
 const entry = await pubContentService.about();
 const { Content } = await render(entry);
-
-interface Fact {
-  headline: string;
-  body: string;
-}
-
-const facts: Fact[] = [
-  {
-    headline: 'Since 2015',
-    body: 'Corey & Janae Barton — the latest in a long line of proprietors keeping the lights on.'
-  },
-  {
-    headline: 'Built in the 1930s',
-    body: 'Original wood frame on old 99E, tin roof, sloping concrete floors that still slope.'
-  },
-  {
-    headline: 'Original meat-locker door',
-    body: 'Still in the bar, still keeping our kegs and bottles cold.'
-  }
-];
+const { highlights } = entry.data;
 ---
 
 <Section>
@@ -38,12 +19,12 @@ const facts: Fact[] = [
 
     <div class="reveal mt-16 grid gap-10 border-t border-foreground/10 pt-10 md:grid-cols-3">
       {
-        facts.map((fact) => (
+        highlights.map((highlight) => (
           <div>
             <p class="font-display text-3xl tracking-tight text-foreground md:text-4xl">
-              {fact.headline}
+              {highlight.headline}
             </p>
-            <p class="mt-2 text-foreground/60">{fact.body}</p>
+            <p class="mt-2 text-foreground/60">{highlight.body}</p>
           </div>
         ))
       }

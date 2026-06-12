@@ -1,5 +1,12 @@
 ---
 heading: About the pub
+highlights:
+  - headline: Since 2015
+    body: Corey & Janae Barton — the latest in a long line of proprietors keeping the lights on.
+  - headline: Built in the 1930s
+    body: Original wood frame on old 99E, tin roof, sloping concrete floors that still slope.
+  - headline: Original meat-locker door
+    body: Still in the bar, still keeping our kegs and bottles cold.
 ---
 
 Welcome to the Aurora Colony Pub!
