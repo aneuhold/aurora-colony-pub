@@ -5,6 +5,9 @@ import MenuSectionIndex from '$components-astro/Menu/MenuSectionIndex.astro';
 import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
+import pubContentService from '$util/PubContent.service';
+
+const menuIntro = (await pubContentService.menuIntro()).data;
 ---
 
 <BaseLayout
@@ -16,8 +19,7 @@ import Section from '$components-astro/ui/Section.astro';
       <Container size="wide">
         <Heading level={1}>Menus.</Heading>
         <p class="mt-4 max-w-prose font-display text-lg text-foreground/70 md:text-xl">
-          Breakfast, the main menu, kids, and happy hour. Tap any page to enlarge — pricing and
-          availability may vary.
+          {menuIntro.body}
         </p>
       </Container>
     </Section>

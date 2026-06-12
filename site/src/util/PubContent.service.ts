@@ -10,17 +10,24 @@ import { getEntry } from 'astro:content';
  */
 class PubContentService {
   /**
-   * Home hero title and optional tagline.
+   * Home-page content — hero title/tagline/image and the patio callout.
    */
-  async titleTagline(): Promise<CollectionEntry<'titleTagline'>> {
-    return this.required(await getEntry('titleTagline', 'title-tagline'), 'titleTagline');
+  async home(): Promise<CollectionEntry<'home'>> {
+    return this.required(await getEntry('home', 'home'), 'home');
   }
 
   /**
-   * About-page heading and markdown body.
+   * About-page heading, markdown body, and the three highlight blocks.
    */
   async about(): Promise<CollectionEntry<'about'>> {
     return this.required(await getEntry('about', 'about'), 'about');
+  }
+
+  /**
+   * Intro text shown under the title on the menu page.
+   */
+  async menuIntro(): Promise<CollectionEntry<'menuIntro'>> {
+    return this.required(await getEntry('menuIntro', 'menu-intro'), 'menuIntro');
   }
 
   /**

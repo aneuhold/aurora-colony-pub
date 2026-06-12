@@ -4,8 +4,10 @@ import Container from '$components-astro/ui/Container.astro';
 import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import { globalConstants } from '$util/globalConstants';
+import pubContentService from '$util/PubContent.service';
 
 const patioPhoto = globalConstants.mediaUrl('patio-outdoor-dining.jpg');
+const { heading, body } = (await pubContentService.home()).data.patio;
 ---
 
 <Section background="muted">
@@ -23,10 +25,9 @@ const patioPhoto = globalConstants.mediaUrl('patio-outdoor-dining.jpg');
         />
       </figure>
       <div class="reveal">
-        <Heading level={2}>Out on the patio.</Heading>
+        <Heading level={2}>{heading}</Heading>
         <p class="mt-5 max-w-prose text-lg leading-relaxed text-foreground/80">
-          A newer addition that welcomes weary antique shoppers and the locals alike — a relaxing
-          place to sit on a warm day, kids and all.
+          {body}
         </p>
       </div>
     </div>

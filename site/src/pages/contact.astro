@@ -9,7 +9,10 @@ import Heading from '$components-astro/ui/Heading.astro';
 import Section from '$components-astro/ui/Section.astro';
 import ContactForm from '$components-svelte/ContactForm';
 import PubMap from '$components-svelte/PubMap';
+import pubContentService from '$util/PubContent.service';
 import pubMapService from '$util/PubMap/PubMap.service';
+
+const { note } = (await pubContentService.contact()).data;
 ---
 
 <BaseLayout
@@ -51,7 +54,7 @@ import pubMapService from '$util/PubMap/PubMap.service';
           <div>
             <OldText as="h2" class="text-foreground/60">Send a note</OldText>
             <p class="mt-4 max-w-prose text-foreground/80">
-              Questions, feedback, or a special event you're planning — we'd love to hear from you.
+              {note}
             </p>
             <div class="mt-6">
               <ContactForm client:idle />
