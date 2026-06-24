@@ -1,6 +1,14 @@
+export interface FbGraphPostsResponse {
+  data: FbGraphPost[];
+  paging?: {
+    cursors?: { before?: string; after?: string };
+    next?: string;
+  };
+}
+
 /**
  * Facebook Graph API response shape for `GET /{page-id}/posts?fields=id,
- * message,permalink_url,created_time,full_picture` — see
+ * message,permalink_url,created_time,full_picture,parent_id` — see
  * https://developers.facebook.com/docs/graph-api/reference/page/feed. Both the
  * eventual sync Worker (consuming the real Graph response) and the read
  * Worker's placeholder mock literal import these types so the two paths stay
@@ -12,14 +20,17 @@ export interface FbGraphPost {
   permalink_url: string;
   created_time: string;
   full_picture?: string;
+  parent_id?: string;
 }
 
-export interface FbGraphPostsResponse {
-  data: FbGraphPost[];
-  paging?: {
-    cursors?: { before?: string; after?: string };
-    next?: string;
-  };
+/**
+ * Payload returned by the `aurora-fb-feed-read` Worker. `syncedAt` is the
+ * timestamp the sync worker last wrote to KV, or `null` for the degraded
+ * empty-feed response the read worker serves before any sync has landed.
+ */
+export interface WorkerFbFeedResponse {
+  posts: WorkerFbFeedPost[];
+  syncedAt: string | null;
 }
 
 /**
@@ -34,14 +45,4 @@ export interface WorkerFbFeedPost {
   permalink: string;
   createdAt: string;
   imageUrl?: string;
-}
-
-/**
- * Payload returned by the `aurora-fb-feed-read` Worker. `syncedAt` is the
- * timestamp the sync worker last wrote to KV, or `null` for the degraded
- * empty-feed response the read worker serves before any sync has landed.
- */
-export interface WorkerFbFeedResponse {
-  posts: WorkerFbFeedPost[];
-  syncedAt: string | null;
 }
