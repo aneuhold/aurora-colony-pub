@@ -92,4 +92,81 @@ describe('FbGraphService.fetchLatestPosts', () => {
     );
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('backfills a reshare from its parent post', async () => {
+    const reshareResponse: FbGraphPostsResponse = {
+      data: [
+        {
+          id: '465497836965753_222',
+          permalink_url: 'https://www.facebook.com/theauroracolonypub/posts/222',
+          created_time: '2026-06-23T22:37:38+0000',
+          parent_id: '986308353837123_333'
+        }
+      ]
+    };
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(200, reshareResponse))
+      .mockResolvedValueOnce(
+        jsonResponse(200, {
+          message: 'Rescheduled to July 11th.',
+          full_picture: 'https://scontent.example.com/parent.jpg'
+        })
+      );
+    const result = await fbGraphService.fetchLatestPosts(env);
+    expect(result.data[0].message).toBe('Rescheduled to July 11th.');
+    expect(result.data[0].full_picture).toBe('https://scontent.example.com/parent.jpg');
+  });
+
+  it('throws when a reshare parent fetch fails', async () => {
+    const reshareResponse: FbGraphPostsResponse = {
+      data: [
+        {
+          id: '465497836965753_222',
+          permalink_url: 'https://www.facebook.com/theauroracolonypub/posts/222',
+          created_time: '2026-06-23T22:37:38+0000',
+          parent_id: '986308353837123_333'
+        }
+      ]
+    };
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(200, reshareResponse))
+      .mockResolvedValueOnce(jsonResponse(403, { error: { message: 'cannot access parent' } }));
+    await expect(fbGraphService.fetchLatestPosts(env)).rejects.toThrow(
+      'Graph API request failed (403)'
+    );
+  });
+
+  it('combines a captioned reshare with its parent and keeps its own image', async () => {
+    const reshareResponse: FbGraphPostsResponse = {
+      data: [
+        {
+          id: '465497836965753_222',
+          message: 'So excited for this!',
+          permalink_url: 'https://www.facebook.com/theauroracolonypub/posts/222',
+          created_time: '2026-06-23T22:37:38+0000',
+          full_picture: 'https://scontent.example.com/own.jpg',
+          parent_id: '986308353837123_333'
+        }
+      ]
+    };
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(200, reshareResponse))
+      .mockResolvedValueOnce(
+        jsonResponse(200, {
+          message: 'Rescheduled to July 11th.',
+          full_picture: 'https://scontent.example.com/parent.jpg'
+        })
+      );
+    const result = await fbGraphService.fetchLatestPosts(env);
+    expect(result.data[0].message).toBe('So excited for this!\n\nRescheduled to July 11th.');
+    expect(result.data[0].full_picture).toBe('https://scontent.example.com/own.jpg');
+  });
+
+  it('does not fetch a parent for a post without a parent_id', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse(200, GRAPH_RESPONSE));
+    await fbGraphService.fetchLatestPosts(env);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
 });

@@ -18,7 +18,7 @@ export const fbFeedSyncConstants = {
   /** Graph API version pinned for the `/posts` request. */
   graphApiVersion: 'v21.0',
   /** Graph API field list requested for each post. */
-  fields: 'id,message,permalink_url,created_time,full_picture',
+  fields: 'id,message,permalink_url,created_time,full_picture,parent_id',
   /** Cap on posts fetched per sync — keeps the KV blob small. */
   postLimit: 10
 };
