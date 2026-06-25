@@ -9,7 +9,7 @@ export interface FbGraphPostsResponse {
 /**
  * Facebook Graph API response shape for `GET /{page-id}/posts?fields=id,
  * message,permalink_url,created_time,full_picture,parent_id` — see
- * https://developers.facebook.com/docs/graph-api/reference/page/feed. Both the
+ * https://developers.facebook.com/docs/graph-api/reference/v25.0/page/feed. Both the
  * eventual sync Worker (consuming the real Graph response) and the read
  * Worker's placeholder mock literal import these types so the two paths stay
  * structurally identical.
