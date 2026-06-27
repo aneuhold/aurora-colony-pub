@@ -2,9 +2,11 @@
 
 The steps that need to be completed if the owner of Aurora Colony Pub accepts the new system.
 
-## 1. Migrate DNS from Wix to Cloudflare
+## 1. Migrate DNS from Wix to Cloudflare and switch Domain
 
 Owner-coordinated. At [GoDaddy](https://dcc.godaddy.com/control/portfolio/auroracolonypub.com/settings?ventureId=3a633d8f-d9a6-4440-a605-6ad548b13ef9&ua_placement=shared_header), change `auroracolonypub.com` nameservers to the two Cloudflare assigns when the zone is added (free plan). Before flipping NS, audit Cloudflare's auto-imported records against Wix — keep Google `MX`, apex SPF TXT, and any Google site-verification TXT intact. Apex `A`/`CNAME` stays **DNS only** (gray cloud).
+
+Immediately afterwards (because Wix will probably not let the domain live anymore after the nameservers are moved to CF), setup the domain on the [Pages site](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/pages/view/aurora-colony-pub-frontend/domains).
 
 ## 2. Point all prod-URL references at `auroracolonypub.com` + Have Corey create GitHub Account
 
