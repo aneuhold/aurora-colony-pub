@@ -2,7 +2,13 @@
 
 The steps that need to be completed if the owner of Aurora Colony Pub accepts the new system.
 
-## 1. Point all prod-URL references at `auroracolonypub.com`
+## 1. Migrate DNS from Wix to Cloudflare
+
+Owner-coordinated. At [GoDaddy](https://dcc.godaddy.com/control/portfolio/auroracolonypub.com/settings?ventureId=3a633d8f-d9a6-4440-a605-6ad548b13ef9&ua_placement=shared_header), change `auroracolonypub.com` nameservers to the two Cloudflare assigns when the zone is added (free plan). Before flipping NS, audit Cloudflare's auto-imported records against Wix — keep Google `MX`, apex SPF TXT, and any Google site-verification TXT intact. Apex `A`/`CNAME` stays **DNS only** (gray cloud).
+
+## 2. Point all prod-URL references at `auroracolonypub.com` + Have Corey create GitHub Account
+
+While having Corey create their GitHub account from their Microsoft account:
 
 Two files still hard-code the `pages.dev` URL:
 
@@ -11,26 +17,20 @@ Two files still hard-code the `pages.dev` URL:
 
 Then re-run `pnpm build` so `sitemap-index.xml`/`sitemap-0.xml` and `robots.txt` regenerate with the new origin, and confirm a couple of canonical/OG tags in `site/dist/` reference the new domain.
 
-## 2. Migrate DNS from Wix to Cloudflare
-
-Owner-coordinated. At **GoDaddy**, change `auroracolonypub.com` nameservers to the two Cloudflare assigns when the zone is added (free plan). Before flipping NS, audit Cloudflare's auto-imported records against Wix — keep Google `MX`, apex SPF TXT, and any Google site-verification TXT intact. Apex `A`/`CNAME` stays **DNS only** (gray cloud).
-
 ## 3. Finalize Resend sending domain
-
-After step 2 is live (the domain is now pointing at the new site):
 
 1. In [Resend](https://resend.com/domains/add/3b909ea5-d584-4197-892e-f479d76e1f1a), add domain `mail.auroracolonypub.com`. Paste the displayed records into Cloudflare DNS and wait for green checks.
 1. In `workers/contact/src/util/contactWorkerConstants.ts`, update the two constants:
    - `fromEmail`: `'Aurora Colony Pub <noreply@mail.auroracolonypub.com>'`
-   - `ownerEmail`: `'corey@auroracolonypub.com'`
+   - `ownerEmail`: `'acpmanagement@auroracolonypub.com'`
 1. `pnpm deploy:workers` to push the new worker build.
-1. Submit a real test message through the contact form and confirm delivery to Corey's inbox.
+1. Submit a real test message through the contact form and confirm delivery to the `acpmanagement@auroracolonypub.com` inbox.
 
 ## 4. SEO Updates
 
 ### Google Search Console
 
-1. Verify ownership of `auroracolonypub.com` — **prefer DNS TXT** (Cloudflare DNS is in our control after step 2). Fallback is a `<meta name="google-site-verification">` tag in `site/src/layouts/BaseLayout.astro`.
+1. Verify ownership of `auroracolonypub.com` — **prefer DNS TXT**. Fallback is a `<meta name="google-site-verification">` tag in `site/src/layouts/BaseLayout.astro`.
 1. Submit `https://auroracolonypub.com/sitemap-index.xml`.
 1. Request indexing for `/`, `/menu`, `/about`, `/contact`.
 1. Watch Core Web Vitals + Coverage for ~2 weeks; act on any errors.
