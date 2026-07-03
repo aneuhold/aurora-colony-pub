@@ -7,7 +7,6 @@
  * inside an individual Worker.
  */
 export const allowedOrigins: readonly string[] = [
-  'https://aurora-colony-pub-frontend.pages.dev',
   'https://auroracolonypub.com',
   'https://www.auroracolonypub.com',
   'http://localhost:4321'
