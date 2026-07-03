@@ -59,11 +59,9 @@ jobs:
         id: lighthouse
         uses: treosh/lighthouse-ci-action@v12
         with:
-          # Add back https://auroracolonypub.com when the domain is switched over (also update
-          # in the script below)
           urls: |
             ${{ steps.pages.outputs.deployment-url }}
-            https://aurora-colony-pub-frontend.pages.dev
+            https://auroracolonypub.com
           runs: 3
           temporaryPublicStorage: true
 
@@ -79,7 +77,7 @@ jobs:
             const manifest = JSON.parse(process.env.MANIFEST || '[]');
             const links = JSON.parse(process.env.LINKS || '{}');
             const previewUrl = process.env.PREVIEW_URL;
-            const prodUrl = 'https://aurora-colony-pub-frontend.pages.dev';
+            const prodUrl = 'https://auroracolonypub.com';
 
             // Lighthouse normalizes URLs (adds trailing `/`) and follows redirects
             // (e.g. apex → www), so manifest/links keys won't exactly equal the URL
