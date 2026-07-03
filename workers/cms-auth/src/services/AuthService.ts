@@ -46,7 +46,7 @@ class AuthService {
    * @param username GitHub login (e.g. `octocat`)
    */
   isUserAllowed(username: string): boolean {
-    const allowedUsers = ['aneuhold'];
+    const allowedUsers = ['aneuhold', 'coreyebarton-maker'];
     return allowedUsers.includes(username);
   }
 

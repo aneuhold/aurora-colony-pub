@@ -6,8 +6,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  // Update this to be the actual site URL when the domain is switched over.
-  site: 'https://aurora-colony-pub-frontend.pages.dev',
+  site: 'https://auroracolonypub.com',
   output: 'static',
   // Canonical URLs are slashless: `/menu` not `/menu/`. This makes it so we don't get
   // redirects on every page visit to /menu/ when the url is /menu.

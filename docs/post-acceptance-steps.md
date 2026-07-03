@@ -69,3 +69,5 @@ For each of: Facebook page, Yelp, TripAdvisor, Apple Maps, Foursquare, OpenStree
 - `https://auroracolonypub.com/grid` → 301 → `/#gallery`
 
 In GSC, mark the old URLs for re-crawl so the 301s propagate.
+
+### Re-enable Domain Lock on GoDaddy
