@@ -4,7 +4,7 @@
  */
 export const contactWorkerConstants = {
   /** Inbox the form submissions are delivered to. */
-  ownerEmail: 'agneuhold@gmail.com',
+  ownerEmail: 'acpmanagement@auroracolonypub.com',
   /** `From` header used on outgoing Resend emails. */
-  fromEmail: 'Aurora Colony Pub <onboarding@resend.dev>'
+  fromEmail: 'Aurora Colony Pub <noreply@mail.auroracolonypub.com>'
 };
