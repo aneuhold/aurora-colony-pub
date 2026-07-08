@@ -82,6 +82,20 @@ const socialMediaLinks = defineCollection({
   })
 });
 
+const businessProfiles = defineCollection({
+  loader: glob({ pattern: 'business-profiles.json', base: 'src/content' }),
+  schema: z.object({
+    profiles: z
+      .array(
+        z.object({
+          label: z.string(),
+          url: z.url()
+        })
+      )
+      .default([])
+  })
+});
+
 const menuImages = defineCollection({
   loader: glob({ pattern: '*.json', base: 'src/content/menu-images' }),
   schema: z.object({
@@ -108,6 +122,7 @@ export const collections = {
   contact,
   hours,
   socialMediaLinks,
+  businessProfiles,
   menuImages,
   gallery
 };
