@@ -17,6 +17,7 @@ The main website for the Aurora Colony Pub.
 | Contact form captcha | Turnstile     | [aurora-turnstile](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/turnstile/widget/0x4AAAAAADVCwonowFDxQAhi)                                                            |
 | Shared storage       | KV Namespace  | [aurora-colony-pub-kv](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/kv/namespaces/8fed7593c2ac43debc5267788e2a5dd3/metrics)                                   |
 | CMS media            | R2 Bucket     | [aurora-colony-pub-media](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/r2/default/buckets/aurora-colony-pub-media) (public host `media.auroracolonypub.aneuhold.dev`) |
+| Domain               | Cloudflare    | [auroracolonypub.com](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/auroracolonypub.com)                                                                               |
 | Search Console       | Google Search | [auroracolonypub.com](https://search.google.com/search-console?resource_id=sc-domain%3Aauroracolonypub.com)                                                                           |
 | Webmaster Tools      | Bing Search   | [auroracolonypub.com](https://www.bing.com/webmasters?siteUrl=https://auroracolonypub.com/)                                                                                           |
 
