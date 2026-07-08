@@ -39,10 +39,11 @@ class SeoGraphService {
     const ids = makeIds({ siteUrl });
     const pubId = ids.organization(SeoGraphService.PUB_SLUG);
 
-    const [hoursEntry, contactEntry, socialEntry] = await Promise.all([
+    const [hoursEntry, contactEntry, socialEntry, businessProfilesEntry] = await Promise.all([
       pubContentService.hours(),
       pubContentService.contact(),
-      pubContentService.socialMediaLinks()
+      pubContentService.socialMediaLinks(),
+      pubContentService.businessProfiles()
     ]);
 
     const { lat, lng } = globalConstants.geo;
@@ -110,7 +111,8 @@ class SeoGraphService {
       currenciesAccepted: globalConstants.currenciesAccepted,
       sameAs: [
         socialEntry.data.facebookLink,
-        ...socialEntry.data.otherSocialMediaLinks.map((link) => link.url)
+        ...socialEntry.data.otherSocialMediaLinks.map((link) => link.url),
+        ...businessProfilesEntry.data.profiles.map((profile) => profile.url)
       ],
       hasMenu: menuUrl
     });

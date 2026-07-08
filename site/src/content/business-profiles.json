@@ -1,0 +1,16 @@
+{
+  "profiles": [
+    {
+      "label": "Google Business Profile",
+      "url": "https://maps.google.com/?cid=3915534082695170365"
+    },
+    {
+      "label": "Yelp",
+      "url": "https://www.yelp.com/biz/the-aurora-colony-pub-aurora"
+    },
+    {
+      "label": "TripAdvisor",
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g30002-d1150800-Reviews-The_Aurora_Colony_Pub-Aurora_Oregon.html"
+    }
+  ]
+}

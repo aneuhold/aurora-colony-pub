@@ -220,6 +220,27 @@ collections:
                   hint: 'What the link should say — e.g. Instagram, Yelp.'
                 }
               - { name: url, label: URL, widget: string, hint: 'Full URL including https://.' }
+      - name: businessProfiles
+        label: Business Profiles
+        file: site/src/content/business-profiles.json
+        format: json
+        editor:
+          preview: false
+        fields:
+          - name: profiles
+            label: Profiles
+            widget: list
+            required: false
+            summary: '{{fields.label}} — {{fields.url}}'
+            hint: 'Directory and review listings — e.g. Google Business Profile, Yelp, TripAdvisor. Not shown on the site; these help search engines confirm this is the same business.'
+            fields:
+              - {
+                  name: label,
+                  label: Label,
+                  widget: string,
+                  hint: 'Which listing this is — e.g. Google Business Profile, Yelp, TripAdvisor.'
+                }
+              - { name: url, label: URL, widget: string, hint: 'Full URL to the listing including https://.' }
 
   - name: menuImages
     label: Menu Images

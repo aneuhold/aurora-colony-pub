@@ -7,16 +7,19 @@ The main website for the Aurora Colony Pub.
 
 ## Deployments
 
-| Resource             | Type         | Cloudflare Dashboard                                                                                                                                                                  |
-| -------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend site        | Pages        | [aurora-colony-pub-frontend](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/pages/view/aurora-colony-pub-frontend)                                                      |
-| Facebook feed (read) | Worker       | [aurora-fb-feed-read](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-read/production)                                              |
-| Facebook feed (sync) | Worker       | [aurora-fb-feed-sync](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-sync/production)                                              |
-| Contact form         | Worker       | [aurora-contact](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-contact/production)                                                        |
-| CMS auth             | Worker       | [aurora-cms-auth](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-cms-auth/production)                                                      |
-| Contact form captcha | Turnstile    | [aurora-turnstile](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/turnstile/widget/0x4AAAAAADVCwonowFDxQAhi)                                                            |
-| Shared storage       | KV Namespace | [aurora-colony-pub-kv](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/kv/namespaces/8fed7593c2ac43debc5267788e2a5dd3/metrics)                                   |
-| CMS media            | R2 Bucket    | [aurora-colony-pub-media](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/r2/default/buckets/aurora-colony-pub-media) (public host `media.auroracolonypub.aneuhold.dev`) |
+| Resource             | Type          | Dashboard                                                                                                                                                                             |
+| -------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend site        | Pages         | [aurora-colony-pub-frontend](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/pages/view/aurora-colony-pub-frontend)                                                      |
+| Facebook feed (read) | Worker        | [aurora-fb-feed-read](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-read/production)                                              |
+| Facebook feed (sync) | Worker        | [aurora-fb-feed-sync](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-fb-feed-sync/production)                                              |
+| Contact form         | Worker        | [aurora-contact](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-contact/production)                                                        |
+| CMS auth             | Worker        | [aurora-cms-auth](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/services/view/aurora-cms-auth/production)                                                      |
+| Contact form captcha | Turnstile     | [aurora-turnstile](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/turnstile/widget/0x4AAAAAADVCwonowFDxQAhi)                                                            |
+| Shared storage       | KV Namespace  | [aurora-colony-pub-kv](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/workers/kv/namespaces/8fed7593c2ac43debc5267788e2a5dd3/metrics)                                   |
+| CMS media            | R2 Bucket     | [aurora-colony-pub-media](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/r2/default/buckets/aurora-colony-pub-media) (public host `media.auroracolonypub.aneuhold.dev`) |
+| Domain               | Cloudflare    | [auroracolonypub.com](https://dash.cloudflare.com/f5fee77ff79a01ea91f541b825d003a3/auroracolonypub.com)                                                                               |
+| Search Console       | Google Search | [auroracolonypub.com](https://search.google.com/search-console?resource_id=sc-domain%3Aauroracolonypub.com)                                                                           |
+| Webmaster Tools      | Bing Search   | [auroracolonypub.com](https://www.bing.com/webmasters?siteUrl=https://auroracolonypub.com/)                                                                                           |
 
 ## Infrastructure
 
