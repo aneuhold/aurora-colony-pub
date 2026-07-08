@@ -55,6 +55,17 @@ class PubContentService {
   }
 
   /**
+   * Directory and review listings (Google Business Profile, Yelp, TripAdvisor)
+   * used to populate the JSON-LD `sameAs` array.
+   */
+  async businessProfiles(): Promise<CollectionEntry<'businessProfiles'>> {
+    return this.required(
+      await getEntry('businessProfiles', 'business-profiles'),
+      'businessProfiles'
+    );
+  }
+
+  /**
    * Throws a consistent "missing entry" error when a singleton lookup comes
    * back undefined, narrowing the result to a present entry.
    *
