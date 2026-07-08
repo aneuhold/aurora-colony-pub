@@ -240,7 +240,12 @@ collections:
                   widget: string,
                   hint: 'Which listing this is — e.g. Google Business Profile, Yelp, TripAdvisor.'
                 }
-              - { name: url, label: URL, widget: string, hint: 'Full URL to the listing including https://.' }
+              - {
+                  name: url,
+                  label: URL,
+                  widget: string,
+                  hint: 'Full URL to the listing including https://.'
+                }
 
   - name: menuImages
     label: Menu Images
@@ -288,7 +293,7 @@ collections:
           name: alt,
           label: Description,
           widget: string,
-          hint: "Short, specific description of what's in the photo — used by screen readers and Google image search. Write what someone would see, e.g. 'Bartender pouring a beer at Aurora Colony Pub', not 'drink'."
+          hint: "Short, specific description of what's in the photo. Used by screen readers and Google image search. Write what someone would see, e.g. 'Bartender pouring a beer at Aurora Colony Pub', not 'drink'."
         }
       - {
           name: order,
