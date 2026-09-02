@@ -26,17 +26,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up PNPM
-        uses: pnpm/action-setup@v6
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - name: Set up pnpm, Node.js, and install dependencies
+        uses: pnpm/setup@v2
         with:
-          node-version: 'lts/*'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+          runtime: node@lts
+          cache: true
 
       # `deploy:workers` runs `wrangler deploy` for every worker in parallel
       # via pnpm. One job is plenty — each deploy is small.
