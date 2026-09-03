@@ -29,7 +29,6 @@ jobs:
       - name: Set up pnpm, Node.js, and install dependencies
         uses: pnpm/setup@v2
         with:
-          runtime: node@lts
           cache: true
 
       # `deploy:workers` runs `wrangler deploy` for every worker in parallel

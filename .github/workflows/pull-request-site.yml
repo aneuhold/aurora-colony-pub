@@ -34,7 +34,6 @@ jobs:
       - name: Set up pnpm, Node.js, and install dependencies
         uses: pnpm/setup@v2
         with:
-          runtime: node@lts
           cache: true
 
       - name: Build site
