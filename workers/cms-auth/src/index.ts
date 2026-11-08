@@ -8,7 +8,7 @@ import authService from './services/Auth.service';
  *
  * It was just refactored to be cleaner.
  */
-export default Sentry.withSentry<Env>(
+export default Sentry.withSentry(
   () =>
     sentryWorkerOptions(
       'https://d1b5a6eb0f2eeb49e18a88529e016ff0@o4507319328702464.ingest.us.sentry.io/4511439647735808'
@@ -20,5 +20,5 @@ export default Sentry.withSentry<Env>(
       }
       return authService.handleRequest(request, env);
     }
-  }
+  } satisfies ExportedHandler<Env>
 );

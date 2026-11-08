@@ -12,6 +12,7 @@ import {
 } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Env } from './Env';
 import worker from './index';
 import { fbFeedSyncConstants } from './util/fbFeedSyncConstants';
 
@@ -141,10 +142,12 @@ describe('fb-feed-sync worker', () => {
       cron: '*/30 * * * *'
     });
     const ctx = createExecutionContext();
-    if (worker.scheduled === undefined) {
+    // Widen to the runtime signature so the test can pass `ctx` like the runtime does.
+    const handler: ExportedHandler<Env> = worker;
+    if (handler.scheduled === undefined) {
       throw new Error('Worker does not export a scheduled handler');
     }
-    await worker.scheduled(controller, env, ctx);
+    await handler.scheduled(controller, env, ctx);
     await waitOnExecutionContext(ctx);
 
     const stored = await readStoredFeed();
