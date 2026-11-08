@@ -39,44 +39,38 @@ const hasKids = all.some((entry) => entry.data.category === 'kids');
     <Heading level={2}>The menus.</Heading>
     <p class="mt-3 max-w-prose text-foreground/70">Tap any page to see it full size.</p>
     <ul class="mt-10 grid list-none gap-4 p-0 md:grid-cols-3">
-      {
-        cards.map((card) => (
-          <li class="reveal">
-            <a
-              href={card.href}
-              class="group relative block overflow-hidden rounded-lg border border-foreground/20 bg-foreground/5 transition-transform duration-snap ease-soft hover:-translate-y-1"
-            >
-              <Image
-                src={card.entry.data.image}
-                alt={card.entry.data.title}
-                inferSize
-                widths={[320, 640, 960]}
-                sizes="(min-width: 768px) 33vw, 100vw"
-                loading="lazy"
-                class="block h-72 w-full object-cover transition-transform duration-glide ease-soft group-hover:scale-[1.02]"
-              />
-              <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-foreground/80 via-foreground/40 to-transparent p-5">
-                <span class="font-display text-2xl tracking-tight text-background">
-                  {card.label}
-                </span>
-              </div>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-    {
-      hasKids && (
-        <p class="mt-6 text-sm text-foreground/70">
-          Got little ones?{' '}
+      {cards.map((card) => (
+        <li class="reveal">
           <a
-            href="/menu#kids"
-            class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+            href={card.href}
+            class="group relative block overflow-hidden rounded-lg border border-foreground/20 bg-foreground/5 transition-transform duration-snap ease-soft hover:-translate-y-1"
           >
-            The kids menu lives here.
+            <Image
+              src={card.entry.data.image}
+              alt={card.entry.data.title}
+              inferSize
+              widths={[320, 640, 960]}
+              sizes="(min-width: 768px) 33vw, 100vw"
+              loading="lazy"
+              class="block h-72 w-full object-cover transition-transform duration-glide ease-soft group-hover:scale-[1.02]"
+            />
+            <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-foreground/80 via-foreground/40 to-transparent p-5">
+              <span class="font-display text-2xl tracking-tight text-background">{card.label}</span>
+            </div>
           </a>
-        </p>
-      )
-    }
+        </li>
+      ))}
+    </ul>
+    {hasKids && (
+      <p class="mt-6 text-sm text-foreground/70">
+        Got little ones?{' '}
+        <a
+          href="/menu#kids"
+          class="text-primary underline-offset-4 transition-colors duration-snap ease-soft hover:underline"
+        >
+          The kids menu lives here.
+        </a>
+      </p>
+    )}
   </Container>
 </Section>

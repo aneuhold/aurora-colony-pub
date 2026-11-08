@@ -11,8 +11,7 @@ import type { Env } from '../Env';
 import contactEmailService from './ContactEmail.service';
 
 type ValidationResult =
-  | { ok: true; body: WorkerContactSubmitPayload }
-  | { ok: false; field: string; error: string };
+  { ok: true; body: WorkerContactSubmitPayload } | { ok: false; field: string; error: string };
 
 /**
  * Contact form orchestration singleton. Owns the request lifecycle (CORS,

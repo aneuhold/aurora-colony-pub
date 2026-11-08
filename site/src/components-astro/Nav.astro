@@ -37,15 +37,15 @@ const { facebookLink } = socialEntry.data;
 const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
 ---
 
-<nav
-  class="sticky top-0 z-40 bg-background/85 font-body backdrop-blur supports-backdrop-filter:bg-background/70"
->
+<nav class="sticky top-0 z-40 bg-background/85 font-body backdrop-blur supports-backdrop-filter:bg-background/70">
   <div class="border-b border-foreground/10 bg-foreground/5">
     <Container
       size="wide"
       class="flex items-center justify-center gap-2 px-6 py-1.5 text-sm text-foreground/70 md:justify-end"
     >
-      <span>Today <TodayHours weekly={hoursEntry.data.weekly} client:idle /></span>
+      <span>
+        Today <TodayHours weekly={hoursEntry.data.weekly} client:idle />
+      </span>
       <span aria-hidden="true">·</span>
       <a href={telHref} class="transition-colors duration-snap ease-soft hover:text-primary">
         {phone}
@@ -63,19 +63,17 @@ const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
     </a>
 
     <ul class="hidden list-none items-center gap-5 p-0 md:flex md:gap-7">
-      {
-        links.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              aria-current={isCurrent(link.href) ? 'page' : undefined}
-              class="font-display text-lg font-semibold text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-xl aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
-            >
-              {link.label}
-            </a>
-          </li>
-        ))
-      }
+      {links.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            aria-current={isCurrent(link.href) ? 'page' : undefined}
+            class="font-display text-lg font-semibold text-foreground/75 transition-colors duration-snap ease-soft hover:text-foreground md:text-xl aria-[current=page]:text-foreground aria-[current=page]:underline aria-[current=page]:decoration-accent aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
     </ul>
 
     <div class="flex items-center gap-2">
@@ -90,20 +88,18 @@ const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
         <FacebookIcon aria-hidden="true" class="h-5 w-5" />
         <span class="hidden sm:inline">Facebook</span>
       </Button>
-      {
-        orderUrl && (
-          <Button
-            variant="primary"
-            href={orderUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="gap-2"
-          >
-            <DoorDashIcon aria-hidden="true" class="h-5 w-5" />
-            <span>Order</span>
-          </Button>
-        )
-      }
+      {orderUrl && (
+        <Button
+          variant="primary"
+          href={orderUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="gap-2"
+        >
+          <DoorDashIcon aria-hidden="true" class="h-5 w-5" />
+          <span>Order</span>
+        </Button>
+      )}
       <div class="md:hidden">
         <MobileNav links={links} currentPath={currentPath} client:load />
       </div>

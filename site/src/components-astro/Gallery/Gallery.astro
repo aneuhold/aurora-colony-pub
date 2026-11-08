@@ -18,15 +18,13 @@ const entries = typeof limit === 'number' ? sorted.slice(0, limit) : sorted;
 const images = entries.map((entry) => ({ photo: entry.data.photo, alt: entry.data.alt }));
 ---
 
-{
-  images.length > 0 && (
-    <Section id="gallery">
-      <Container size="wide">
-        <Heading level={2}>{heading}</Heading>
-        <div class="mt-10">
-          <MasonryImages images={images} />
-        </div>
-      </Container>
-    </Section>
-  )
-}
+{images.length > 0 && (
+  <Section id="gallery">
+    <Container size="wide">
+      <Heading level={2}>{heading}</Heading>
+      <div class="mt-10">
+        <MasonryImages images={images} />
+      </div>
+    </Container>
+  </Section>
+)}

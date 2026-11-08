@@ -3,8 +3,7 @@ import { globalConstants } from '$util/globalConstants';
 import { contactFormConstants } from './contactFormConstants';
 
 type ContactSubmitResult =
-  | { ok: true }
-  | { ok: false; kind: 'server' | 'network' | 'validation'; message: string };
+  { ok: true } | { ok: false; kind: 'server' | 'network' | 'validation'; message: string };
 
 interface TurnstileMountCallbacks {
   onToken: (token: string) => void;

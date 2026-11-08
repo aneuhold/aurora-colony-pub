@@ -38,14 +38,12 @@ const variantClass: Record<Variant, string> = {
 const classes = [variantClass[variant], className];
 ---
 
-{
-  href ? (
-    <a href={href} target={target} rel={rel} aria-label={ariaLabel} class:list={classes}>
-      <slot />
-    </a>
-  ) : (
-    <button type={type} disabled={disabled} aria-label={ariaLabel} class:list={classes}>
-      <slot />
-    </button>
-  )
-}
+{href ? (
+  <a href={href} target={target} rel={rel} aria-label={ariaLabel} class:list={classes}>
+    <slot />
+  </a>
+) : (
+  <button type={type} disabled={disabled} aria-label={ariaLabel} class:list={classes}>
+    <slot />
+  </button>
+)}

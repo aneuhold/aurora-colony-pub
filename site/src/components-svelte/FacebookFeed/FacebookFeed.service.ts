@@ -3,8 +3,7 @@ import { globalConstants } from '$util/globalConstants';
 import { facebookFeedConstants } from './facebookFeedConstants';
 
 export type FetchFeedResult =
-  | { ok: true; data: WorkerFbFeedResponse }
-  | { ok: false; message: string };
+  { ok: true; data: WorkerFbFeedResponse } | { ok: false; message: string };
 
 /**
  * Pure-logic singleton for the FacebookFeed island. Owns the worker fetch

@@ -24,10 +24,10 @@ const { note } = (await pubContentService.contact()).data;
   <main>
     <Section padding="tight" background="wood">
       <Container size="wide">
-        <Heading level={1} class="text-surface-wood-foreground">Stop in, or send a note.</Heading>
-        <p
-          class="mt-4 max-w-prose font-display text-lg text-surface-wood-foreground/80 md:text-xl"
-        >
+        <Heading level={1} class="text-surface-wood-foreground">
+          Stop in, or send a note.
+        </Heading>
+        <p class="mt-4 max-w-prose font-display text-lg text-surface-wood-foreground/80 md:text-xl">
           We'll get back to you as soon as we can. For the fastest response, give us a call during
           open hours.
         </p>
@@ -38,24 +38,30 @@ const { note } = (await pubContentService.contact()).data;
       <Container size="wide">
         <div class="grid gap-10 md:grid-cols-[1fr_1.2fr] md:gap-16">
           <aside class="rounded-lg border border-foreground/10 bg-foreground/5 p-6 md:p-8">
-            <OldText as="h2" class="text-foreground/60">Find us</OldText>
+            <OldText as="h2" class="text-foreground/60">
+              Find us
+            </OldText>
             <div class="mt-4">
               <SiteInfo />
             </div>
-            <OldText as="h2" class="mt-8 text-foreground/60">Hours</OldText>
+            <OldText as="h2" class="mt-8 text-foreground/60">
+              Hours
+            </OldText>
             <div class="mt-4">
               <Hours />
             </div>
             <div class="mt-8">
-              <Button variant="primary" href={pubMapService.directionsUrl}>Get directions</Button>
+              <Button variant="primary" href={pubMapService.directionsUrl}>
+                Get directions
+              </Button>
             </div>
           </aside>
 
           <div>
-            <OldText as="h2" class="text-foreground/60">Send a note</OldText>
-            <p class="mt-4 max-w-prose text-foreground/80">
-              {note}
-            </p>
+            <OldText as="h2" class="text-foreground/60">
+              Send a note
+            </OldText>
+            <p class="mt-4 max-w-prose text-foreground/80">{note}</p>
             <div class="mt-6">
               <ContactForm client:idle />
             </div>
@@ -66,9 +72,7 @@ const { note } = (await pubContentService.contact()).data;
 
     <Section padding="tight" id="map">
       <Container size="wide">
-        <div
-          class="aspect-video overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5"
-        >
+        <div class="aspect-video overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5">
           <PubMap client:visible />
         </div>
         <p class="mt-4 text-center text-sm text-foreground/60">
