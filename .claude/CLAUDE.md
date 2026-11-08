@@ -12,6 +12,7 @@ All commands run from the **repo root** — pnpm filters route them to the right
 - Build workers only: `pnpm build:workers` (each runs `wrangler deploy --dry-run`)
 - Preview built site: `pnpm preview`
 - Lint: `pnpm lint`
+- Lint + autofix: `pnpm lint:fix`
 - Type-check: `pnpm check`
 - Test: `pnpm test`
 - Deploy workers: `pnpm deploy:workers`
@@ -35,8 +36,8 @@ All commands run from the **repo root** — pnpm filters route them to the right
 - Shared KV namespace: `aurora-colony-pub-kv` (single namespace for the whole project; bound as `AURORA_COLONY_PUB_KV`). Use key prefixes to separate concerns (e.g. `fb:post:123`, `contact:sub:456`).
 - Every Worker has a `RATE_LIMITER` binding (Cloudflare's [`ratelimit`](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) binding) keyed by `CF-Connecting-IP`. The `fetch` handler should call `await env.RATE_LIMITER.limit({ key: ip })` first and return `429` on miss. Per-Worker `limit`/`period` lives in each `wrangler.jsonc`.
 - Per-Worker bindings, secrets, and vars are declared in each `wrangler.jsonc`; the `Env` interface in each `src/index.ts` is the source of truth for what the handler consumes.
-- Each Worker uses the shared `workers/tsconfig.base.json` (its own `tsconfig.json` is a two-line extender) and the shared `workers/vitest.shared.ts` (its own `vitest.config.ts` re-exports it). Don't duplicate either.
-- Tests use `@cloudflare/vitest-pool-workers` so `fetch`/KV bindings work inside Vitest.
+- Each Worker uses the shared `workers/tsconfig.base.json` (its own `tsconfig.json` extends it and lists the `packages/*` it imports under `references`) and the shared `workers/vitest.shared.ts` (its own `vitest.config.ts` re-exports it). Don't duplicate either.
+- Tests use `@cloudflare/vitest-plugin` so `fetch`/KV bindings work inside Vitest.
 
 ## Code Style
 
@@ -61,8 +62,8 @@ All commands run from the **repo root** — pnpm filters route them to the right
 
 ### Services
 
-- When a module exposes more than one related function, or any state/constants shared across functions, write it as a `*.service.ts` singleton instead of a file of floating exports. See `site/src/util/DateTime.service.ts` for the canonical shape: one class with helpers as methods, `private static readonly` for constants, `private` for internal helpers, `public` for the surface the rest of the app consumes, and `export default new XyzService()` at the bottom.
-- File name is PascalCase matching the class (e.g. `Branding.service.ts` → `class BrandingService`).
+- When a module exposes more than one related function, or any state/constants shared across functions, write it as a `*.service.ts` singleton instead of a file of floating exports. See `site/src/util/DateTime.service.ts` for the canonical shape: one class with helpers as methods, `static readonly #NAME` for constants, `#name` (ECMAScript private) for internal helpers, `public` for the surface the rest of the app consumes, and `const xyzService = new XyzService(); export default xyzService;` at the bottom. No top-level `const`s or functions outside the class (top-level `type`/`interface` declarations are fine). The `aneuhold/service-file-structure` and `aneuhold/no-private-modifier` lint rules enforce this.
+- File name is PascalCase matching the class (e.g. `Branding.service.ts` → `class BrandingService`). This applies to worker services too (e.g. `workers/contact/src/services/Contact.service.ts`).
 
 ## File Organization
 
@@ -99,7 +100,7 @@ All commands run from the **repo root** — pnpm filters route them to the right
 
 ## Before Considering a Task Complete
 
-Run + fix any issues that come up: `pnpm lint --fix`, `pnpm check`, and `pnpm test`.
+Run + fix any issues that come up: `pnpm lint:fix`, `pnpm check`, and `pnpm test`.
 
 ## Tool Information
 

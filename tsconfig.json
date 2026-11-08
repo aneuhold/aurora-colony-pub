@@ -1,0 +1,18 @@
+{
+  // A solution file: it holds no sources of its own, it only names the projects the
+  // workspace is made of. TypeScript walks these references to answer "find all
+  // references" and "rename" from any project into any other, which is what lets a
+  // symbol in `packages/shared` list its usages without the others being open
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/workers-shared" },
+    { "path": "./site" },
+    { "path": "./scripts" },
+    { "path": "./workers" },
+    { "path": "./workers/cms-auth" },
+    { "path": "./workers/contact" },
+    { "path": "./workers/fb-feed-read" },
+    { "path": "./workers/fb-feed-sync" }
+  ]
+}

@@ -14,7 +14,6 @@ build/
 docs/ignored-docs
 
 # generated
-worker-configuration.d.ts
 .playwright-mcp
 
 # logs

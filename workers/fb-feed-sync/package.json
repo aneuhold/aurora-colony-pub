@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -n sync,seed -c cyan,gray \"wrangler dev --test-scheduled --env-file ../../.env --persist-to ../.wrangler/state\" \"tsx ../../scripts/trigger-fbsync.ts local --wait\"",
-    "check": "wrangler types > /dev/null && tsc --noEmit",
+    "check": "wrangler types > /dev/null && tsc -b ../../packages/shared ../../packages/workers-shared && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "build": "wrangler deploy --dry-run --outdir=dist",
@@ -18,7 +18,7 @@
     "@sentry/cloudflare": "^10.53.1"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.6",
+    "@cloudflare/vitest-plugin": "^1.4.4",
     "@cloudflare/workers-types": "^4.20260522.1",
     "vitest": "^4.1.6",
     "wrangler": "^4.92.0"
