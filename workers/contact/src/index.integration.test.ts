@@ -135,7 +135,8 @@ describe('contact worker', () => {
   });
 
   it('returns 400 when email is missing', async () => {
-    const { email: _email, ...withoutEmail } = validBody;
+    const withoutEmail: Partial<typeof validBody> = { ...validBody };
+    delete withoutEmail.email;
     const response = await postContact(withoutEmail);
     expect(response.status).toBe(400);
     const json = await response.json<{ field: string }>();

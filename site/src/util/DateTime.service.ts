@@ -9,50 +9,50 @@ export interface HoursRow {
   close: string;
 }
 
-/**
- * Source of truth for day-of-week labels. Keyed by the lower-case full
- * weekday name in `Date.getDay()` order (Sunday first). Hand-typed rather
- * than derived from `Intl` because `shortLabel` is CMS author input — the
- * exact spellings in `hours.json` rows have to keep matching here, even if
- * CLDR shifts under us.
- */
-const DAYS_CONFIG = {
-  sunday: { shortLabel: 'Sun', longLabel: 'Sunday' },
-  monday: { shortLabel: 'Mon', longLabel: 'Monday' },
-  tuesday: { shortLabel: 'Tue', longLabel: 'Tuesday' },
-  wednesday: { shortLabel: 'Wed', longLabel: 'Wednesday' },
-  thursday: { shortLabel: 'Thu', longLabel: 'Thursday' },
-  friday: { shortLabel: 'Fri', longLabel: 'Friday' },
-  saturday: { shortLabel: 'Sat', longLabel: 'Saturday' }
-} as const;
-
 class DateTimeService {
+  /**
+   * Source of truth for day-of-week labels. Keyed by the lower-case full
+   * weekday name in `Date.getDay()` order (Sunday first). Hand-typed rather
+   * than derived from `Intl` because `shortLabel` is CMS author input — the
+   * exact spellings in `hours.json` rows have to keep matching here, even if
+   * CLDR shifts under us.
+   */
+  static readonly #DAYS_CONFIG = {
+    sunday: { shortLabel: 'Sun', longLabel: 'Sunday' },
+    monday: { shortLabel: 'Mon', longLabel: 'Monday' },
+    tuesday: { shortLabel: 'Tue', longLabel: 'Tuesday' },
+    wednesday: { shortLabel: 'Wed', longLabel: 'Wednesday' },
+    thursday: { shortLabel: 'Thu', longLabel: 'Thursday' },
+    friday: { shortLabel: 'Fri', longLabel: 'Friday' },
+    saturday: { shortLabel: 'Sat', longLabel: 'Saturday' }
+  } as const;
+
   /**
    * Day rows in JS `Date.getDay()` order (0=Sun..6=Sat). Object key
    * iteration order is preserved for non-integer string keys, so
-   * `Object.values(DAYS_CONFIG)` is a stable index-aligned list.
+   * `Object.values(#DAYS_CONFIG)` is a stable index-aligned list.
    */
-  private static readonly DAYS = Object.values(DAYS_CONFIG);
+  static readonly #DAYS = Object.values(DateTimeService.#DAYS_CONFIG);
 
   /**
    * Two-week threshold past which the relative-time formatter switches
    * from "Nd ago" to an absolute month-day date. Keeps the FB feed cards
    * readable for older entries.
    */
-  private static readonly RELATIVE_DAYS_CUTOFF = 14;
+  static readonly #RELATIVE_DAYS_CUTOFF = 14;
 
-  private static readonly RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat('en', {
+  static readonly #RELATIVE_TIME_FORMATTER = new Intl.RelativeTimeFormat('en', {
     numeric: 'always',
     style: 'narrow'
   });
 
-  private static readonly ABSOLUTE_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  static readonly #ABSOLUTE_DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric'
   });
 
   /** Short day labels indexed by JS `Date.getDay()` (0=Sun..6=Sat). */
-  readonly shortDayLabels = DateTimeService.DAYS.map((d) => d.shortLabel);
+  readonly shortDayLabels = DateTimeService.#DAYS.map((d) => d.shortLabel);
 
   /**
    * Parses a 12-hour clock string ("11:00 AM", "12:00 AM", "9:30 PM") into
@@ -98,7 +98,7 @@ class DateTimeService {
    * @param label Day-range label
    */
   longDayNameForLabel(label: string) {
-    return this.expandDayLabel(label).map((idx) => DateTimeService.DAYS[idx].longLabel);
+    return this.#expandDayLabel(label).map((idx) => DateTimeService.#DAYS[idx].longLabel);
   }
 
   /**
@@ -116,11 +116,11 @@ class DateTimeService {
    *
    * @param label Day-range label
    */
-  private expandDayLabel(label: string): number[] {
+  #expandDayLabel(label: string): number[] {
     const normalized = label.replace(/[–—]/g, '-');
     const parts = normalized.split('-').map((s) => s.trim());
     const indexOf = (shortLabel: string): number =>
-      DateTimeService.DAYS.findIndex((d) => d.shortLabel === shortLabel);
+      DateTimeService.#DAYS.findIndex((d) => d.shortLabel === shortLabel);
     if (parts.length === 1) {
       const idx = indexOf(parts[0]);
       return idx < 0 ? [] : [idx];
@@ -160,7 +160,7 @@ class DateTimeService {
    * @param dayIdx Day index from `Date.getDay()` (0=Sun..6=Sat)
    */
   labelCoversDay(label: string, dayIdx: number): boolean {
-    return this.expandDayLabel(label).includes(dayIdx);
+    return this.#expandDayLabel(label).includes(dayIdx);
   }
 
   /**
@@ -179,7 +179,7 @@ class DateTimeService {
     const then = new Date(iso);
     const diffSec = Math.max(0, Math.floor((now.getTime() - then.getTime()) / 1000));
     if (diffSec < 60) return 'Just now';
-    const rel = DateTimeService.RELATIVE_TIME_FORMATTER;
+    const rel = DateTimeService.#RELATIVE_TIME_FORMATTER;
     if (diffSec < 60 * 60) {
       return rel.format(-Math.floor(diffSec / 60), 'minute');
     }
@@ -187,10 +187,10 @@ class DateTimeService {
       return rel.format(-Math.floor(diffSec / (60 * 60)), 'hour');
     }
     const days = Math.floor(diffSec / (60 * 60 * 24));
-    if (days < DateTimeService.RELATIVE_DAYS_CUTOFF) {
+    if (days < DateTimeService.#RELATIVE_DAYS_CUTOFF) {
       return rel.format(-days, 'day');
     }
-    return DateTimeService.ABSOLUTE_DATE_FORMATTER.format(then);
+    return DateTimeService.#ABSOLUTE_DATE_FORMATTER.format(then);
   }
 }
 

@@ -1,8 +1,8 @@
 name: 'Main Branch: Deploy Workers'
 
-# Root files (lockfile, base tsconfig, this workflow, etc.) can affect worker
-# deploys, so they're listed alongside `workers/**` to force a deploy when
-# they change.
+# Root files (lockfile, tsconfigs, this workflow, etc.) and the shared
+# `packages/*` workspaces can affect worker deploys, so they're listed
+# alongside `workers/**` to force a deploy when they change.
 on:
   push:
     branches:
@@ -12,6 +12,8 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'tsconfig.json'
       - 'tsconfig.base.json'
       - '.github/workflows/main-branch-workers.yml'
 

@@ -3,7 +3,7 @@ import { checkIpRateLimit } from '@aurora/workers-shared';
 import * as Sentry from '@sentry/cloudflare';
 import type { Env } from '../Env';
 import { fbFeedSyncConstants } from '../util/fbFeedSyncConstants';
-import fbGraphService from './FbGraphService';
+import fbGraphService from './FbGraph.service';
 
 /**
  * Sync orchestration singleton. Fetches the latest Graph posts, normalises

@@ -13,7 +13,7 @@ import pubContentService from './PubContent.service';
 
 class SeoGraphService {
   /** Stable slug for the BarOrPub `@id` URI. */
-  private static readonly PUB_SLUG = 'pub';
+  static readonly #PUB_SLUG = 'pub';
 
   /**
    * Builds the JSON-LD `@graph` for the current page: a sitewide `WebSite`
@@ -37,7 +37,7 @@ class SeoGraphService {
     const { site, pageUrl, pageName, description, ogImage } = args;
     const siteUrl = site.href;
     const ids = makeIds({ siteUrl });
-    const pubId = ids.organization(SeoGraphService.PUB_SLUG);
+    const pubId = ids.organization(SeoGraphService.#PUB_SLUG);
 
     const [hoursEntry, contactEntry, socialEntry, businessProfilesEntry] = await Promise.all([
       pubContentService.hours(),
@@ -117,7 +117,11 @@ class SeoGraphService {
       hasMenu: menuUrl
     });
 
-    return assembleGraph([this.toEntity(website), this.toEntity(webPage), this.toEntity(barOrPub)]);
+    return assembleGraph([
+      this.#toEntity(website),
+      this.#toEntity(webPage),
+      this.#toEntity(barOrPub)
+    ]);
   }
 
   /**
@@ -128,7 +132,7 @@ class SeoGraphService {
    *
    * @param piece - Raw piece returned by a `buildXxx` call from `seo-graph-core`
    */
-  private toEntity(piece: Record<string, unknown>): GraphEntity {
+  #toEntity(piece: Record<string, unknown>): GraphEntity {
     const type = piece['@type'];
     const validString = typeof type === 'string';
     const validArray = Array.isArray(type) && type.every((t) => typeof t === 'string');

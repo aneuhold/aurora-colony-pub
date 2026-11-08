@@ -141,7 +141,7 @@ When removing a collection, delete the component and every caller — don't leav
 From the repo root:
 
 ```
-pnpm lint --fix
+pnpm lint:fix
 pnpm check
 pnpm test
 pnpm build:site

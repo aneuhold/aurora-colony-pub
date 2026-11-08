@@ -1,6 +1,3 @@
-const COOKIE_NAME = 'aurora_cms_oauth_state';
-const COOKIE_ATTRS = 'Path=/; HttpOnly; Secure; SameSite=Lax';
-
 /**
  * Stateless helper for the signed `state` cookie used in the GitHub OAuth
  * round-trip. The cookie carries the random state token plus an HMAC over
@@ -8,7 +5,10 @@ const COOKIE_ATTRS = 'Path=/; HttpOnly; Secure; SameSite=Lax';
  * any backend storage.
  */
 class StateCookieService {
-  readonly cookieName = COOKIE_NAME;
+  static readonly #COOKIE_NAME = 'aurora_cms_oauth_state';
+  static readonly #COOKIE_ATTRS = 'Path=/; HttpOnly; Secure; SameSite=Lax';
+
+  readonly cookieName = StateCookieService.#COOKIE_NAME;
 
   /**
    * Generates a random URL-safe state token suitable for CSRF protection.
@@ -16,7 +16,7 @@ class StateCookieService {
   generateState(): string {
     const bytes = new Uint8Array(16);
     crypto.getRandomValues(bytes);
-    return this.toBase64Url(bytes);
+    return this.#toBase64Url(bytes);
   }
 
   /**
@@ -27,15 +27,15 @@ class StateCookieService {
    * @param secret HMAC key (the OAuth client secret)
    */
   async buildSetCookieHeader(state: string, secret: string): Promise<string> {
-    const signature = await this.hmacSign(state, secret);
-    return `${COOKIE_NAME}=${state}.${signature}; ${COOKIE_ATTRS}; Max-Age=600`;
+    const signature = await this.#hmacSign(state, secret);
+    return `${StateCookieService.#COOKIE_NAME}=${state}.${signature}; ${StateCookieService.#COOKIE_ATTRS}; Max-Age=600`;
   }
 
   /**
    * Returns the `Set-Cookie` header value that clears the state cookie.
    */
   buildClearCookieHeader(): string {
-    return `${COOKIE_NAME}=; ${COOKIE_ATTRS}; Max-Age=0`;
+    return `${StateCookieService.#COOKIE_NAME}=; ${StateCookieService.#COOKIE_ATTRS}; Max-Age=0`;
   }
 
   /**
@@ -47,11 +47,11 @@ class StateCookieService {
    * @param secret HMAC key (the OAuth client secret)
    */
   async readVerifiedState(request: Request, secret: string): Promise<string | null> {
-    const cookieValue = this.readCookie(request, COOKIE_NAME);
+    const cookieValue = this.#readCookie(request, StateCookieService.#COOKIE_NAME);
     if (!cookieValue) return null;
     const [state, signature] = cookieValue.split('.');
     if (!state || !signature) return null;
-    const expectedSignature = await this.hmacSign(state, secret);
+    const expectedSignature = await this.#hmacSign(state, secret);
     if (!this.constantTimeEqual(signature, expectedSignature)) return null;
     return state;
   }
@@ -78,7 +78,7 @@ class StateCookieService {
    * @param payload The string to sign
    * @param secret HMAC key
    */
-  private async hmacSign(payload: string, secret: string): Promise<string> {
+  async #hmacSign(payload: string, secret: string): Promise<string> {
     const key = await crypto.subtle.importKey(
       'raw',
       new TextEncoder().encode(secret),
@@ -87,7 +87,7 @@ class StateCookieService {
       ['sign']
     );
     const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
-    return this.toBase64Url(new Uint8Array(signature));
+    return this.#toBase64Url(new Uint8Array(signature));
   }
 
   /**
@@ -95,7 +95,7 @@ class StateCookieService {
    *
    * @param bytes The bytes to encode
    */
-  private toBase64Url(bytes: Uint8Array): string {
+  #toBase64Url(bytes: Uint8Array): string {
     let binary = '';
     for (const byte of bytes) {
       binary += String.fromCharCode(byte);
@@ -109,7 +109,7 @@ class StateCookieService {
    * @param request Incoming request
    * @param name Cookie name to extract
    */
-  private readCookie(request: Request, name: string): string | null {
+  #readCookie(request: Request, name: string): string | null {
     const header = request.headers.get('Cookie');
     if (!header) return null;
     for (const part of header.split(';')) {

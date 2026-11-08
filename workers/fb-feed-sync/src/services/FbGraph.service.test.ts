@@ -1,7 +1,7 @@
 import type { FbGraphPostsResponse } from '@aurora/shared';
 import { env } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import fbGraphService from './FbGraphService';
+import fbGraphService from './FbGraph.service';
 
 const GRAPH_RESPONSE: FbGraphPostsResponse = {
   data: [

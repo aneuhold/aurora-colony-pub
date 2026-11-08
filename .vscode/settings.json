@@ -29,6 +29,7 @@
     "astro"
   ],
   "markdown.copyFiles.destination": {
-    "/docs/**/*": "${documentDirName}/images/"
+    "/docs/**/*": "${documentDirName}/images/",
+    "/README.md": "docs/images/"
   }
 }

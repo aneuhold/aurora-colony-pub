@@ -6,7 +6,7 @@ import {
 } from '@aurora/workers-shared/test-utils';
 import { env as workerEnv, exports } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import authService from './services/AuthService';
+import authService from './services/Auth.service';
 
 const ORIGIN = 'https://example.com';
 const ALLOWED_ORIGIN = allowedOrigins[0];

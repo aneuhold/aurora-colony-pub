@@ -98,7 +98,7 @@ class ContactFormService {
       return {
         ok: false,
         kind: 'validation',
-        message: this.extractErrorMessage(data) ?? contactFormConstants.genericValidationMessage
+        message: this.#extractErrorMessage(data) ?? contactFormConstants.genericValidationMessage
       };
     } catch {
       return {
@@ -109,7 +109,7 @@ class ContactFormService {
     }
   }
 
-  private extractErrorMessage(data: unknown): string | null {
+  #extractErrorMessage(data: unknown): string | null {
     if (
       typeof data === 'object' &&
       data !== null &&

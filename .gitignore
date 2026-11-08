@@ -22,3 +22,7 @@ worker-configuration.d.ts
 
 # ESLint
 .eslintcache
+
+# TypeScript
+.tsbuild
+*.tsbuildinfo

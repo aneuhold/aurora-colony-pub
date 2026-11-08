@@ -1,6 +1,7 @@
 import type { WorkerFbFeedResponse } from '@aurora/shared';
 import {
   checkIpRateLimit,
+  type CorsMethod,
   corsHeaders,
   isAllowedOrigin,
   jsonResponse
@@ -8,14 +9,14 @@ import {
 import type { Env } from '../Env';
 import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
 
-const CORS_METHODS = ['GET', 'OPTIONS'] as const;
-
 /**
  * Read-only Facebook feed singleton. Returns the latest snapshot the sync
  * Worker wrote to KV when present; otherwise serves a degraded empty feed
  * the frontend renders as its `empty` state.
  */
 class FbFeedReadService {
+  static readonly #CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
+
   /**
    * Top-level dispatcher. CORS allowlist, method gate, IP rate limit, then
    * the KV snapshot when present, falling back to an empty feed.
@@ -27,7 +28,7 @@ class FbFeedReadService {
     const origin = request.headers.get('Origin');
     const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, CORS_METHODS)
+      ? corsHeaders(echoedOrigin, FbFeedReadService.#CORS_METHODS)
       : { Vary: 'Origin' };
 
     if (request.method === 'OPTIONS') {
