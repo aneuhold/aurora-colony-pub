@@ -2,8 +2,7 @@ import type { FbGraphPostsResponse, WorkerFbFeedResponse } from '@aurora/shared'
 import {
   createTestIpGenerator,
   fetchInputUrl,
-  installSentryOnlyFetchMock,
-  sentryIngestAwareFetch
+  installNoOutboundFetchMock
 } from '@aurora/workers-shared/test-utils';
 import {
   createExecutionContext,
@@ -12,6 +11,7 @@ import {
 } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Env } from './Env';
 import worker from './index';
 import { fbFeedSyncConstants } from './util/fbFeedSyncConstants';
 
@@ -38,7 +38,7 @@ const GRAPH_RESPONSE: FbGraphPostsResponse = {
 
 /**
  * Installs a fetch mock that answers the Graph `/posts` request and rejects
- * any other (non-Sentry) outbound call.
+ * any other outbound call.
  *
  * @param graphResponse Status + JSON body to return for the Graph call
  * @param graphResponse.status HTTP status the mocked Graph call returns
@@ -46,20 +46,18 @@ const GRAPH_RESPONSE: FbGraphPostsResponse = {
  */
 const setupGraphFetchMock = (graphResponse: { status?: number; body?: unknown } = {}): void => {
   const { status = 200, body = GRAPH_RESPONSE } = graphResponse;
-  vi.spyOn(globalThis, 'fetch').mockImplementation(
-    sentryIngestAwareFetch((input) => {
-      const url = fetchInputUrl(input);
-      if (url.startsWith('https://graph.facebook.com/')) {
-        return Promise.resolve(
-          new Response(JSON.stringify(body), {
-            status,
-            headers: { 'Content-Type': 'application/json' }
-          })
-        );
-      }
-      return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
-    })
-  );
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const url = fetchInputUrl(input);
+    if (url.startsWith('https://graph.facebook.com/')) {
+      return Promise.resolve(
+        new Response(JSON.stringify(body), {
+          status,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+    }
+    return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
+  });
 };
 
 const post = (init: { bearer?: string } = {}): Promise<Response> => {
@@ -84,17 +82,15 @@ describe('fb-feed-sync worker', () => {
   beforeAll(async () => {
     // Pay miniflare's first-call cold start here so the first real test
     // doesn't trip the 5s default timeout.
-    installSentryOnlyFetchMock();
     const response = await exports.default.fetch('https://fb-feed-sync.example.com/', {
       method: 'POST',
       headers: { 'CF-Connecting-IP': nextIp() }
     });
     await response.text();
-    vi.restoreAllMocks();
   }, 30_000);
 
   beforeEach(() => {
-    installSentryOnlyFetchMock();
+    installNoOutboundFetchMock();
   });
 
   afterEach(async () => {
@@ -141,10 +137,12 @@ describe('fb-feed-sync worker', () => {
       cron: '*/30 * * * *'
     });
     const ctx = createExecutionContext();
-    if (worker.scheduled === undefined) {
+    // Widen to the runtime signature so the test can pass `ctx` like the runtime does.
+    const handler: ExportedHandler<Env> = worker;
+    if (handler.scheduled === undefined) {
       throw new Error('Worker does not export a scheduled handler');
     }
-    await worker.scheduled(controller, env, ctx);
+    await handler.scheduled(controller, env, ctx);
     await waitOnExecutionContext(ctx);
 
     const stored = await readStoredFeed();

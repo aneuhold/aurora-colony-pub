@@ -3,8 +3,7 @@ import { globalConstants } from '$util/globalConstants';
 import { contactFormConstants } from './contactFormConstants';
 
 type ContactSubmitResult =
-  | { ok: true }
-  | { ok: false; kind: 'server' | 'network' | 'validation'; message: string };
+  { ok: true } | { ok: false; kind: 'server' | 'network' | 'validation'; message: string };
 
 interface TurnstileMountCallbacks {
   onToken: (token: string) => void;
@@ -98,7 +97,7 @@ class ContactFormService {
       return {
         ok: false,
         kind: 'validation',
-        message: this.extractErrorMessage(data) ?? contactFormConstants.genericValidationMessage
+        message: this.#extractErrorMessage(data) ?? contactFormConstants.genericValidationMessage
       };
     } catch {
       return {
@@ -109,7 +108,7 @@ class ContactFormService {
     }
   }
 
-  private extractErrorMessage(data: unknown): string | null {
+  #extractErrorMessage(data: unknown): string | null {
     if (
       typeof data === 'object' &&
       data !== null &&

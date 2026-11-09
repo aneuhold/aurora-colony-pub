@@ -13,42 +13,42 @@ class PubContentService {
    * Home-page content — hero title/tagline/image and the patio callout.
    */
   async home(): Promise<CollectionEntry<'home'>> {
-    return this.required(await getEntry('home', 'home'), 'home');
+    return this.#required(await getEntry('home', 'home'), 'home');
   }
 
   /**
    * About-page heading, markdown body, and the three highlight blocks.
    */
   async about(): Promise<CollectionEntry<'about'>> {
-    return this.required(await getEntry('about', 'about'), 'about');
+    return this.#required(await getEntry('about', 'about'), 'about');
   }
 
   /**
    * Intro text shown under the title on the menu page.
    */
   async menuIntro(): Promise<CollectionEntry<'menuIntro'>> {
-    return this.required(await getEntry('menuIntro', 'menu-intro'), 'menuIntro');
+    return this.#required(await getEntry('menuIntro', 'menu-intro'), 'menuIntro');
   }
 
   /**
    * Phone, email, and DoorDash order URL.
    */
   async contact(): Promise<CollectionEntry<'contact'>> {
-    return this.required(await getEntry('contact', 'contact'), 'contact');
+    return this.#required(await getEntry('contact', 'contact'), 'contact');
   }
 
   /**
    * Weekly hours and happy-hour window.
    */
   async hours(): Promise<CollectionEntry<'hours'>> {
-    return this.required(await getEntry('hours', 'hours'), 'hours');
+    return this.#required(await getEntry('hours', 'hours'), 'hours');
   }
 
   /**
    * Required Facebook link plus any other social links.
    */
   async socialMediaLinks(): Promise<CollectionEntry<'socialMediaLinks'>> {
-    return this.required(
+    return this.#required(
       await getEntry('socialMediaLinks', 'social-media-links'),
       'socialMediaLinks'
     );
@@ -59,7 +59,7 @@ class PubContentService {
    * used to populate the JSON-LD `sameAs` array.
    */
   async businessProfiles(): Promise<CollectionEntry<'businessProfiles'>> {
-    return this.required(
+    return this.#required(
       await getEntry('businessProfiles', 'business-profiles'),
       'businessProfiles'
     );
@@ -72,7 +72,7 @@ class PubContentService {
    * @param entry The entry returned by `getEntry`, possibly undefined
    * @param collection Collection name, used only for the error message
    */
-  private required<T>(entry: T | undefined, collection: string): T {
+  #required<T>(entry: T | undefined, collection: string): T {
     if (!entry) {
       throw new Error(`Missing ${collection} content entry`);
     }

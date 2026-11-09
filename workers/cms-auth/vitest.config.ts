@@ -1,4 +1,4 @@
-import { createWorkerVitestConfig } from '../vitest.shared';
+import { createWorkerVitestConfig } from '../vitest.shared.ts';
 
 // Inject a test stand-in for GITHUB_CMS_CLIENT_SECRET so Web Crypto's HMAC can
 // import a non-zero-length key when signing/verifying the OAuth state cookie.

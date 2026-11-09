@@ -2,19 +2,16 @@ import type { WorkerContactSubmitPayload } from '@aurora/shared';
 import { sharedContactFormConstants } from '@aurora/shared';
 import {
   checkIpRateLimit,
+  type CorsMethod,
   corsHeaders,
   isAllowedOrigin,
   jsonResponse
 } from '@aurora/workers-shared';
 import type { Env } from '../Env';
-import contactEmailService from './ContactEmailService';
+import contactEmailService from './ContactEmail.service';
 
 type ValidationResult =
-  | { ok: true; body: WorkerContactSubmitPayload }
-  | { ok: false; field: string; error: string };
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CORS_METHODS = ['POST', 'OPTIONS'] as const;
+  { ok: true; body: WorkerContactSubmitPayload } | { ok: false; field: string; error: string };
 
 /**
  * Contact form orchestration singleton. Owns the request lifecycle (CORS,
@@ -23,6 +20,9 @@ const CORS_METHODS = ['POST', 'OPTIONS'] as const;
  * `ContactEmailService`. Keeps the worker entry point trivial.
  */
 class ContactService {
+  static readonly #EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  static readonly #CORS_METHODS: readonly CorsMethod[] = ['POST', 'OPTIONS'];
+
   /**
    * Top-level dispatcher. Runs cheapest defenses first so obviously bad
    * requests bail out before any outbound network call.
@@ -34,7 +34,7 @@ class ContactService {
     const origin = request.headers.get('Origin');
     const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, CORS_METHODS)
+      ? corsHeaders(echoedOrigin, ContactService.#CORS_METHODS)
       : { Vary: 'Origin' };
 
     if (request.method === 'OPTIONS') {
@@ -62,7 +62,7 @@ class ContactService {
       return jsonResponse({ field: 'body', error: 'Malformed JSON' }, 400, cors);
     }
 
-    const validated = this.validateBody(raw);
+    const validated = this.#validateBody(raw);
     if (!validated.ok) {
       return jsonResponse({ field: validated.field, error: validated.error }, 400, cors);
     }
@@ -97,7 +97,7 @@ class ContactService {
     return jsonResponse({ ok: true }, 200, cors);
   }
 
-  private validateBody(raw: unknown): ValidationResult {
+  #validateBody(raw: unknown): ValidationResult {
     if (typeof raw !== 'object' || raw === null) {
       return { ok: false, field: 'body', error: 'Body must be a JSON object' };
     }
@@ -122,7 +122,7 @@ class ContactService {
       typeof email !== 'string' ||
       email.length < sharedContactFormConstants.minEmailLength ||
       email.length > sharedContactFormConstants.maxEmailLength ||
-      !EMAIL_REGEX.test(email)
+      !ContactService.#EMAIL_REGEX.test(email)
     ) {
       return { ok: false, field: 'email', error: 'Email is invalid' };
     }

@@ -16,5 +16,10 @@
     "vitest.config.ts",
     "testUtils/**/*"
   ],
-  "exclude": ["dist"]
+  "exclude": ["dist", "eslint.config.ts"],
+  "references": [
+    {
+      "path": "../packages/shared"
+    }
+  ]
 }

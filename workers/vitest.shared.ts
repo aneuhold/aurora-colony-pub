@@ -1,15 +1,13 @@
-import { cloudflareTest } from '@cloudflare/vitest-pool-workers';
+import { cloudflareTest } from '@cloudflare/vitest-plugin';
 import { configDefaults, defineConfig, type ViteUserConfig } from 'vitest/config';
 
 export interface WorkerVitestOptions {
   /**
    * Extra miniflare bindings to inject — typically test stand-ins for
    * secrets that aren't declared in `wrangler.jsonc` because they're set
-   * via `wrangler secret put` in production.
-   * 
-   * This is the correct type actually used by cloudflareTest (note by Anton).
+   * via `wrangler secret put` in production. Secrets are always strings.
    */
-  bindings?: Record<string, unknown>;
+  bindings?: Record<string, string>;
 }
 
 /**

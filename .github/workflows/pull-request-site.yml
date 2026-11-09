@@ -1,8 +1,8 @@
 name: 'Pull Request: Site'
 
-# Root files (lockfile, base tsconfig, this workflow, etc.) can affect the
-# site build, so they're listed alongside `site/**` to force a rebuild when
-# they change.
+# Root files (lockfile, tsconfigs, this workflow, etc.) and the shared
+# `packages/*` workspaces can affect the site build, so they're listed
+# alongside `site/**` to force a rebuild when they change.
 on:
   pull_request:
     branches:
@@ -12,6 +12,8 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'tsconfig.json'
       - 'tsconfig.base.json'
       - '.github/workflows/pull-request-site.yml'
 

@@ -9,7 +9,7 @@ import { extname } from 'node:path';
  */
 class ImageMediaTypeService {
   /** Canonical extension (leading dot, lowercase) → MIME type. */
-  private static readonly BY_EXTENSION: Record<string, string> = {
+  static readonly #BY_EXTENSION: Record<string, string> = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.png': 'image/png',
@@ -19,7 +19,7 @@ class ImageMediaTypeService {
   };
 
   /** Extension (no dot) returned when a content type isn't recognized. */
-  private static readonly FALLBACK_EXTENSION = 'jpg';
+  static readonly #FALLBACK_EXTENSION = 'jpg';
 
   /**
    * Picks a file extension (without the leading dot) for a downloaded image
@@ -30,7 +30,7 @@ class ImageMediaTypeService {
    */
   extensionForContentType(contentType: string | null): string {
     if (contentType) {
-      for (const [extension, mimeType] of Object.entries(ImageMediaTypeService.BY_EXTENSION)) {
+      for (const [extension, mimeType] of Object.entries(ImageMediaTypeService.#BY_EXTENSION)) {
         // `.jpg` and `.jpeg` share `image/jpeg`; skip `.jpeg` so a JPEG
         // resolves to the shorter, more conventional `jpg`.
         if (extension === '.jpeg') continue;
@@ -38,7 +38,7 @@ class ImageMediaTypeService {
         if (contentType.includes(subtype)) return extension.slice(1);
       }
     }
-    return ImageMediaTypeService.FALLBACK_EXTENSION;
+    return ImageMediaTypeService.#FALLBACK_EXTENSION;
   }
 
   /**
@@ -48,7 +48,7 @@ class ImageMediaTypeService {
    * @param filePath Path whose extension is inspected (case-insensitive)
    */
   contentTypeForFile(filePath: string): string | undefined {
-    return ImageMediaTypeService.BY_EXTENSION[extname(filePath).toLowerCase()];
+    return ImageMediaTypeService.#BY_EXTENSION[extname(filePath).toLowerCase()];
   }
 
   /**

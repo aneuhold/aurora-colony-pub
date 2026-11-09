@@ -14,7 +14,6 @@ build/
 docs/ignored-docs
 
 # generated
-worker-configuration.d.ts
 .playwright-mcp
 
 # logs
@@ -22,3 +21,7 @@ worker-configuration.d.ts
 
 # ESLint
 .eslintcache
+
+# TypeScript
+.tsbuild
+*.tsbuildinfo

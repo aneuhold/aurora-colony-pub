@@ -16,17 +16,17 @@ class SveltiaR2Service {
   // names below still match what Sveltia reads — see
   // node_modules/@sveltia/cms/dist/sveltia-cms.mjs (the `pS` storage
   // helper plus the `cloudflare_r2` apiKey lookup).
-  private static readonly USER_KEY = 'sveltia-cms.user';
-  private static readonly PREFS_KEY = 'sveltia-cms.prefs';
-  private static readonly R2_SERVICE_ID = 'cloudflare_r2';
+  static readonly #USER_KEY = 'sveltia-cms.user';
+  static readonly #PREFS_KEY = 'sveltia-cms.prefs';
+  static readonly #R2_SERVICE_ID = 'cloudflare_r2';
 
   // Sveltia's OAuth callback (served by the cms-auth Worker) postMessages
   // this exact string prefix back to the opener window when login succeeds.
   // We listen for the same message so we can fetch the R2 secret as soon
   // as the token lands — without waiting for the next page load.
-  private static readonly LOGIN_SUCCESS_PREFIX = 'authorization:github:success:';
+  static readonly #LOGIN_SUCCESS_PREFIX = 'authorization:github:success:';
 
-  private readonly authBaseUrl = import.meta.env.DEV
+  readonly #authBaseUrl = import.meta.env.DEV
     ? 'http://localhost:8790'
     : 'https://aurora-cms-auth.agneuhold.workers.dev';
 
@@ -40,16 +40,16 @@ class SveltiaR2Service {
   async start(): Promise<void> {
     // Register before the initial fetch so we catch fresh-login
     // postMessages, even ones that fire before that fetch settles.
-    this.installLoginListener();
+    this.#installLoginListener();
 
-    const user = this.readJson(SveltiaR2Service.USER_KEY);
+    const user = this.#readJson(SveltiaR2Service.#USER_KEY);
     const cachedToken = user?.token;
     const token = typeof cachedToken === 'string' ? cachedToken : null;
     // In dev the Worker accepts unauthenticated calls, so fetch even
     // without a cached GitHub token. In prod skip when there's no token —
     // the postMessage listener will pick it up after Sveltia's login.
     if (token || import.meta.env.DEV) {
-      await this.fetchAndStoreR2Secret(token);
+      await this.#fetchAndStoreR2Secret(token);
     }
   }
 
@@ -61,11 +61,11 @@ class SveltiaR2Service {
    * @param ghToken GitHub OAuth token, or `null` when leaning on the
    *   dev-only `ALLOW_NO_AUTH_FOR_R2_KEY` escape hatch
    */
-  private async fetchAndStoreR2Secret(ghToken: string | null): Promise<void> {
+  async #fetchAndStoreR2Secret(ghToken: string | null): Promise<void> {
     const headers: Record<string, string> = ghToken ? { Authorization: `Bearer ${ghToken}` } : {};
     let response: Response;
     try {
-      response = await fetch(`${this.authBaseUrl}/r2-credentials`, { headers });
+      response = await fetch(`${this.#authBaseUrl}/r2-credentials`, { headers });
     } catch {
       // Network failure — leave any cached secret in place so a
       // previously-working session keeps working offline.
@@ -75,7 +75,7 @@ class SveltiaR2Service {
       // The GitHub token Sveltia is holding is no longer valid for our
       // allowlist. Wipe any stale R2 secret so Sveltia re-prompts after
       // the next sign-in.
-      this.clearR2Secret();
+      this.#clearR2Secret();
       return;
     }
     if (!response.ok) return;
@@ -85,8 +85,8 @@ class SveltiaR2Service {
     } catch {
       return;
     }
-    if (this.isCredentialsResponse(body)) {
-      this.populateR2Secret(body.secretAccessKey);
+    if (this.#isCredentialsResponse(body)) {
+      this.#populateR2Secret(body.secretAccessKey);
     }
   }
 
@@ -96,16 +96,16 @@ class SveltiaR2Service {
    * user can upload immediately without a page refresh. Both listeners
    * (ours + Sveltia's) receive the same event independently.
    */
-  private installLoginListener(): void {
-    const expectedOrigin = new URL(this.authBaseUrl).origin;
+  #installLoginListener(): void {
+    const expectedOrigin = new URL(this.#authBaseUrl).origin;
     window.addEventListener('message', (event) => {
       if (event.origin !== expectedOrigin) return;
       if (typeof event.data !== 'string') return;
-      if (!event.data.startsWith(SveltiaR2Service.LOGIN_SUCCESS_PREFIX)) return;
-      const token = this.parseLoginToken(
-        event.data.slice(SveltiaR2Service.LOGIN_SUCCESS_PREFIX.length)
+      if (!event.data.startsWith(SveltiaR2Service.#LOGIN_SUCCESS_PREFIX)) return;
+      const token = this.#parseLoginToken(
+        event.data.slice(SveltiaR2Service.#LOGIN_SUCCESS_PREFIX.length)
       );
-      if (token) void this.fetchAndStoreR2Secret(token);
+      if (token) void this.#fetchAndStoreR2Secret(token);
     });
   }
 
@@ -114,7 +114,7 @@ class SveltiaR2Service {
    *
    * @param json Raw JSON suffix of the `authorization:github:success:` message
    */
-  private parseLoginToken(json: string): string | null {
+  #parseLoginToken(json: string): string | null {
     let parsed: unknown;
     try {
       parsed = JSON.parse(json);
@@ -136,13 +136,13 @@ class SveltiaR2Service {
    * Removes our cached R2 secret from Sveltia's prefs blob. Leaves any
    * other service entries in `apiKeys` untouched.
    */
-  private clearR2Secret(): void {
-    const prefs = this.readJson(SveltiaR2Service.PREFS_KEY);
+  #clearR2Secret(): void {
+    const prefs = this.#readJson(SveltiaR2Service.#PREFS_KEY);
     if (!prefs) return;
     const apiKeys = prefs.apiKeys;
-    if (this.isRecord(apiKeys)) {
-      delete apiKeys[SveltiaR2Service.R2_SERVICE_ID];
-      this.writeJson(SveltiaR2Service.PREFS_KEY, prefs);
+    if (this.#isRecord(apiKeys)) {
+      delete apiKeys[SveltiaR2Service.#R2_SERVICE_ID];
+      this.#writeJson(SveltiaR2Service.#PREFS_KEY, prefs);
     }
   }
 
@@ -152,13 +152,13 @@ class SveltiaR2Service {
    *
    * @param secretAccessKey R2 bucket-scoped secret access key
    */
-  private populateR2Secret(secretAccessKey: string): void {
-    const prefs: Record<string, unknown> = this.readJson(SveltiaR2Service.PREFS_KEY) ?? {};
+  #populateR2Secret(secretAccessKey: string): void {
+    const prefs: Record<string, unknown> = this.#readJson(SveltiaR2Service.#PREFS_KEY) ?? {};
     const existing = prefs.apiKeys;
-    const apiKeys: Record<string, unknown> = this.isRecord(existing) ? existing : {};
-    apiKeys[SveltiaR2Service.R2_SERVICE_ID] = secretAccessKey;
+    const apiKeys: Record<string, unknown> = this.#isRecord(existing) ? existing : {};
+    apiKeys[SveltiaR2Service.#R2_SERVICE_ID] = secretAccessKey;
     prefs.apiKeys = apiKeys;
-    this.writeJson(SveltiaR2Service.PREFS_KEY, prefs);
+    this.#writeJson(SveltiaR2Service.#PREFS_KEY, prefs);
   }
 
   /**
@@ -169,12 +169,12 @@ class SveltiaR2Service {
    *
    * @param storageKey `localStorage` key
    */
-  private readJson(storageKey: string): Record<string, unknown> | null {
+  #readJson(storageKey: string): Record<string, unknown> | null {
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return null;
       const parsed: unknown = JSON.parse(raw);
-      return this.isRecord(parsed) ? parsed : null;
+      return this.#isRecord(parsed) ? parsed : null;
     } catch {
       return null;
     }
@@ -188,7 +188,7 @@ class SveltiaR2Service {
    * @param storageKey `localStorage` key
    * @param value Plain object to serialize
    */
-  private writeJson(storageKey: string, value: Record<string, unknown>): void {
+  #writeJson(storageKey: string, value: Record<string, unknown>): void {
     try {
       localStorage.setItem(storageKey, JSON.stringify(value));
     } catch {
@@ -201,7 +201,7 @@ class SveltiaR2Service {
    *
    * @param value Value of unknown shape
    */
-  private isRecord(value: unknown): value is Record<string, unknown> {
+  #isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 
@@ -211,9 +211,9 @@ class SveltiaR2Service {
    *
    * @param body Parsed JSON body
    */
-  private isCredentialsResponse(body: unknown): body is CredentialsResponse {
+  #isCredentialsResponse(body: unknown): body is CredentialsResponse {
     return (
-      this.isRecord(body) && 'secretAccessKey' in body && typeof body.secretAccessKey === 'string'
+      this.#isRecord(body) && 'secretAccessKey' in body && typeof body.secretAccessKey === 'string'
     );
   }
 }

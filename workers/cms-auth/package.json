@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --env-file ../../.env",
-    "check": "wrangler types --strict-vars false > /dev/null && tsc --noEmit",
+    "check": "wrangler types --strict-vars false > /dev/null && tsc -b ../../packages/workers-shared && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "build": "wrangler deploy --dry-run --outdir=dist",
@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "@aurora/workers-shared": "workspace:*",
-    "@sentry/cloudflare": "^10.53.1"
+    "@sentry/cloudflare": "^11.10.0"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.6",
-    "@cloudflare/workers-types": "^4.20260522.1",
-    "vitest": "^4.1.6",
-    "wrangler": "^4.92.0"
+    "@cloudflare/vitest-plugin": "^1.4.11",
+    "@cloudflare/workers-types": "^5.20261108.1",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.156.0"
   }
 }

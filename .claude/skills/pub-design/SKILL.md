@@ -63,7 +63,7 @@ Hard rules whenever you implement a design decision:
 - **Static-first.** Prefer `.astro` (zero JS) over Svelte islands. Reach for `.svelte` + `client:*` only when you genuinely need reactivity — accordion state, form input, view-bound animation that CSS scroll-driven animation can't express.
 - **Motion respects `prefers-reduced-motion`.** Existing `.reveal` already gates on `@supports (animation-timeline: view())` and the reduced-motion media query; follow that pattern for anything new.
 
-Before considering a design task complete, run `pnpm lint --fix`, `pnpm check`, and `pnpm test` from the repo root.
+Before considering a design task complete, run `pnpm lint:fix`, `pnpm check`, and `pnpm test` from the repo root.
 
 ## How to work a request
 

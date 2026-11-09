@@ -1,1 +1,1 @@
-export { default } from '../vitest.e2e.shared';
+export { default } from '../vitest.e2e.shared.ts';

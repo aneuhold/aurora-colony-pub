@@ -1,8 +1,8 @@
 name: 'Main Branch: Deploy Site'
 
-# Root files (lockfile, base tsconfig, this workflow, etc.) can affect the
-# site build, so they're listed alongside `site/**` to force a deploy when
-# they change.
+# Root files (lockfile, tsconfigs, this workflow, etc.) and the shared
+# `packages/*` workspaces can affect the site build, so they're listed
+# alongside `site/**` to force a deploy when they change.
 on:
   push:
     branches:
@@ -12,6 +12,8 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'tsconfig.json'
       - 'tsconfig.base.json'
       - '.github/workflows/main-branch-site.yml'
 

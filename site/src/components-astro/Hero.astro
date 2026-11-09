@@ -25,7 +25,10 @@ const contactEntry = await pubContentService.contact();
 const { orderUrl } = contactEntry.data;
 ---
 
-<Section padding="hero" class="relative flex min-h-[88svh] items-end overflow-hidden pt-28 md:pt-32">
+<Section
+  padding="hero"
+  class="relative flex min-h-[88svh] items-end overflow-hidden pt-28 md:pt-32"
+>
   <Image
     src={heroImage}
     alt={heroImageAlt}
@@ -36,10 +39,7 @@ const { orderUrl } = contactEntry.data;
     fetchpriority="high"
     class="absolute inset-0 h-full w-full object-cover object-bottom"
   />
-  <div
-    class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10"
-  >
-  </div>
+  <div class="absolute inset-0 bg-linear-to-t from-foreground/90 via-foreground/50 to-foreground/10"></div>
   <!-- Warm tungsten glow pooling up from the bottom — makes the photo read lamp-lit
        and lifts the type off the image. Kept subtle so it warms without tinting. -->
   <div class="absolute inset-0 bg-linear-to-t from-primary/18 via-transparent to-transparent"></div>
@@ -56,32 +56,34 @@ const { orderUrl } = contactEntry.data;
       <p class="mt-4 font-display text-2xl text-background/90 md:text-3xl">
         Bring the whole family in for <span class="font-script text-background">a great meal.</span>
       </p>
-      <div
-        class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-background/85 md:text-base"
-      >
+      <div class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-body text-sm text-background/85 md:text-base">
         <OpenNowChip weekly={hoursEntry.data.weekly} client:idle />
         <span aria-hidden="true">·</span>
-        <span>Today <TodayHours weekly={hoursEntry.data.weekly} client:idle /></span>
+        <span>
+          Today <TodayHours weekly={hoursEntry.data.weekly} client:idle />
+        </span>
         <span aria-hidden="true">·</span>
         <span>{globalConstants.cityLabel}</span>
       </div>
       <div class="mt-8 flex flex-wrap items-center gap-3">
-        <Button variant="accent" href="/menu">See the menu</Button>
-        <Button variant="inverted" href="/contact#map">Get directions</Button>
-        {
-          orderUrl && (
-            <Button
-              variant="primary"
-              href={orderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="gap-2"
-            >
-              <DoorDashIcon aria-hidden="true" class="h-4 w-4" />
-              <span>Order now</span>
-            </Button>
-          )
-        }
+        <Button variant="accent" href="/menu">
+          See the menu
+        </Button>
+        <Button variant="inverted" href="/contact#map">
+          Get directions
+        </Button>
+        {orderUrl && (
+          <Button
+            variant="primary"
+            href={orderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="gap-2"
+          >
+            <DoorDashIcon aria-hidden="true" class="h-4 w-4" />
+            <span>Order now</span>
+          </Button>
+        )}
       </div>
     </div>
   </Container>

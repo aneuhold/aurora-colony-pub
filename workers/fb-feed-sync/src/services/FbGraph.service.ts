@@ -7,9 +7,9 @@ import { fbFeedSyncConstants } from '../util/fbFeedSyncConstants';
  */
 class FbGraphService {
   /** Extra attempts after the first on a transient (5xx / network) failure. */
-  private static readonly maxRetries = 2;
+  static readonly #maxRetries = 2;
   /** Base delay for the exponential backoff between retries, in ms. */
-  private static readonly retryBaseDelayMs = 250;
+  static readonly #retryBaseDelayMs = 250;
 
   /**
    * Fetches the latest posts for the pub's Page.
@@ -18,7 +18,7 @@ class FbGraphService {
    */
   async fetchLatestPosts(env: Env): Promise<FbGraphPostsResponse> {
     const { fields, pageId, postLimit } = fbFeedSyncConstants;
-    const response = await this.graphGet<FbGraphPostsResponse>(
+    const response = await this.#graphGet<FbGraphPostsResponse>(
       env,
       `${pageId}/posts?fields=${fields}&limit=${postLimit}`
     );
@@ -27,7 +27,7 @@ class FbGraphService {
       if (post.parent_id === undefined) {
         continue;
       }
-      const parent = await this.fetchPost(env, post.parent_id);
+      const parent = await this.#fetchPost(env, post.parent_id);
       // Message from the pub goes first, then the content of the parent
       post.message = [post.message?.trim(), parent.message?.trim()].filter(Boolean).join('\n\n');
       post.full_picture ??= parent.full_picture;
@@ -41,8 +41,8 @@ class FbGraphService {
    * @param env Worker env (supplies the Page access token)
    * @param id Graph post ID
    */
-  private fetchPost(env: Env, id: string): Promise<FbGraphPost> {
-    return this.graphGet<FbGraphPost>(env, `${id}?fields=${fbFeedSyncConstants.fields}`);
+  #fetchPost(env: Env, id: string): Promise<FbGraphPost> {
+    return this.#graphGet<FbGraphPost>(env, `${id}?fields=${fbFeedSyncConstants.fields}`);
   }
 
   /**
@@ -56,12 +56,12 @@ class FbGraphService {
    * @param env Worker env (supplies the Page access token)
    * @param path Graph path after the pinned version segment
    */
-  private async graphGet<T>(env: Env, path: string): Promise<T> {
+  async #graphGet<T>(env: Env, path: string): Promise<T> {
     const url = `https://graph.facebook.com/${fbFeedSyncConstants.graphApiVersion}/${path}`;
     let lastError: Error | undefined;
-    for (let attempt = 0; attempt <= FbGraphService.maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= FbGraphService.#maxRetries; attempt++) {
       if (attempt > 0) {
-        await this.sleep(FbGraphService.retryBaseDelayMs * 2 ** (attempt - 1));
+        await this.#sleep(FbGraphService.#retryBaseDelayMs * 2 ** (attempt - 1));
       }
 
       let response: Response;
@@ -96,7 +96,7 @@ class FbGraphService {
    *
    * @param ms Delay in milliseconds
    */
-  private sleep(ms: number): Promise<void> {
+  #sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

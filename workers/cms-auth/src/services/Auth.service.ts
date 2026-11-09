@@ -5,8 +5,8 @@ import {
   jsonResponse
 } from '@aurora/workers-shared';
 import type { Env } from '../Env';
-import gitHubOAuthService from './GitHubOAuthService';
-import stateCookieService from './StateCookieService';
+import gitHubOAuthService from './GitHubOAuth.service';
+import stateCookieService from './StateCookie.service';
 
 /**
  * CMS auth orchestration singleton. Routes requests to the OAuth start/
@@ -15,7 +15,7 @@ import stateCookieService from './StateCookieService';
  * delegates to `handleRequest`.
  */
 class AuthService {
-  private static readonly R2_CREDENTIALS_CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
+  static readonly #R2_CREDENTIALS_CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
 
   /**
    * Routes incoming requests to the OAuth start/callback handlers and the
@@ -27,13 +27,13 @@ class AuthService {
   async handleRequest(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === 'GET' && url.pathname === '/auth') {
-      return this.startOAuth(env);
+      return this.#startOAuth(env);
     }
     if (request.method === 'GET' && url.pathname === '/callback') {
-      return this.completeOAuth(request, env);
+      return this.#completeOAuth(request, env);
     }
     if (url.pathname === '/r2-credentials') {
-      return this.handleR2Credentials(request, env);
+      return this.#handleR2Credentials(request, env);
     }
     return new Response('Not Found', { status: 404 });
   }
@@ -56,7 +56,7 @@ class AuthService {
    *
    * @param env Worker env containing the OAuth client credentials
    */
-  private async startOAuth(env: Env): Promise<Response> {
+  async #startOAuth(env: Env): Promise<Response> {
     const state = stateCookieService.generateState();
     const setCookie = await stateCookieService.buildSetCookieHeader(
       state,
@@ -79,7 +79,7 @@ class AuthService {
    * @param request Incoming callback request
    * @param env Worker env (OAuth credentials + allowlist)
    */
-  private async completeOAuth(request: Request, env: Env): Promise<Response> {
+  async #completeOAuth(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const code = url.searchParams.get('code');
     const stateParam = url.searchParams.get('state');
@@ -109,7 +109,7 @@ class AuthService {
       return new Response('Forbidden', { status: 403 });
     }
 
-    return new Response(this.renderSuccessHtml(token), {
+    return new Response(this.#renderSuccessHtml(token), {
       status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
@@ -128,11 +128,11 @@ class AuthService {
    *   `GET`, or a preflight `OPTIONS`
    * @param env Worker env (carries the R2 secrets + OAuth allowlist)
    */
-  private async handleR2Credentials(request: Request, env: Env): Promise<Response> {
+  async #handleR2Credentials(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get('Origin');
     const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
     const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, AuthService.R2_CREDENTIALS_CORS_METHODS)
+      ? corsHeaders(echoedOrigin, AuthService.#R2_CREDENTIALS_CORS_METHODS)
       : { Vary: 'Origin' };
     cors['Cache-Control'] = 'no-store';
     cors['Access-Control-Allow-Headers'] = 'Authorization, Content-Type';
@@ -176,7 +176,7 @@ class AuthService {
    *
    * @param token GitHub OAuth access token to hand back to the editor
    */
-  private renderSuccessHtml(token: string): string {
+  #renderSuccessHtml(token: string): string {
     const message = `authorization:github:success:${JSON.stringify({ token, provider: 'github' })}`;
     return `<!doctype html><html><head><meta charset="utf-8"><title>Authorizing…</title></head><body><script>(function(){var msg=${JSON.stringify(
       message

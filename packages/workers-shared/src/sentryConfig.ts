@@ -1,10 +1,10 @@
 /**
  * Standard Sentry options every Worker uses with `Sentry.withSentry`.
- * Per-Worker call site passes the Worker's DSN and spreads the rest:
+ * Per-Worker call site passes the Worker's DSN:
  *
  * ```ts
- * Sentry.withSentry(
- *   (_: Env) => sentryWorkerOptions('https://…@…ingest.us.sentry.io/…'),
+ * export default Sentry.withSentry(
+ *   () => sentryWorkerOptions('https://…@…ingest.us.sentry.io/…'),
  *   { ... } satisfies ExportedHandler<Env>
  * );
  * ```
@@ -14,8 +14,10 @@
  */
 export const sentryWorkerOptions = (dsn: string) => ({
   dsn,
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true,
+  /**
+   * Disabled under Vitest: `@cloudflare/vitest-plugin` sets
+   * `process.env.MODE` to `'test'`. In a deployed Worker, `process.env` doesn't have MODE.
+   */
+  enabled: process.env.MODE !== 'test',
   tracesSampleRate: 1.0
 });

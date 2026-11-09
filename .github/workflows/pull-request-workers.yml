@@ -1,8 +1,8 @@
 name: 'Pull Request: Workers'
 
-# Root files (lockfile, base tsconfig, this workflow, etc.) can affect worker
-# builds, so they're listed alongside `workers/**` to force a rebuild when
-# they change.
+# Root files (lockfile, tsconfigs, this workflow, etc.) and the shared
+# `packages/*` workspaces can affect worker builds, so they're listed
+# alongside `workers/**` to force a rebuild when they change.
 on:
   pull_request:
     branches:
@@ -12,6 +12,8 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'packages/**'
+      - 'tsconfig.json'
       - 'tsconfig.base.json'
       - '.github/workflows/pull-request-workers.yml'
 

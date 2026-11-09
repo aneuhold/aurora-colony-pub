@@ -5,8 +5,11 @@
     "lib": ["ES2024"],
     "module": "ES2022",
     "isolatedModules": true,
-    "noEmit": true,
-    "types": ["@cloudflare/workers-types"]
+    "types": ["node", "@cloudflare/workers-types"],
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "./.tsbuild",
+    "emitDeclarationOnly": true
   },
   "include": ["src/**/*"]
 }

@@ -26,9 +26,7 @@ const { heading, body } = (await pubContentService.home()).data.patio;
       </figure>
       <div class="reveal">
         <Heading level={2}>{heading}</Heading>
-        <p class="mt-5 max-w-prose text-lg leading-relaxed text-foreground/80">
-          {body}
-        </p>
+        <p class="mt-5 max-w-prose text-lg leading-relaxed text-foreground/80">{body}</p>
       </div>
     </div>
   </Container>

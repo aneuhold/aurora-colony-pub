@@ -23,7 +23,7 @@ class MediaBucketService {
   readonly accountId = 'f5fee77ff79a01ea91f541b825d003a3';
 
   /** R2's S3 region token — always `auto`. */
-  private static readonly REGION = 'auto';
+  static readonly #REGION = 'auto';
 
   /**
    * Builds the flat bucket key for a local image path: its base name slugified
@@ -37,7 +37,7 @@ class MediaBucketService {
   keyForFile(filePath: string): string {
     const extension = extname(filePath).toLowerCase();
     const base = basename(filePath, extname(filePath));
-    return `${this.slugify(base)}${extension}`;
+    return `${this.#slugify(base)}${extension}`;
   }
 
   /**
@@ -70,10 +70,10 @@ class MediaBucketService {
     /** Failure detail (response body or error message); absent on success. */
     detail?: string;
   }> {
-    const credentials = this.readCredentials();
+    const credentials = this.#readCredentials();
     const host = `${this.accountId}.r2.cloudflarestorage.com`;
     const canonicalUri = `/${this.bucket}/${encodeURIComponent(key)}`;
-    const amzDate = this.amzDate();
+    const amzDate = this.#amzDate();
     const dateStamp = amzDate.slice(0, 8);
     const payloadHash = createHash('sha256').update(body).digest('hex');
 
@@ -89,7 +89,7 @@ class MediaBucketService {
       payloadHash
     ].join('\n');
 
-    const scope = `${dateStamp}/${MediaBucketService.REGION}/s3/aws4_request`;
+    const scope = `${dateStamp}/${MediaBucketService.#REGION}/s3/aws4_request`;
     const stringToSign = [
       'AWS4-HMAC-SHA256',
       amzDate,
@@ -97,7 +97,7 @@ class MediaBucketService {
       createHash('sha256').update(canonicalRequest).digest('hex')
     ].join('\n');
 
-    const signingKey = this.signingKey(credentials.secretAccessKey, dateStamp);
+    const signingKey = this.#signingKey(credentials.secretAccessKey, dateStamp);
     const signature = createHmac('sha256', signingKey).update(stringToSign).digest('hex');
     const authorization =
       `AWS4-HMAC-SHA256 Credential=${credentials.accessKeyId}/${scope}, ` +
@@ -137,7 +137,7 @@ class MediaBucketService {
    *
    * @param name File base name without its extension
    */
-  private slugify(name: string): string {
+  #slugify(name: string): string {
     return name
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '')
@@ -150,7 +150,7 @@ class MediaBucketService {
    * Reads the R2 access-key credentials from the environment, throwing a clear
    * error if either is missing (they live in the repo-root `.env`).
    */
-  private readCredentials(): { accessKeyId: string; secretAccessKey: string } {
+  #readCredentials(): { accessKeyId: string; secretAccessKey: string } {
     const accessKeyId = process.env.R2_MEDIA_ACCESS_KEY_ID;
     const secretAccessKey = process.env.R2_MEDIA_SECRET_ACCESS_KEY;
     if (!accessKeyId || !secretAccessKey) {
@@ -167,9 +167,9 @@ class MediaBucketService {
    * @param secretAccessKey R2 secret access key
    * @param dateStamp Request date as `YYYYMMDD`
    */
-  private signingKey(secretAccessKey: string, dateStamp: string): Buffer {
+  #signingKey(secretAccessKey: string, dateStamp: string): Buffer {
     const kDate = createHmac('sha256', `AWS4${secretAccessKey}`).update(dateStamp).digest();
-    const kRegion = createHmac('sha256', kDate).update(MediaBucketService.REGION).digest();
+    const kRegion = createHmac('sha256', kDate).update(MediaBucketService.#REGION).digest();
     const kService = createHmac('sha256', kRegion).update('s3').digest();
     return createHmac('sha256', kService).update('aws4_request').digest();
   }
@@ -177,7 +177,7 @@ class MediaBucketService {
   /**
    * Current UTC time as a SigV4 `x-amz-date` stamp (`YYYYMMDDTHHMMSSZ`).
    */
-  private amzDate(): string {
+  #amzDate(): string {
     return new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
   }
 }
