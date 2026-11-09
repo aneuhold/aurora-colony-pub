@@ -2,7 +2,7 @@ import type { WorkerFbFeedResponse } from '@aurora/shared';
 import { allowedOrigins } from '@aurora/workers-shared';
 import {
   createTestIpGenerator,
-  installSentryOnlyFetchMock
+  installNoOutboundFetchMock
 } from '@aurora/workers-shared/test-utils';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -38,17 +38,15 @@ describe('fb-feed-read worker', () => {
   beforeAll(async () => {
     // Pay miniflare's first-call cold start here so the first real test
     // doesn't trip the 5s default timeout.
-    installSentryOnlyFetchMock();
     const response = await exports.default.fetch('https://fb-feed-read.example.com/', {
       method: 'OPTIONS',
       headers: { Origin: ORIGIN }
     });
     await response.text();
-    vi.restoreAllMocks();
   }, 30_000);
 
   beforeEach(() => {
-    installSentryOnlyFetchMock();
+    installNoOutboundFetchMock();
   });
 
   afterEach(async () => {

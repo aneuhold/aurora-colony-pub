@@ -1,11 +1,7 @@
 import { allowedOrigins } from '@aurora/workers-shared';
-import {
-  createTestIpGenerator,
-  fetchInputUrl,
-  sentryIngestAwareFetch
-} from '@aurora/workers-shared/test-utils';
+import { createTestIpGenerator, fetchInputUrl } from '@aurora/workers-shared/test-utils';
 import { env as workerEnv, exports } from 'cloudflare:workers';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import authService from './services/Auth.service';
 
 const ORIGIN = 'https://example.com';
@@ -18,20 +14,18 @@ interface GitHubUserMockOptions {
 
 const setupGitHubUserMock = (options: GitHubUserMockOptions = {}): void => {
   const { status = 200, login = 'aneuhold' } = options;
-  vi.spyOn(globalThis, 'fetch').mockImplementation(
-    sentryIngestAwareFetch((input) => {
-      const url = fetchInputUrl(input);
-      if (url === 'https://api.github.com/user') {
-        return Promise.resolve(
-          new Response(JSON.stringify({ login }), {
-            status,
-            headers: { 'Content-Type': 'application/json' }
-          })
-        );
-      }
-      return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
-    })
-  );
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+    const url = fetchInputUrl(input);
+    if (url === 'https://api.github.com/user') {
+      return Promise.resolve(
+        new Response(JSON.stringify({ login }), {
+          status,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+    }
+    return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
+  });
 };
 
 const nextIp = createTestIpGenerator();
@@ -55,6 +49,13 @@ const fetchR2Credentials = (
 };
 
 describe('cms-auth', () => {
+  beforeAll(async () => {
+    // Pay miniflare's first-call cold start here so the first real test
+    // doesn't trip the 5s default timeout.
+    const response = await exports.default.fetch(`${ORIGIN}/`);
+    await response.text();
+  }, 30_000);
+
   it('GET /auth redirects to GitHub authorize with client_id and sets a state cookie', async () => {
     const response = await exports.default.fetch(`${ORIGIN}/auth`, { redirect: 'manual' });
     expect(response.status).toBe(302);

@@ -1,9 +1,5 @@
 import { allowedOrigins } from '@aurora/workers-shared';
-import {
-  createTestIpGenerator,
-  fetchInputUrl,
-  sentryIngestAwareFetch
-} from '@aurora/workers-shared/test-utils';
+import { createTestIpGenerator, fetchInputUrl } from '@aurora/workers-shared/test-utils';
 import { exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { contactWorkerConstants } from './util/contactWorkerConstants';
@@ -24,29 +20,27 @@ interface FetchMockOptions {
 const setupFetchMock = (options: FetchMockOptions = {}): { resendCalls: ResendCall[] } => {
   const { turnstileSuccess = true, resendStatus = 200 } = options;
   const resendCalls: ResendCall[] = [];
-  vi.spyOn(globalThis, 'fetch').mockImplementation(
-    sentryIngestAwareFetch((input, init) => {
-      const url = fetchInputUrl(input);
-      if (url.startsWith('https://challenges.cloudflare.com/turnstile/v0/siteverify')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ success: turnstileSuccess }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          })
-        );
-      }
-      if (url.startsWith('https://api.resend.com/emails')) {
-        resendCalls.push({ url, init: init ?? {} });
-        return Promise.resolve(
-          new Response(JSON.stringify({ id: 'fake' }), {
-            status: resendStatus,
-            headers: { 'Content-Type': 'application/json' }
-          })
-        );
-      }
-      return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
-    })
-  );
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+    const url = fetchInputUrl(input);
+    if (url.startsWith('https://challenges.cloudflare.com/turnstile/v0/siteverify')) {
+      return Promise.resolve(
+        new Response(JSON.stringify({ success: turnstileSuccess }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+    }
+    if (url.startsWith('https://api.resend.com/emails')) {
+      resendCalls.push({ url, init: init ?? {} });
+      return Promise.resolve(
+        new Response(JSON.stringify({ id: 'fake' }), {
+          status: resendStatus,
+          headers: { 'Content-Type': 'application/json' }
+        })
+      );
+    }
+    return Promise.reject(new Error(`Unexpected outbound fetch in test: ${url}`));
+  });
   return { resendCalls };
 };
 

@@ -14,5 +14,10 @@
  */
 export const sentryWorkerOptions = (dsn: string) => ({
   dsn,
+  /**
+   * Disabled under Vitest: `@cloudflare/vitest-plugin` sets
+   * `process.env.MODE` to `'test'`. In a deployed Worker, `process.env` doesn't have MODE.
+   */
+  enabled: process.env.MODE !== 'test',
   tracesSampleRate: 1.0
 });
