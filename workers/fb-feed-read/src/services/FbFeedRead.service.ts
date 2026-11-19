@@ -1,12 +1,5 @@
 import type { WorkerFbFeedResponse } from '@aurora/shared';
-import {
-  checkIpRateLimit,
-  type CorsMethod,
-  corsHeaders,
-  isAllowedOrigin,
-  jsonResponse
-} from '@aurora/workers-shared';
-import type { Env } from '../Env';
+import { checkIpRateLimit, jsonResponse, resolveCors } from '@aurora/workers-shared';
 import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
 
 /**
@@ -15,8 +8,6 @@ import { fbFeedReadConstants } from '../util/fbFeedReadConstants';
  * the frontend renders as its `empty` state.
  */
 class FbFeedReadService {
-  static readonly #CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
-
   /**
    * Top-level dispatcher. CORS allowlist, method gate, IP rate limit, then
    * the KV snapshot when present, falling back to an empty feed.
@@ -25,22 +16,10 @@ class FbFeedReadService {
    * @param env Worker env (KV + rate limiter bindings)
    */
   async handleRequest(request: Request, env: Env): Promise<Response> {
-    const origin = request.headers.get('Origin');
-    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
-    const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, FbFeedReadService.#CORS_METHODS)
-      : { Vary: 'Origin' };
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: cors });
-    }
-    if (request.method !== 'GET') {
-      return new Response('Method Not Allowed', {
-        status: 405,
-        headers: { Allow: 'GET, OPTIONS', ...cors }
-      });
-    }
-    if (origin !== null && !echoedOrigin) {
+    const { headers: cors, originAllowed, response: corsResponse } = resolveCors(request, ['GET']);
+    if (corsResponse) return corsResponse;
+    // Requests without an `Origin` header (not sent by a browser) are allowed.
+    if (request.headers.has('Origin') && !originAllowed) {
       return jsonResponse({ error: 'Forbidden origin' }, 403, cors);
     }
 

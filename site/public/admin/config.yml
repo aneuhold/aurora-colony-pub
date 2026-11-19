@@ -22,6 +22,9 @@ media_libraries:
     public_url: https://media.auroracolonypub.aneuhold.dev
     access_key_id: bf815175d41ac6a0e8a08b3659aa1615
 
+output:
+  omit_empty_optional_fields: true
+
 collections:
   - name: pubInfo
     label: General Pub Info

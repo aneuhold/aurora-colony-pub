@@ -1,10 +1,5 @@
-import {
-  corsHeaders,
-  type CorsMethod,
-  isAllowedOrigin,
-  jsonResponse
-} from '@aurora/workers-shared';
-import type { Env } from '../Env';
+import { allowedOrigins, jsonResponse, resolveCors } from '@aurora/workers-shared';
+import { SveltiaAuthErrorCode } from '../types/SveltiaAuthErrorCode';
 import gitHubOAuthService from './GitHubOAuth.service';
 import stateCookieService from './StateCookie.service';
 
@@ -15,7 +10,19 @@ import stateCookieService from './StateCookie.service';
  * delegates to `handleRequest`.
  */
 class AuthService {
-  static readonly #R2_CREDENTIALS_CORS_METHODS: readonly CorsMethod[] = ['GET', 'OPTIONS'];
+  /**
+   * Fallback text Sveltia shows when it has no translation for the code.
+   * Wording for the shared codes matches sveltia-cms-auth's `errorMessages`.
+   */
+  static readonly #OAUTH_ERROR_MESSAGES: Record<SveltiaAuthErrorCode, string> = {
+    [SveltiaAuthErrorCode.AuthCodeRequestFailed]:
+      'Failed to receive an authorization code. Please try again later.',
+    [SveltiaAuthErrorCode.CsrfDetected]:
+      'Potential CSRF attack detected. Authentication flow aborted.',
+    [SveltiaAuthErrorCode.TokenRequestFailed]:
+      'Failed to request an access token. Please try again later.',
+    [SveltiaAuthErrorCode.UserNotAllowed]: 'This GitHub account is not allowed to edit this site.'
+  };
 
   /**
    * Routes incoming requests to the OAuth start/callback handlers and the
@@ -74,7 +81,8 @@ class AuthService {
   /**
    * Completes the GitHub OAuth flow — verifies state, exchanges the code
    * for a token, enforces the GitHub username allowlist, and returns the
-   * postMessage HTML Sveltia listens for.
+   * postMessage HTML Sveltia listens for. Failures report back through the
+   * same page so Sveltia shows the error instead of waiting on the popup.
    *
    * @param request Incoming callback request
    * @param env Worker env (OAuth credentials + allowlist)
@@ -84,7 +92,7 @@ class AuthService {
     const code = url.searchParams.get('code');
     const stateParam = url.searchParams.get('state');
     if (!code || !stateParam) {
-      return new Response('Missing code or state', { status: 400 });
+      return this.#oauthErrorResponse(SveltiaAuthErrorCode.AuthCodeRequestFailed, 400);
     }
 
     const cookieState = await stateCookieService.readVerifiedState(
@@ -92,7 +100,7 @@ class AuthService {
       env.GITHUB_CMS_CLIENT_SECRET
     );
     if (!cookieState || !stateCookieService.constantTimeEqual(cookieState, stateParam)) {
-      return new Response('State mismatch', { status: 400 });
+      return this.#oauthErrorResponse(SveltiaAuthErrorCode.CsrfDetected, 400);
     }
 
     const token = await gitHubOAuthService.exchangeCodeForToken(
@@ -101,21 +109,15 @@ class AuthService {
       env.GITHUB_CMS_CLIENT_SECRET
     );
     if (!token) {
-      return new Response('Token exchange failed', { status: 502 });
+      return this.#oauthErrorResponse(SveltiaAuthErrorCode.TokenRequestFailed, 502);
     }
 
     const login = await gitHubOAuthService.fetchUserLogin(token);
     if (!login || !this.isUserAllowed(login)) {
-      return new Response('Forbidden', { status: 403 });
+      return this.#oauthErrorResponse(SveltiaAuthErrorCode.UserNotAllowed, 403);
     }
 
-    return new Response(this.#renderSuccessHtml(token), {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Set-Cookie': stateCookieService.buildClearCookieHeader()
-      }
-    });
+    return this.#oauthPopupResponse('success', { token }, 200);
   }
 
   /**
@@ -129,23 +131,13 @@ class AuthService {
    * @param env Worker env (carries the R2 secrets + OAuth allowlist)
    */
   async #handleR2Credentials(request: Request, env: Env): Promise<Response> {
-    const origin = request.headers.get('Origin');
-    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
-    const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, AuthService.#R2_CREDENTIALS_CORS_METHODS)
-      : { Vary: 'Origin' };
-    cors['Cache-Control'] = 'no-store';
-    cors['Access-Control-Allow-Headers'] = 'Authorization, Content-Type';
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: cors });
-    }
-    if (request.method !== 'GET') {
-      return new Response('Method Not Allowed', {
-        status: 405,
-        headers: { Allow: 'GET, OPTIONS', ...cors }
-      });
-    }
+    const { headers, response: corsResponse } = resolveCors(
+      request,
+      ['GET'],
+      'Authorization, Content-Type'
+    );
+    if (corsResponse) return corsResponse;
+    const cors = { ...headers, 'Cache-Control': 'no-store' };
 
     // Local-dev escape hatch: when `ALLOW_NO_AUTH_FOR_R2_KEY` is set the
     // admin shell can fetch credentials without Sveltia's GitHub login. Only
@@ -170,17 +162,50 @@ class AuthService {
   }
 
   /**
-   * Render a tiny HTML page that immediately postMessages the given token back to the opener and closes itself.
+   * Callback page that reports a failed sign-in to Sveltia. Mirrors
+   * `outputError` in sveltia-cms-auth.
    *
-   * Remember all of the code that is here is based on this: https://github.com/sveltia/sveltia-cms-auth/blob/main/src/index.js
-   *
-   * @param token GitHub OAuth access token to hand back to the editor
+   * @param errorCode Code Sveltia uses to pick its translated message
+   * @param status HTTP status code
    */
-  #renderSuccessHtml(token: string): string {
-    const message = `authorization:github:success:${JSON.stringify({ token, provider: 'github' })}`;
-    return `<!doctype html><html><head><meta charset="utf-8"><title>Authorizing…</title></head><body><script>(function(){var msg=${JSON.stringify(
+  #oauthErrorResponse(errorCode: SveltiaAuthErrorCode, status: number): Response {
+    const error = AuthService.#OAUTH_ERROR_MESSAGES[errorCode];
+    return this.#oauthPopupResponse('error', { error, errorCode }, status);
+  }
+
+  /**
+   * Callback page: a tiny HTML page that postMessages
+   * `authorization:github:<outcome>:<content JSON>` to the opener (the
+   * format Sveltia listens for) and closes itself. Also clears the
+   * single-use state cookie. Mirrors `outputHTML` in sveltia-cms-auth:
+   * https://github.com/sveltia/sveltia-cms-auth/blob/main/src/index.js
+   *
+   * The message is posted once per entry in `allowedOrigins`. The browser
+   * only delivers a message whose target origin matches the opener exactly,
+   * so a page on any other origin that opens `/auth` never receives the
+   * token:
+   * https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#targetorigin
+   *
+   * @param outcome `success` with a token, `error` with an error + code
+   * @param content Message payload
+   * @param status HTTP status code
+   */
+  #oauthPopupResponse(
+    outcome: 'success' | 'error',
+    content: Record<string, string>,
+    status: number
+  ): Response {
+    const message = `authorization:github:${outcome}:${JSON.stringify({ provider: 'github', ...content })}`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Authorizing…</title></head><body><script>(function(){var msg=${JSON.stringify(
       message
-    )};if(window.opener){window.opener.postMessage(msg,'*');}window.close();})();</script></body></html>`;
+    )};var origins=${JSON.stringify(allowedOrigins)};if(window.opener){origins.forEach(function(origin){window.opener.postMessage(msg,origin);});}window.close();})();</script></body></html>`;
+    return new Response(html, {
+      status,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Set-Cookie': stateCookieService.buildClearCookieHeader()
+      }
+    });
   }
 }
 

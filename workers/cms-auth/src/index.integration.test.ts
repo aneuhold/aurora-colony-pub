@@ -69,16 +69,22 @@ describe('cms-auth', () => {
     expect(setCookie.startsWith('aurora_cms_oauth_state=')).toBe(true);
   });
 
-  it('GET /callback without a code returns 400', async () => {
+  it('GET /callback without a code posts an AUTH_CODE_REQUEST_FAILED error to the opener', async () => {
     const response = await exports.default.fetch(`${ORIGIN}/callback`);
     expect(response.status).toBe(400);
+    const html = await response.text();
+    expect(html).toContain('authorization:github:error:');
+    expect(html).toContain('AUTH_CODE_REQUEST_FAILED');
   });
 
-  it('GET /callback with a code but mismatched state cookie returns 400', async () => {
+  it('GET /callback with a mismatched state cookie posts a CSRF_DETECTED error to the opener', async () => {
     const response = await exports.default.fetch(`${ORIGIN}/callback?code=abc&state=xyz`, {
       headers: { Cookie: 'aurora_cms_oauth_state=other.signature' }
     });
     expect(response.status).toBe(400);
+    const html = await response.text();
+    expect(html).toContain('authorization:github:error:');
+    expect(html).toContain('CSRF_DETECTED');
   });
 
   it('returns 404 for unknown routes', async () => {

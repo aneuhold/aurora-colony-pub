@@ -1,5 +1,4 @@
 import type { FbGraphPost, FbGraphPostsResponse } from '@aurora/shared';
-import type { Env } from '../Env';
 import { fbFeedSyncConstants } from '../util/fbFeedSyncConstants';
 
 /**

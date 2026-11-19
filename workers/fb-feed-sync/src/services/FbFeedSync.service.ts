@@ -1,7 +1,6 @@
 import { graphPostsToWorkerPosts, type WorkerFbFeedResponse } from '@aurora/shared';
 import { checkIpRateLimit } from '@aurora/workers-shared';
 import * as Sentry from '@sentry/cloudflare';
-import type { Env } from '../Env';
 import { fbFeedSyncConstants } from '../util/fbFeedSyncConstants';
 import fbGraphService from './FbGraph.service';
 

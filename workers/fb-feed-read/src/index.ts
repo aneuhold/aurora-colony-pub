@@ -1,6 +1,5 @@
 import { sentryWorkerOptions } from '@aurora/workers-shared';
 import * as Sentry from '@sentry/cloudflare';
-import type { Env } from './Env';
 import fbFeedReadService from './services/FbFeedRead.service';
 
 export default Sentry.withSentry(
