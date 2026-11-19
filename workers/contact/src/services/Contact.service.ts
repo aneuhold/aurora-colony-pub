@@ -1,17 +1,7 @@
 import type { WorkerContactSubmitPayload } from '@aurora/shared';
 import { sharedContactFormConstants } from '@aurora/shared';
-import {
-  checkIpRateLimit,
-  type CorsMethod,
-  corsHeaders,
-  isAllowedOrigin,
-  jsonResponse
-} from '@aurora/workers-shared';
-import type { Env } from '../Env';
+import { checkIpRateLimit, jsonResponse, resolveCors } from '@aurora/workers-shared';
 import contactEmailService from './ContactEmail.service';
-
-type ValidationResult =
-  { ok: true; body: WorkerContactSubmitPayload } | { ok: false; field: string; error: string };
 
 /**
  * Contact form orchestration singleton. Owns the request lifecycle (CORS,
@@ -21,7 +11,6 @@ type ValidationResult =
  */
 class ContactService {
   static readonly #EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  static readonly #CORS_METHODS: readonly CorsMethod[] = ['POST', 'OPTIONS'];
 
   /**
    * Top-level dispatcher. Runs cheapest defenses first so obviously bad
@@ -31,22 +20,9 @@ class ContactService {
    * @param env Worker env (secrets + rate limiter binding)
    */
   async handleRequest(request: Request, env: Env): Promise<Response> {
-    const origin = request.headers.get('Origin');
-    const echoedOrigin = origin && isAllowedOrigin(origin) ? origin : '';
-    const cors: Record<string, string> = echoedOrigin
-      ? corsHeaders(echoedOrigin, ContactService.#CORS_METHODS)
-      : { Vary: 'Origin' };
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: cors });
-    }
-    if (request.method !== 'POST') {
-      return new Response('Method Not Allowed', {
-        status: 405,
-        headers: { Allow: 'POST, OPTIONS', ...cors }
-      });
-    }
-    if (!echoedOrigin) {
+    const { headers: cors, originAllowed, response: corsResponse } = resolveCors(request, ['POST']);
+    if (corsResponse) return corsResponse;
+    if (!originAllowed) {
       return jsonResponse({ error: 'Forbidden origin' }, 403, cors);
     }
 
@@ -97,7 +73,9 @@ class ContactService {
     return jsonResponse({ ok: true }, 200, cors);
   }
 
-  #validateBody(raw: unknown): ValidationResult {
+  #validateBody(
+    raw: unknown
+  ): { ok: true; body: WorkerContactSubmitPayload } | { ok: false; field: string; error: string } {
     if (typeof raw !== 'object' || raw === null) {
       return { ok: false, field: 'body', error: 'Body must be a JSON object' };
     }

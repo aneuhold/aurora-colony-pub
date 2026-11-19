@@ -35,7 +35,7 @@
     let cancelled = false;
 
     const mountWidget = async (): Promise<void> => {
-      const id = await contactFormService.mountTurnstile(target, {
+      const elementId = await contactFormService.mountTurnstile(target, {
         onToken: (token) => {
           turnstileToken = token;
         },
@@ -46,13 +46,18 @@
           turnstileToken = '';
         }
       });
-      // If the effect was torn down while we were awaiting the script load,
+      // If the effect was torn down while the script was loading,
       // remove the widget here — the cleanup function already ran with widgetId still null.
       if (cancelled) {
-        if (id !== null) contactFormService.removeTurnstile(id);
+        if (elementId !== null) contactFormService.removeTurnstile(elementId);
         return;
       }
-      widgetId = id;
+      if (elementId === null) {
+        status = 'error';
+        errorMessage = contactFormConstants.turnstileLoadErrorMessage;
+        return;
+      }
+      widgetId = elementId;
     };
     void mountWidget();
 
@@ -77,23 +82,23 @@
       website,
       turnstileToken
     });
+    // Turnstile tokens are single use (siteverify rejects a replay with
+    // `timeout-or-duplicate`), so every attempt needs a fresh challenge
+    // whether or not it succeeded.
+    // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
+    turnstileToken = '';
+    if (widgetId !== null) contactFormService.resetTurnstile(widgetId);
     if (result.ok) {
       status = 'success';
       name = '';
       email = '';
       message = '';
-      if (widgetId !== null) contactFormService.resetTurnstile(widgetId);
-      turnstileToken = '';
       return;
     }
     status = 'error';
     errorMessage = result.message;
   };
 </script>
-
-<svelte:head>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-</svelte:head>
 
 <div class="w-full" data-testid="contact-form">
   {#if status === 'success'}

@@ -1,6 +1,5 @@
 import { checkIpRateLimit, sentryWorkerOptions } from '@aurora/workers-shared';
 import * as Sentry from '@sentry/cloudflare';
-import type { Env } from './Env';
 import authService from './services/Auth.service';
 
 /**

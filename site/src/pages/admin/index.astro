@@ -15,11 +15,14 @@
   </head>
   <body>
     <script>
-      import { init } from '@sveltia/cms';
       import sveltiaR2Service from '$util/SveltiaR2.service';
 
       const start = async (): Promise<void> => {
         await sveltiaR2Service.start();
+        // Sveltia reads `sveltia-cms.prefs` from localStorage once, when its
+        // module is first evaluated, so it is imported only after the R2
+        // secret is stored.
+        const { init } = await import('@sveltia/cms');
         init();
       };
 

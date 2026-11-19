@@ -3,11 +3,13 @@ interface CredentialsResponse {
 }
 
 /**
- * Client-side helper that wires `@sveltia/cms` up to R2 uploads. After the
- * GitHub OAuth handshake, fetches the bucket-scoped R2 secret from the
- * `cms-auth` Worker's `/r2-credentials` endpoint and writes it into the
- * same `localStorage` slot Sveltia reads on upload. Invoked from
- * `site/src/pages/admin/index.astro` before Sveltia's `init()`.
+ * Client-side helper that wires `@sveltia/cms` up to R2 uploads. Using the
+ * GitHub token Sveltia saved at sign-in, fetches the bucket-scoped R2 secret
+ * from the `cms-auth` Worker's `/r2-credentials` endpoint and writes it into
+ * the `sveltia-cms.prefs` localStorage entry. Sveltia copies that entry into
+ * memory once, when its module is first evaluated, so this must run before
+ * `@sveltia/cms` is imported. After the first sign-in in a browser there is
+ * no saved token yet, so uploads work from the next page load on.
  */
 class SveltiaR2Service {
   // These keys are internal to @sveltia/cms. They're the localStorage
@@ -20,34 +22,22 @@ class SveltiaR2Service {
   static readonly #PREFS_KEY = 'sveltia-cms.prefs';
   static readonly #R2_SERVICE_ID = 'cloudflare_r2';
 
-  // Sveltia's OAuth callback (served by the cms-auth Worker) postMessages
-  // this exact string prefix back to the opener window when login succeeds.
-  // We listen for the same message so we can fetch the R2 secret as soon
-  // as the token lands — without waiting for the next page load.
-  static readonly #LOGIN_SUCCESS_PREFIX = 'authorization:github:success:';
-
   readonly #authBaseUrl = import.meta.env.DEV
     ? 'http://localhost:8790'
     : 'https://aurora-cms-auth.agneuhold.workers.dev';
 
   /**
-   * Registers the postMessage listener and runs an initial credentials
-   * fetch if a cached GitHub token is available (or if we're in dev, where
-   * the Worker accepts unauthenticated calls). Caller should `await` this
-   * before invoking Sveltia's `init()` so the secret is in place by the
-   * time Sveltia reads it.
+   * Fetches and stores the R2 secret if a cached GitHub token is available
+   * (or if we're in dev, where the Worker accepts unauthenticated calls).
+   * Caller should `await` this before importing `@sveltia/cms` so the secret
+   * is in place by the time Sveltia reads its prefs.
    */
   async start(): Promise<void> {
-    // Register before the initial fetch so we catch fresh-login
-    // postMessages, even ones that fire before that fetch settles.
-    this.#installLoginListener();
-
     const user = this.#readJson(SveltiaR2Service.#USER_KEY);
     const cachedToken = user?.token;
     const token = typeof cachedToken === 'string' ? cachedToken : null;
     // In dev the Worker accepts unauthenticated calls, so fetch even
-    // without a cached GitHub token. In prod skip when there's no token —
-    // the postMessage listener will pick it up after Sveltia's login.
+    // without a cached GitHub token. In prod skip when there's no token.
     if (token || import.meta.env.DEV) {
       await this.#fetchAndStoreR2Secret(token);
     }
@@ -88,48 +78,6 @@ class SveltiaR2Service {
     if (this.#isCredentialsResponse(body)) {
       this.#populateR2Secret(body.secretAccessKey);
     }
-  }
-
-  /**
-   * Listens for the OAuth-success postMessage Sveltia is also listening
-   * for. Fetches the R2 secret as soon as a fresh login completes, so the
-   * user can upload immediately without a page refresh. Both listeners
-   * (ours + Sveltia's) receive the same event independently.
-   */
-  #installLoginListener(): void {
-    const expectedOrigin = new URL(this.#authBaseUrl).origin;
-    window.addEventListener('message', (event) => {
-      if (event.origin !== expectedOrigin) return;
-      if (typeof event.data !== 'string') return;
-      if (!event.data.startsWith(SveltiaR2Service.#LOGIN_SUCCESS_PREFIX)) return;
-      const token = this.#parseLoginToken(
-        event.data.slice(SveltiaR2Service.#LOGIN_SUCCESS_PREFIX.length)
-      );
-      if (token) void this.#fetchAndStoreR2Secret(token);
-    });
-  }
-
-  /**
-   * Extracts the GitHub OAuth token from Sveltia's postMessage payload.
-   *
-   * @param json Raw JSON suffix of the `authorization:github:success:` message
-   */
-  #parseLoginToken(json: string): string | null {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(json);
-    } catch {
-      return null;
-    }
-    if (
-      parsed !== null &&
-      typeof parsed === 'object' &&
-      'token' in parsed &&
-      typeof parsed.token === 'string'
-    ) {
-      return parsed.token;
-    }
-    return null;
   }
 
   /**

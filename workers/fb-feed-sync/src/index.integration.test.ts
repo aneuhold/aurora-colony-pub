@@ -11,7 +11,6 @@ import {
 } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Env } from './Env';
 import worker from './index';
 import { fbFeedSyncConstants } from './util/fbFeedSyncConstants';
 

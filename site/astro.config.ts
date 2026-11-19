@@ -3,6 +3,7 @@ import svelte from '@astrojs/svelte';
 import seoGraph from '@jdevalk/astro-seo-graph/integration';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, fontProviders } from 'astro/config';
+import { globalConstants } from './src/util/globalConstants';
 
 // https://astro.build/config
 export default defineConfig({
@@ -18,7 +19,7 @@ export default defineConfig({
   // through unprocessed.
   // https://docs.astro.build/en/guides/images/#authorizing-remote-images
   image: {
-    remotePatterns: [{ protocol: 'https', hostname: 'media.auroracolonypub.aneuhold.dev' }]
+    remotePatterns: [{ protocol: 'https', hostname: new URL(globalConstants.mediaHost).hostname }]
   },
   integrations: [
     svelte(),
